@@ -4,12 +4,16 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Montserrat", "sans-serif"],
         serif: ["Playfair Display", "serif"],
+        heading: ["Cormorant Garamond", "serif"],
+        body: ["Montserrat", "sans-serif"],
       },
       colors: {
         "glam-dark": "#333333",
-        "glam-light": "#f9f9f9",
+        "glam-light": "#FAF9F3",
+        "glam-primary": "#D4AF37",
+        "glam-accent": "#CCCCCC",
       },
     },
   },
