@@ -18,6 +18,7 @@ const Navbar: React.FC = () => (
         alt="CozyGlam Logo"
         className="h-16 w-16 object-contain"
       />
+      <a href="/" className="text-2xl font-bold text-glam-dark"></a>
     </div>
     {/* Nav Links */}
     <div className="flex gap-8">
