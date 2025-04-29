@@ -10,7 +10,7 @@ const navLinks = [
 ];
 
 const Navbar: React.FC = () => (
-  <nav className="w-full bg-white shadow-sm flex items-center justify-between px-6 py-3">
+  <nav className="w-full bg-white shadow-sm flex items-center justify-between px-6 py-3 fixed top-0 left-0 right-0 z-[1000]">
     {/* Logo */}
     <div className="flex items-center gap-2">
       <img

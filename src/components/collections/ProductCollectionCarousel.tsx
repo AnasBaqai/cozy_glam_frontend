@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import ProductCard from "../ui/ProductCard";
 
 // Sample data with aesthetic images from Unsplash
 const sampleProducts = [
@@ -28,6 +30,13 @@ const sampleProducts = [
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80",
   },
 ];
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
 
 // Mock API that returns more products
 const fetchMoreProducts = () => {
@@ -115,36 +124,19 @@ const ProductCollectionCarousel = () => {
   }, [loading, hasMore]);
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-12">
+    <section className="max-w-6xl mx-auto px-4 py-12 relative z-0">
       <h2 className="text-4xl font-bold text-center mb-8">Our Collection</h2>
       <div className="w-full overflow-x-auto">
         <div className="flex w-max gap-6 px-4 py-8">
           {products.map((product, idx) => (
-            <div
+            <Link
               key={`${product.title}-${idx}`}
-              className="card w-72 bg-white border border-gray-100 shadow-md rounded-2xl transition-transform duration-300 hover:shadow-xl hover:-translate-y-1"
+              to={`/category/${slugify(product.title)}`}
+              className="block"
+              aria-label={`View ${product.title} category`}
             >
-              <figure className="relative h-48 overflow-hidden rounded-t-2xl">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-full h-full object-cover transform transition-transform duration-500 hover:scale-105"
-                />
-              </figure>
-              <div className="card-body p-4">
-                <h2 className="font-semibold text-lg mb-1 flex justify-between items-center">
-                  {product.title}
-                  <span className="badge badge-sm badge-accent text-white font-medium">
-                    NEW
-                  </span>
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Explore our stylish {product.title.toLowerCase()} — curated
-                  for comfort and elegance.
-                </p>
-                <div className="flex flex-wrap gap-2 mt-4"></div>
-              </div>
-            </div>
+              <ProductCard title={product.title} image={product.image} />
+            </Link>
           ))}
 
           {/* Loader Element - this is what triggers more content to load */}

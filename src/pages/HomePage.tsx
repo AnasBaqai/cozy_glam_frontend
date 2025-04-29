@@ -4,9 +4,11 @@ import ProductCollectionCarousel from "../components/collections/ProductCollecti
 import FeaturesRow from "../components/layout/FeaturesRow/FeaturesRow";
 import Footer from "../components/layout/Footer/Footer";
 import SectionDivider from "../components/ui/SectionDivider/SectionDivider";
+import Navbar from "../components/layout/Navbar/Navbar";
 
 const HomePage: React.FC = () => (
-  <div className="min-h-screen bg-glam-light flex flex-col">
+  <div className="min-h-screen bg-glam-light flex flex-col pt-[64px]">
+    <Navbar />
     <Hero />
     <SectionDivider variant="dots" />
     <ProductCollectionCarousel />

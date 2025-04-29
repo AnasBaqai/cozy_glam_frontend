@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Button from "../../ui/Button/Button";
-import Navbar from "../Navbar/Navbar";
 
 // Modern Hero component with video background and glassmorphic navbar
 const Hero: React.FC = () => {
@@ -57,9 +56,7 @@ const Hero: React.FC = () => {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled ? "bg-white/80 backdrop-blur-md shadow-md" : "bg-transparent"
         }`}
-      >
-        <Navbar />
-      </div>
+      ></div>
 
       {/* Content Stack - Centered on all screens */}
       <div className="relative z-10 text-center px-4 md:px-8 max-w-3xl mx-auto pb-4">
