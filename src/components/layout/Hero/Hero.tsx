@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <header className="relative isolate w-full h-[60vh] md:h-[70vh] min-h-[480px] flex items-center justify-center overflow-hidden">
+    <header className="relative isolate w-full h-[60vh] md:h-[70vh] min-h-[480px] flex items-center justify-center overflow-hidden mt-[72px]">
       {/* Video Layer - Preload metadata only, lazy load full video */}
       {!prefersReducedMotion ? (
         <video

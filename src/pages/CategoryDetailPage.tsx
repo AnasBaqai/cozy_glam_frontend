@@ -47,19 +47,18 @@ const CategoryDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-glam-light flex flex-col">
       <Navbar />
-      <div className="w-full max-w-[1440px] mx-auto px-6 py-8 flex-1">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-glam-dark">{category}</h1>
-          <p className="text-gray-600 mt-2">
+      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 py-8 flex-1 mt-16 md:mt-20">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-glam-dark">
+            {category}
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-2">
             Explore our {category.toLowerCase()} collection
           </p>
         </div>
-        <div className="flex flex-wrap -mx-3">
+        <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
           {products.map((product) => (
-            <div
-              key={product.title}
-              className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 px-3 mb-6"
-            >
+            <div key={product.title} className="w-full max-w-[300px]">
               <ProductCard
                 title={product.title}
                 image={product.image}
