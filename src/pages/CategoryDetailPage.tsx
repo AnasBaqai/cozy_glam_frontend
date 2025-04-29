@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import ProductCard from "../components/ui/ProductCard";
 import Navbar from "../components/layout/Navbar/Navbar";
 import Footer from "../components/layout/Footer/Footer";
+import Marquee from "../components/layout/Marquee/Marquee";
 
 // Demo: Generate 3 products for each category
 const getCategoryProducts = (category: string) => [
@@ -46,6 +47,7 @@ const CategoryDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-glam-light flex flex-col">
+      <Marquee />
       <Navbar />
       <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 py-8 flex-1 mt-16 md:mt-20">
         <div className="mb-6 md:mb-8">

@@ -7,6 +7,7 @@ import Navbar from "../../../components/layout/Navbar/Navbar";
 import Footer from "../../../components/layout/Footer/Footer";
 import LogoSection from "../../../components/layout/Auth/LogoSection";
 import AuthSocialButtons from "../../../components/layout/Auth/AuthSocialButtons";
+import Marquee from "../../../components/layout/Marquee/Marquee";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -20,9 +21,10 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-glam-light flex flex-col">
+      <Marquee />
       <Navbar />
       <div className="flex flex-col items-center justify-center flex-1 py-4 px-4">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mt-[100px]">
           {/* Logo */}
           <LogoSection />
           {/* Login Header */}
