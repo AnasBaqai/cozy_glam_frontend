@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import cozyGlamLogo from "../../../assets/images/cozy_glam_logo-removebg-preview.png";
 import Button from "../../../components/ui/Button/Button";
 import Input from "../../../components/ui/Input/Input";
-import SocialButton from "../../../components/ui/SocialButton/SocialButton";
 import DividerWithText from "../../../components/ui/DividerWithText/DividerWithText";
 import Navbar from "../../../components/layout/Navbar/Navbar";
 import Footer from "../../../components/layout/Footer/Footer";
+import LogoSection from "../../../components/layout/Auth/LogoSection";
+import AuthSocialButtons from "../../../components/layout/Auth/AuthSocialButtons";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -30,21 +30,11 @@ const SignupPage = () => {
       <div className="flex flex-col items-center justify-center flex-1 py-4 px-4">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-32 h-32 flex items-center justify-center">
-              <img
-                src={cozyGlamLogo}
-                alt="Cozy Glam Logo"
-                className="w-full h-full object-contain mix-blend-multiply"
-              />
-            </div>
-          </div>
-
+          <LogoSection />
           {/* Signup Header */}
           <h1 className="text-3xl font-heading text-center text-glam-dark mb-6 font-medium">
             Create Account
           </h1>
-
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
@@ -100,11 +90,7 @@ const SignupPage = () => {
               Create Account
             </Button>
             <DividerWithText text="or sign up with" />
-            <div className="flex justify-center space-x-4 mb-2">
-              <SocialButton provider="google" />
-              <SocialButton provider="apple" />
-              <SocialButton provider="facebook" />
-            </div>
+            <AuthSocialButtons />
           </form>
 
           {/* Login Link */}
