@@ -1,5 +1,4 @@
-import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
 
 // Sample data with aesthetic images from Unsplash
 const sampleProducts = [
@@ -28,179 +27,139 @@ const sampleProducts = [
     image:
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80",
   },
-  {
-    title: "Cotton Pants",
-    image:
-      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Wooden Coffee Table",
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Table Lamp",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Minimalist Clock",
-    image:
-      "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Ceramic Mug",
-    image:
-      "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80",
-  },
 ];
 
-const PAGE_SIZE = 4;
+// Mock API that returns more products
+const fetchMoreProducts = () => {
+  return new Promise((resolve) => {
+    // Simulate API delay
+    setTimeout(() => {
+      // Return more products (for demo, we'll recycle existing ones with new IDs)
+      resolve([
+        {
+          title: "Cotton Pants",
+          image:
+            "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
+        },
+        {
+          title: "Wooden Coffee Table",
+          image:
+            "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+        },
+        {
+          title: "Table Lamp",
+          image:
+            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
+        },
+        {
+          title: "Minimalist Clock",
+          image:
+            "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=400&q=80",
+        },
+      ]);
+    }, 1500);
+  });
+};
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-const ProductCollectionCarousel: React.FC = () => {
-  const [page, setPage] = useState(1);
+const ProductCollectionCarousel = () => {
+  const [products, setProducts] = useState(sampleProducts);
   const [loading, setLoading] = useState(false);
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const loaderRef = useRef(null);
 
-  // Simulate API pagination
-  const totalPages = Math.ceil(sampleProducts.length / PAGE_SIZE);
-  const startIdx = (page - 1) * PAGE_SIZE;
-  const visibleProducts = sampleProducts.slice(startIdx, startIdx + PAGE_SIZE);
+  const loadMoreProducts = async () => {
+    if (loading || !hasMore) return;
 
-  const handleNext = async () => {
-    if (page < totalPages) {
-      setLoading(true);
-      setTimeout(() => {
-        setPage((prev) => prev + 1);
-        setLoading(false);
-      }, 800);
-    }
-  };
+    setLoading(true);
+    try {
+      const newProducts = (await fetchMoreProducts()) as typeof sampleProducts;
 
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage((prev) => prev - 1);
-    }
-  };
-
-  // Swipe support
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-  const handleTouchEnd = () => {
-    if (touchStartX.current !== null && touchEndX.current !== null) {
-      const diff = touchStartX.current - touchEndX.current;
-      if (diff > 50 && page < totalPages && !loading) {
-        handleNext(); // swipe left
-      } else if (diff < -50 && page > 1 && !loading) {
-        handlePrev(); // swipe right
+      // If no more products or we've cycled twice, stop infinite scroll
+      if (newProducts.length === 0 || page >= 3) {
+        setHasMore(false);
+      } else {
+        setProducts((prevProducts) => [...prevProducts, ...newProducts]);
+        setPage((prevPage) => prevPage + 1);
       }
+    } catch (error) {
+      console.error("Error fetching more products:", error);
+    } finally {
+      setLoading(false);
     }
-    touchStartX.current = null;
-    touchEndX.current = null;
   };
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.5,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasMore && !loading) {
+        loadMoreProducts();
+      }
+    }, options);
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [loading, hasMore]);
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12">
-      <h2 className="text-4xl font-bold text-center mb-10">Our Collection</h2>
-      <div className="relative flex items-center justify-center">
-        {/* Left Arrow - moved further outside */}
-        <button
-          onClick={handlePrev}
-          disabled={page === 1 || loading}
-          className="hidden md:flex absolute left-[-48px] z-20 h-2/3 items-center justify-center px-1 bg-white/70 hover:bg-white rounded-full shadow transition disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ minWidth: 36 }}
-          aria-label="Previous"
-        >
-          <svg
-            width="18"
-            height="48"
-            viewBox="0 0 18 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M13 8L5 24L13 40"
-              stroke="#222"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <div
-          className="flex-1"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 min-h-[340px]">
-            {loading ? (
-              <div className="col-span-4 flex justify-center items-center h-48">
-                <div className="w-10 h-10 border-4 border-glam-primary border-t-transparent rounded-full animate-spin" />
+      <h2 className="text-4xl font-bold text-center mb-8">Our Collection</h2>
+      <div className="w-full overflow-x-auto">
+        <div className="flex w-max gap-6 px-4 py-8">
+          {products.map((product, idx) => (
+            <div
+              key={`${product.title}-${idx}`}
+              className="card w-72 bg-white border border-gray-100 shadow-md rounded-2xl transition-transform duration-300 hover:shadow-xl hover:-translate-y-1"
+            >
+              <figure className="relative h-48 overflow-hidden rounded-t-2xl">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-full object-cover transform transition-transform duration-500 hover:scale-105"
+                />
+              </figure>
+              <div className="card-body p-4">
+                <h2 className="font-semibold text-lg mb-1 flex justify-between items-center">
+                  {product.title}
+                  <span className="badge badge-sm badge-accent text-white font-medium">
+                    NEW
+                  </span>
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Explore our stylish {product.title.toLowerCase()} — curated
+                  for comfort and elegance.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-4"></div>
               </div>
-            ) : (
-              visibleProducts.map((product, idx) => (
-                <Link
-                  key={product.title + idx}
-                  to={`/category/${slugify(product.title)}`}
-                  aria-label={`View ${product.title} category`}
-                  className="bg-white rounded-2xl shadow border border-gray-200 flex flex-col overflow-hidden transition-transform hover:-translate-y-2 hover:shadow-2xl focus:-translate-y-2 focus:shadow-2xl outline-none ring-glam-primary/40 ring-offset-2 focus:ring scale-100 hover:scale-105 focus:scale-105 duration-200"
-                  tabIndex={0}
-                >
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-48 object-cover object-center"
-                  />
-                  <div className="p-4 flex-1 flex flex-col justify-end">
-                    <div className="font-semibold text-lg mb-1 text-center">
-                      {product.title}
-                    </div>
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
-        {/* Right Arrow - moved further outside */}
-        <button
-          onClick={handleNext}
-          disabled={page === totalPages || loading}
-          className="hidden md:flex absolute right-[-48px] z-20 h-2/3 items-center justify-center px-1 bg-white/70 hover:bg-white rounded-full shadow transition disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ minWidth: 36 }}
-          aria-label="Next"
-        >
-          <svg
-            width="18"
-            height="48"
-            viewBox="0 0 18 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M5 8L13 24L5 40"
-              stroke="#222"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        {/* Pagination Info (always visible) */}
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-gray-700 bg-white/90 rounded-full px-4 py-1 shadow border border-gray-200">
-          Page {page} of {totalPages}
+            </div>
+          ))}
+
+          {/* Loader Element - this is what triggers more content to load */}
+          {hasMore && (
+            <div
+              ref={loaderRef}
+              className="flex items-center justify-center min-w-[200px]"
+            >
+              {loading ? (
+                <div className="w-10 h-10 border-4 border-glam-primary border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <div className="w-10 h-10 opacity-0">•</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
