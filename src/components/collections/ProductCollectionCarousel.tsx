@@ -1,70 +1,68 @@
 import React, { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 
 // Sample data with aesthetic images from Unsplash
 const sampleProducts = [
   {
     title: "Textured Sweater",
-    price: 60,
     image:
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Linen Dress",
-    price: 80,
     image:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Modern Armchair",
-    price: 210,
     image:
       "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Decorative Vase",
-    price: 45,
     image:
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Oversized T-Shirt",
-    price: 25,
     image:
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Cotton Pants",
-    price: 75,
     image:
       "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Wooden Coffee Table",
-    price: 150,
     image:
       "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Table Lamp",
-    price: 90,
     image:
       "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Minimalist Clock",
-    price: 40,
     image:
       "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=400&q=80",
   },
   {
     title: "Ceramic Mug",
-    price: 20,
     image:
       "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80",
   },
 ];
 
 const PAGE_SIZE = 4;
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
 
 const ProductCollectionCarousel: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -154,9 +152,12 @@ const ProductCollectionCarousel: React.FC = () => {
               </div>
             ) : (
               visibleProducts.map((product, idx) => (
-                <div
+                <Link
                   key={product.title + idx}
-                  className="bg-white rounded-2xl shadow border border-gray-200 flex flex-col overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg"
+                  to={`/category/${slugify(product.title)}`}
+                  aria-label={`View ${product.title} category`}
+                  className="bg-white rounded-2xl shadow border border-gray-200 flex flex-col overflow-hidden transition-transform hover:-translate-y-2 hover:shadow-2xl focus:-translate-y-2 focus:shadow-2xl outline-none ring-glam-primary/40 ring-offset-2 focus:ring scale-100 hover:scale-105 focus:scale-105 duration-200"
+                  tabIndex={0}
                 >
                   <img
                     src={product.image}
@@ -164,14 +165,11 @@ const ProductCollectionCarousel: React.FC = () => {
                     className="w-full h-48 object-cover object-center"
                   />
                   <div className="p-4 flex-1 flex flex-col justify-end">
-                    <div className="font-semibold text-lg mb-1">
+                    <div className="font-semibold text-lg mb-1 text-center">
                       {product.title}
                     </div>
-                    <div className="text-gray-500 text-base">
-                      ${product.price}
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
