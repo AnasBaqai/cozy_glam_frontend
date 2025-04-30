@@ -12,6 +12,18 @@ module.exports = {
           "100%": { transform: "translateX(-200%)" },
         },
       },
+      fontFamily: {
+        serif: ["Playfair Display", "serif"],
+        sans: ["Inter", "sans-serif"],
+      },
+      colors: {
+        sand: "#F5EFE6",
+        peach: "#DFAE9E",
+        cocoa: "#2E221A",
+        "glam-primary": "#DFAE9E",
+        "glam-light": "#F7ECE7",
+        "glam-dark": "#2E221A",
+      },
     },
   },
   plugins: [
