@@ -14,7 +14,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   title,
   image,
   price,
-  quantity,
+  quantity = 0,
   onAdd,
   onRemove,
   showActions = false,
@@ -45,34 +45,46 @@ const ProductCard: React.FC<ProductCardProps> = ({
           elegance.
         </p>
         {showActions && (
-          <div className="flex items-center gap-2 mt-3 sm:mt-4">
-            {quantity !== undefined && onAdd && onRemove ? (
-              <>
-                <button
-                  className="btn btn-xs btn-outline btn-circle"
-                  onClick={onRemove}
-                  aria-label="Remove one"
+          <div className="flex items-center justify-between mt-3 sm:mt-4">
+            <div className="flex items-center gap-2">
+              <button
+                className="btn btn-xs btn-outline btn-circle"
+                onClick={onRemove}
+                aria-label="Remove one"
+                disabled={quantity <= 0}
+              >
+                -
+              </button>
+              <span className="font-semibold text-base px-2">{quantity}</span>
+              <button
+                className="btn btn-xs btn-primary btn-circle"
+                onClick={onAdd}
+                aria-label="Add one"
+              >
+                +
+              </button>
+            </div>
+            {onAdd && (
+              <button
+                className="btn btn-dash btn-warning btn-circle"
+                onClick={onAdd}
+                aria-label="Add to cart"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  -
-                </button>
-                <span className="font-semibold text-base px-2">{quantity}</span>
-                <button
-                  className="btn btn-xs btn-primary btn-circle"
-                  onClick={onAdd}
-                  aria-label="Add one"
-                >
-                  +
-                </button>
-              </>
-            ) : (
-              onAdd && (
-                <button
-                  className="btn btn-xs sm:btn-sm btn-primary rounded-full px-3 sm:px-4 text-xs sm:text-sm"
-                  onClick={onAdd}
-                >
-                  Add to Cart
-                </button>
-              )
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </button>
             )}
           </div>
         )}

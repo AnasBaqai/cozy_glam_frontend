@@ -1,25 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import ProductCard from "../components/ui/ProductCard";
 import Navbar from "../components/layout/Navbar/Navbar";
 import Footer from "../components/layout/Footer/Footer";
 import Marquee from "../components/layout/Marquee/Marquee";
+import { useCart } from "../context/CartContext";
 
 // Demo: Generate 3 products for each category
 const getCategoryProducts = (category: string) => [
   {
+    id: `${category.toLowerCase()}-classic`,
     title: `${category} Classic`,
     image:
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
     price: 29.99,
   },
   {
+    id: `${category.toLowerCase()}-premium`,
     title: `${category} Premium`,
     image:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
     price: 49.99,
   },
   {
+    id: `${category.toLowerCase()}-deluxe`,
     title: `${category} Deluxe`,
     image:
       "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=400&q=80",
@@ -32,18 +36,8 @@ const CategoryDetailPage: React.FC = () => {
   const category = slug
     ? slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : "Category";
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const { addToCart, removeFromCart, getItemCount } = useCart();
   const products = getCategoryProducts(category);
-
-  const handleAdd = (title: string) => {
-    setQuantities((prev) => ({ ...prev, [title]: (prev[title] || 0) + 1 }));
-  };
-  const handleRemove = (title: string) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [title]: Math.max((prev[title] || 1) - 1, 0),
-    }));
-  };
 
   return (
     <div className="min-h-screen bg-glam-light flex flex-col">
@@ -60,14 +54,14 @@ const CategoryDetailPage: React.FC = () => {
         </div>
         <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
           {products.map((product) => (
-            <div key={product.title} className="w-full max-w-[300px]">
+            <div key={product.id} className="w-full max-w-[300px]">
               <ProductCard
                 title={product.title}
                 image={product.image}
                 price={product.price}
-                quantity={quantities[product.title] || 0}
-                onAdd={() => handleAdd(product.title)}
-                onRemove={() => handleRemove(product.title)}
+                quantity={getItemCount(product.id)}
+                onAdd={() => addToCart(product)}
+                onRemove={() => removeFromCart(product.id)}
                 showActions
               />
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "../../../assets/images/cozy_glam_logo-removebg-preview.png";
+import { useCart } from "../../../context/CartContext";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -12,6 +13,8 @@ const navLinks = [
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { getTotalCount } = useCart();
+  const cartCount = getTotalCount();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -115,19 +118,21 @@ const Navbar: React.FC = () => {
               <path d="M4 20c0-4 8-4 8-4s8 0 8 4" />
             </svg>
           </a>
-          <button className="text-glam-dark hover:text-glam-primary">
-            <svg
-              className="h-7 w-7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="9" cy="21" r="1" />
-              <circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
-          </button>
+          <a
+            href="/cart"
+            className="text-glam-dark hover:text-glam-primary relative"
+          >
+            <img
+              src={"/icons/shopping_bag.png"}
+              alt="cart"
+              className="h-6 w-6"
+            />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-glam-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                {cartCount}
+              </span>
+            )}
+          </a>
         </div>
       </div>
 
@@ -173,7 +178,10 @@ const Navbar: React.FC = () => {
                 <path d="M4 20c0-4 8-4 8-4s8 0 8 4" />
               </svg>
             </a>
-            <button className="text-glam-dark hover:text-glam-primary py-2">
+            <a
+              href="/cart"
+              className="text-glam-dark hover:text-glam-primary py-2 relative"
+            >
               <svg
                 className="h-7 w-7"
                 fill="none"
@@ -185,7 +193,12 @@ const Navbar: React.FC = () => {
                 <circle cx="20" cy="21" r="1" />
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
-            </button>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-glam-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                  {cartCount}
+                </span>
+              )}
+            </a>
           </div>
         </div>
       )}
