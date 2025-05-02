@@ -44,7 +44,7 @@ export default function BusinessInfoForm() {
     <div className="min-h-screen bg-glam-light flex flex-col">
       <Marquee />
       <Navbar />
-      <main className="flex-1 flex items-center justify-center p-4 ">
+      <main className="flex-1 flex items-center justify-center p-4 mt-20">
         <section className="grid max-w-6xl w-full gap-10 lg:grid-cols-2 items-center">
           {/* ── Illustration ─────────────────────────────── */}
           <div className="hidden lg:flex items-center justify-center">
@@ -64,7 +64,7 @@ export default function BusinessInfoForm() {
             <h1 className="font-serif text-3xl font-semibold text-glam-dark mb-1">
               Business&nbsp;Info
             </h1>
-            <p className="text-xs text-gray-500 mb-4">Step 2 of 3</p>
+            {/* <p className="text-xs text-gray-500 mb-4">Step 2 of 3</p> */}
 
             {/* Progress bar */}
             <div className="mb-6 h-1 w-full rounded bg-glam-primary/20">
