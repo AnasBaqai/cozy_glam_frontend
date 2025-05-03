@@ -1,7 +1,7 @@
 import axios from "axios";
 import { SignupRequest, LoginRequest, AuthResponse } from "../types/auth.types";
 
-const API_BASE_URL = "http://13.51.207.73:3000/api";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Create axios instance with base URL
 const api = axios.create({
@@ -32,6 +32,7 @@ export const authService = {
 
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>("/users/login", credentials);
+    console.log(response.data);
     return response.data;
   },
 
