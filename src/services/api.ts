@@ -1,7 +1,7 @@
 import axios from "axios";
 import { SignupRequest, LoginRequest, AuthResponse } from "../types/auth.types";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const API_BASE_URL = "http://13.51.207.73:3000/api";
 
 // Create axios instance with base URL
 const api = axios.create({
