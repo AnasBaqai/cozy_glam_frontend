@@ -19,6 +19,12 @@ const icons = {
   tiktok: "/icons/tiktok.png",
 };
 
+const platformLabels = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+};
+
 const SocialLinksSetup: React.FC<SocialLinksSetupProps> = ({
   socials,
   setSocial,
@@ -68,23 +74,35 @@ const SocialLinksSetup: React.FC<SocialLinksSetupProps> = ({
   };
 
   return (
-    <div className="mt-4 mb-4">
-      <div className="text-glam-dark font-medium mb-2">Set your socials</div>
-      <div className="flex gap-4">
+    <div className="md:col-span-2">
+      <div className="text-glam-dark font-medium mb-2">Social Media Links</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {(["instagram", "facebook", "tiktok"] as const).map((platform) => (
-          <button
+          <div
             key={platform}
-            type="button"
-            aria-label={platform}
-            className="transition hover:scale-110 focus:outline-none"
+            className="border border-gray-200 rounded-xl p-4 hover:border-glam-primary cursor-pointer flex items-center space-x-3"
             onClick={() => openModal(platform)}
           >
             <img
               src={icons[platform]}
               alt={platform}
-              className="w-8 h-8 object-contain"
+              className="w-6 h-6 object-contain"
             />
-          </button>
+            <div className="flex-1">
+              <div className="text-sm font-medium text-glam-dark">
+                {platformLabels[platform]}
+              </div>
+              <div className="text-xs text-gray-500">
+                {socials[platform] ? "Set" : "Not set"}
+              </div>
+            </div>
+            <button
+              type="button"
+              className="text-glam-primary hover:text-glam-dark text-sm"
+            >
+              {socials[platform] ? "Edit" : "Add"}
+            </button>
+          </div>
         ))}
       </div>
       {/* Modals */}

@@ -1,5 +1,9 @@
 import axios from "axios";
-import { SignupRequest, LoginRequest, AuthResponse } from "../types/auth.types";
+import type {
+  SignupRequest,
+  LoginRequest,
+  AuthResponse,
+} from "../types/auth.types";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -11,8 +15,28 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include auth token if available
+// Create a separate instance for file uploads
+const uploadApi = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+  withCredentials: true, // Include credentials for CORS
+});
+
+// Add request interceptor to include auth token if available for both instances
 api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+uploadApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -52,6 +76,54 @@ export const authService = {
 
   isAuthenticated: () => {
     return !!localStorage.getItem("token");
+  },
+};
+
+export interface StoreData {
+  storeName: string;
+  storeDescription: string;
+  storeLogo: string;
+  businessEmail: string;
+  businessPhone: string;
+  businessAddress: string;
+  country: string;
+  city: string;
+  state: string;
+  postcode: string;
+  website: string;
+  socialLinks: {
+    instagram: string;
+    facebook: string;
+    tiktok: string;
+  };
+}
+
+export const storeService = {
+  createStore: async (storeData: StoreData) => {
+    const response = await api.post("/store/createstore", storeData);
+    return response.data;
+  },
+};
+
+export interface ImageUploadResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    imageUrl: string;
+  };
+}
+
+export const uploadService = {
+  uploadImage: async (file: File): Promise<ImageUploadResponse> => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await uploadApi.post<ImageUploadResponse>(
+      "/app/uploadImage",
+      formData
+    );
+    return response.data;
   },
 };
 

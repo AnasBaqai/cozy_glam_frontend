@@ -24,6 +24,9 @@ const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const isSellerWithStore =
+    user?.role === "seller" && user?.isStoreCreated === true;
+  const isSellerWithoutStore = user?.role === "seller" && !user?.isStoreCreated;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -125,7 +128,15 @@ const Navbar: React.FC = () => {
               {link.label}
             </Link>
           ))}
-          {user?.role === "seller" && (
+          {isSellerWithStore && (
+            <Link
+              to="/dashboard"
+              className="text-base lg:text-lg font-medium text-glam-dark hover:text-glam-primary transition-colors"
+            >
+              Dashboard
+            </Link>
+          )}
+          {isSellerWithoutStore && (
             <Link
               to="/business-info"
               className="text-base lg:text-lg font-medium text-glam-dark hover:text-glam-primary transition-colors"
@@ -180,7 +191,16 @@ const Navbar: React.FC = () => {
                     >
                       Profile
                     </Link>
-                    {user?.role === "seller" && (
+                    {isSellerWithStore && (
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowDropdown(false)}
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+                    {isSellerWithoutStore && (
                       <Link
                         to="/business-info"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -251,7 +271,15 @@ const Navbar: React.FC = () => {
                 {link.label}
               </Link>
             ))}
-            {user?.role === "seller" && (
+            {isSellerWithStore && (
+              <Link
+                to="/dashboard"
+                className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
+              >
+                Dashboard
+              </Link>
+            )}
+            {isSellerWithoutStore && (
               <Link
                 to="/business-info"
                 className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"

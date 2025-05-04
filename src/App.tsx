@@ -11,6 +11,7 @@ import { CartProvider } from "./context/CartContext";
 import { UserProvider } from "./context/UserContext";
 import "./App.css";
 import BusinessInfoForm from "./components/seller/BusinessInfoForm";
+import DashboardPage from "./pages/seller/DashboardPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
                 />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/business-info" element={<BusinessInfoForm />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
                 {/* Add more routes as the application grows */}
               </Routes>
             </Router>

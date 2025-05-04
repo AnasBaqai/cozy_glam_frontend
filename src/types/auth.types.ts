@@ -9,6 +9,7 @@ export interface User {
     points: number;
   };
   status: string;
+  isStoreCreated?: boolean;
   created_at: string;
   updated_at: string;
 }

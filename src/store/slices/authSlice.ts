@@ -73,6 +73,13 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setStoreCreated: (state) => {
+      if (state.user) {
+        state.user.isStoreCreated = true;
+        // Update localStorage
+        localStorage.setItem("user", JSON.stringify(state.user));
+      }
+    },
   },
   extraReducers: (builder) => {
     // Signup
@@ -118,6 +125,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, clearError } = authSlice.actions;
+export const { setUser, clearError, setStoreCreated } = authSlice.actions;
 
 export default authSlice.reducer;

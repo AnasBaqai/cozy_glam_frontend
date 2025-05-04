@@ -5,13 +5,13 @@ interface BusinessInfoFieldsProps {
   form: {
     storeName: string;
     storeDescription: string;
-    storeLogo: string;
     businessEmail: string;
     businessPhone: string;
     businessAddress: string;
     country: string;
     city: string;
     state: string;
+    postalCode: string;
     website: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,6 +22,7 @@ const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
   onChange,
 }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-2">
+    {/* Store Name and Description - Side by side */}
     <FormInput
       label="Store name"
       name="storeName"
@@ -38,14 +39,8 @@ const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
       onChange={onChange}
       requiredMark
     />
-    <FormInput
-      label="Store logo URL"
-      name="storeLogo"
-      value={form.storeLogo}
-      required
-      onChange={onChange}
-      requiredMark
-    />
+
+    {/* Business Email and Phone - Side by side */}
     <FormInput
       label="Business e-mail"
       name="businessEmail"
@@ -64,6 +59,8 @@ const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
       onChange={onChange}
       requiredMark
     />
+
+    {/* Business Address - Full width */}
     <FormInput
       label="Business address"
       name="businessAddress"
@@ -71,7 +68,10 @@ const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
       required
       onChange={onChange}
       requiredMark
+      className="md:col-span-2"
     />
+
+    {/* Country and City - Side by side */}
     <FormInput
       label="Country"
       name="country"
@@ -88,8 +88,10 @@ const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
       onChange={onChange}
       requiredMark
     />
+
+    {/* State and Postal Code - Side by side */}
     <FormInput
-      label="State"
+      label="State/Province"
       name="state"
       value={form.state}
       required
@@ -97,11 +99,22 @@ const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
       requiredMark
     />
     <FormInput
+      label="Postal Code"
+      name="postalCode"
+      value={form.postalCode}
+      required
+      onChange={onChange}
+      requiredMark
+    />
+
+    {/* Website - Full width */}
+    <FormInput
       label="Website"
       name="website"
       value={form.website}
       onChange={onChange}
       placeholder="(optional)"
+      className="md:col-span-2"
     />
   </div>
 );
