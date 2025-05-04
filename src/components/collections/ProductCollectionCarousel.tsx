@@ -1,85 +1,8 @@
 import { Link } from "react-router-dom";
 import ProductCard from "../ui/ProductCard";
 import { useRef, useState, useEffect } from "react";
-
-// Sample data with aesthetic images from Unsplash
-const sampleProducts = [
-  {
-    title: "Textured Sweater",
-    image:
-      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Linen Dress",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Modern Armchair",
-    image:
-      "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Decorative Vase",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Oversized T-Shirt",
-    image:
-      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Cotton Pants",
-    image:
-      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Wooden Coffee Table",
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Table Lamp",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Oversized T-Shirt",
-    image:
-      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Cotton Pants",
-    image:
-      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Wooden Coffee Table",
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Table Lamp",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Table Lamp",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    title: "Table Lamp",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
-interface Product {
-  title: string;
-  image: string;
-}
+import { Category, categoryService } from "../../services/api";
+import { getFullImageUrl } from "../../utils/imageUtils";
 
 function slugify(text: string) {
   return text
@@ -88,229 +11,324 @@ function slugify(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-// Function to arrange products in a custom pattern:
-// - First page: normal grid (items 1-6)
-// - Second page onwards:
-//   - Column 1, row 1 (item 7)
-//   - Column 1, row 2 (item 8)
-//   - Column 3, row 1 (item 9)
-//   - Column 3, row 2 (item 10)
-//   - Column 2, row 1 (item 11)
-//   - Column 2, row 2 (item 12)
-function arrangeProductsInCustomPattern(products: Product[], itemsPerPage = 6) {
-  // First page is normal grid
-  const firstPage = products.slice(0, itemsPerPage);
-
-  // If we only have one page, return it
-  if (products.length <= itemsPerPage) {
-    return [firstPage];
-  }
-
-  // Additional pages with custom pattern
-  const extraProducts = products.slice(itemsPerPage);
-  const extraPages: Product[][] = [];
-  let currentPage: (Product | null)[] = Array(itemsPerPage).fill(null);
-
-  // Position map for the custom pattern (0-based positions in a 3x2 grid)
-  // [0, 1, 2]  <- row 1 (positions 0, 1, 2)
-  // [3, 4, 5]  <- row 2 (positions 3, 4, 5)
-  const positionOrder = [0, 3, 2, 5, 1, 4]; // Col1R1, Col1R2, Col3R1, Col3R2, Col2R1, Col2R2
-
-  extraProducts.forEach((product, idx) => {
-    const positionInPage = idx % itemsPerPage;
-
-    // If we've filled a page, start a new one
-    if (positionInPage === 0 && idx > 0) {
-      extraPages.push(currentPage.filter((p): p is Product => p !== null));
-      currentPage = Array(itemsPerPage).fill(null);
-    }
-
-    // Place product at the correct position in the current page
-    const gridPosition = positionOrder[positionInPage];
-    currentPage[gridPosition] = product;
-  });
-
-  // Add the last page if it has any products
-  if (currentPage.some((p) => p !== null)) {
-    extraPages.push(currentPage.filter((p): p is Product => p !== null));
-  }
-
-  return [firstPage, ...extraPages];
-}
-
 const ProductCollectionCarousel = () => {
-  const mobileScrollRef = useRef<HTMLDivElement>(null);
   const desktopScrollRef = useRef<HTMLDivElement>(null);
-  const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
-  const [desktopActiveIndex, setDesktopActiveIndex] = useState(0);
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
 
-  // Arrange products in custom pattern
-  const arrangedProductPages = arrangeProductsInCustomPattern(sampleProducts);
+  // State for categories data
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | "">(
+    ""
+  );
+  const [changingPage, setChangingPage] = useState(false);
 
-  // Track mobile scroll position
-  const handleMobileScroll = () => {
-    if (!mobileScrollRef.current) return;
-    const scrollLeft = mobileScrollRef.current.scrollLeft;
-    const cardWidth = 300 + 16; // card width + gap
-    const newIndex = Math.round(scrollLeft / cardWidth);
-    setMobileActiveIndex(newIndex);
-  };
+  // Display settings
+  const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_ROW = 4;
+  const ROWS_PER_PAGE = 2;
 
-  // Track desktop scroll position
-  const handleDesktopScroll = () => {
-    if (!desktopScrollRef.current) return;
-    const scrollLeft = desktopScrollRef.current.scrollLeft;
-    const pageWidth = 1000 + 24; // grid width + gap
-    const newIndex = Math.round(scrollLeft / pageWidth);
-    setDesktopActiveIndex(newIndex);
-  };
-
+  // Initial fetch of categories
   useEffect(() => {
-    const mobileContainer = mobileScrollRef.current;
-    if (mobileContainer) {
-      mobileContainer.addEventListener("scroll", handleMobileScroll);
-      return () =>
-        mobileContainer.removeEventListener("scroll", handleMobileScroll);
-    }
+    const fetchInitialCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await categoryService.getCategories(1, ITEMS_PER_PAGE);
+        setCategories(response.data.categories);
+        setTotalPages(Math.ceil(response.data.totalPages));
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialCategories();
   }, []);
 
-  useEffect(() => {
-    const desktopContainer = desktopScrollRef.current;
-    if (desktopContainer) {
-      desktopContainer.addEventListener("scroll", handleDesktopScroll);
-      return () =>
-        desktopContainer.removeEventListener("scroll", handleDesktopScroll);
+  // Function to load categories for a specific page
+  const loadPage = async (pageNumber: number) => {
+    if (pageNumber < 1 || (pageNumber > totalPages && totalPages > 0)) return;
+
+    try {
+      setChangingPage(true);
+      // Set slide animation direction
+      setSlideDirection(pageNumber > currentPage ? "left" : "right");
+
+      const response = await categoryService.getCategories(
+        pageNumber,
+        ITEMS_PER_PAGE
+      );
+
+      // Small delay to make animation visible
+      setTimeout(() => {
+        setCategories(response.data.categories);
+        setCurrentPage(pageNumber);
+        setTotalPages(Math.ceil(response.data.totalPages));
+
+        // Clear animation after transition
+        setTimeout(() => {
+          setSlideDirection("");
+          setChangingPage(false);
+        }, 300);
+      }, 200);
+
+      // Scroll to top of carousel
+      if (desktopScrollRef.current) {
+        desktopScrollRef.current.scrollLeft = 0;
+      }
+      if (mobileScrollRef.current) {
+        mobileScrollRef.current.scrollLeft = 0;
+      }
+    } catch (error) {
+      console.error(`Failed to fetch page ${pageNumber}:`, error);
+      setSlideDirection("");
+      setChangingPage(false);
     }
-  }, []);
+  };
+
+  // Navigation handlers
+  const goToNextPage = () => {
+    if (currentPage < totalPages && !changingPage) {
+      loadPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1 && !changingPage) {
+      loadPage(currentPage - 1);
+    }
+  };
+
+  // Create pages for desktop and mobile views
+  const itemsPerDesktopPage = ITEMS_PER_ROW * ROWS_PER_PAGE;
+
+  // CSS classes for slide animation
+  const slideClasses = {
+    container: `transition-transform duration-300 ease-in-out transform ${
+      slideDirection === "left"
+        ? "-translate-x-8 opacity-0"
+        : slideDirection === "right"
+        ? "translate-x-8 opacity-0"
+        : ""
+    }`,
+  };
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-12 relative z-0">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
-        Our Collection
-      </h2>
-
-      {/* Mobile Layout: Single card with horizontal scroll */}
-      <div
-        ref={mobileScrollRef}
-        className="block md:hidden overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 snap-x snap-mandatory"
-      >
-        <div className="flex gap-4 w-max px-2">
-          {sampleProducts.map((product, idx) => (
-            <div
-              key={`${product.title}-${idx}`}
-              className="w-[300px] flex-shrink-0 snap-start"
-            >
-              <Link
-                to={`/category/${slugify(product.title)}`}
-                className="block"
-                aria-label={`View ${product.title} category`}
-              >
-                <ProductCard title={product.title} image={product.image} />
-              </Link>
-            </div>
-          ))}
-        </div>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl md:text-4xl font-bold">Our Collection</h2>
       </div>
 
-      {/* Desktop Layout: 3x2 grid with horizontal scroll */}
-      <div
-        ref={desktopScrollRef}
-        className="hidden md:block overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-      >
-        <div className="flex gap-6 w-max px-2">
-          {arrangedProductPages.map((pageProducts, pageIndex) => (
+      {loading && categories.length === 0 ? (
+        <div className="flex justify-center items-center h-[300px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-glam-primary"></div>
+        </div>
+      ) : (
+        <div className="relative">
+          {/* Centered spinner that appears during page transitions */}
+          {changingPage && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+              <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-glam-primary"></div>
+            </div>
+          )}
+
+          {/* Mobile Layout: Carousel with navigation */}
+          <div className="relative block md:hidden">
             <div
-              key={pageIndex}
-              className="grid grid-cols-3 grid-rows-2 gap-6 w-[1000px] flex-shrink-0"
+              ref={mobileScrollRef}
+              className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 snap-x snap-mandatory"
             >
-              {/* First grid page: regular order */}
-              {pageIndex === 0 ? (
-                // First page: normal grid layout
-                pageProducts.map((product, idx) => (
+              <div
+                className={`flex gap-4 w-max px-2 ${slideClasses.container}`}
+              >
+                {categories.map((category, idx) => (
                   <div
-                    key={`${product.title}-${idx}-${pageIndex}`}
-                    className="w-full"
+                    key={`${category._id}-${idx}`}
+                    className="w-[300px] flex-shrink-0 snap-start"
                   >
                     <Link
-                      to={`/category/${slugify(product.title)}`}
+                      to={`/category/${slugify(category.name)}`}
                       className="block"
-                      aria-label={`View ${product.title} category`}
+                      aria-label={`View ${category.name} category`}
                     >
                       <ProductCard
-                        title={product.title}
-                        image={product.image}
+                        title={category.name}
+                        image={getFullImageUrl(category.image)}
                       />
                     </Link>
                   </div>
-                ))
+                ))}
+
+                {/* Loading indicator for more items */}
+                {loading && (
+                  <div className="w-[300px] flex-shrink-0 snap-start flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile page indicator & navigation */}
+            <div className="flex justify-center items-center mt-6 gap-6">
+              <button
+                onClick={goToPrevPage}
+                disabled={currentPage <= 1 || changingPage}
+                className={`w-10 h-10 flex items-center justify-center rounded-full border ${
+                  currentPage <= 1 || changingPage
+                    ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                }`}
+                aria-label="Previous page"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              {changingPage ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
               ) : (
-                // Extra pages: we use absolute positioning to place items in the grid
-                // This ensures they appear in the specified pattern even with missing items
-                <>
-                  {[0, 1, 2, 3, 4, 5].map((position) => {
-                    // Find the product at this position (if any)
-                    const productIndex = pageProducts.findIndex((_, idx) => {
-                      const positionOrder = [0, 3, 2, 5, 1, 4];
-                      return positionOrder[idx % 6] === position;
-                    });
+                <span className="text-center font-medium text-gray-800">
+                  Page {currentPage} of {totalPages}
+                </span>
+              )}
 
-                    if (productIndex === -1)
-                      return (
-                        <div
-                          key={`empty-${position}-${pageIndex}`}
-                          className="w-full"
-                        />
-                      );
+              <button
+                onClick={goToNextPage}
+                disabled={currentPage >= totalPages || changingPage}
+                className={`w-10 h-10 flex items-center justify-center rounded-full border ${
+                  currentPage >= totalPages || changingPage
+                    ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                }`}
+                aria-label="Next page"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
 
-                    const product = pageProducts[productIndex];
-                    return (
-                      <div
-                        key={`${product.title}-${productIndex}-${pageIndex}`}
-                        className="w-full"
+          {/* Desktop Layout: 4x2 grid with navigation */}
+          <div className="relative hidden md:block">
+            <div className="overflow-hidden">
+              <div
+                ref={desktopScrollRef}
+                className={`${slideClasses.container} relative`}
+              >
+                <div className="grid grid-cols-4 grid-rows-2 gap-6 w-full">
+                  {categories.map((category, idx) => (
+                    <div key={`${category._id}-${idx}`} className="w-full">
+                      <Link
+                        to={`/category/${slugify(category.name)}`}
+                        className="block"
+                        aria-label={`View ${category.name} category`}
                       >
-                        <Link
-                          to={`/category/${slugify(product.title)}`}
-                          className="block"
-                          aria-label={`View ${product.title} category`}
-                        >
-                          <ProductCard
-                            title={product.title}
-                            image={product.image}
-                          />
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </>
+                        <ProductCard
+                          title={category.name}
+                          image={getFullImageUrl(category.image)}
+                        />
+                      </Link>
+                    </div>
+                  ))}
+
+                  {/* Add empty cells to complete the grid if needed */}
+                  {[...Array(itemsPerDesktopPage - categories.length)].map(
+                    (_, idx) => (
+                      <div key={`empty-${idx}`} className="w-full"></div>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Fixed position left/right arrows for desktop - with increased spacing */}
+            {categories.length > 0 && (
+              <>
+                <button
+                  onClick={goToPrevPage}
+                  disabled={currentPage <= 1 || changingPage}
+                  className={`absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-md ${
+                    currentPage <= 1 || changingPage
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                  aria-label="Previous page"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={goToNextPage}
+                  disabled={currentPage >= totalPages || changingPage}
+                  className={`absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-12 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-md ${
+                    currentPage >= totalPages || changingPage
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                  aria-label="Next page"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </>
+            )}
+
+            {/* Desktop page indicator - centered below the carousel */}
+            <div className="flex justify-center items-center mt-8">
+              {changingPage ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
+              ) : (
+                <span className="text-center font-medium text-lg text-gray-800">
+                  Page {currentPage} of {totalPages}
+                </span>
               )}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-
-      {/* Mobile scroll indicators (one per card) */}
-      <div className="flex justify-center mt-4 gap-1 md:hidden">
-        {sampleProducts.map((_, idx) => (
-          <div
-            key={idx}
-            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-              idx === mobileActiveIndex ? "bg-gray-600" : "bg-gray-300"
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Desktop scroll indicators (one per grid page) */}
-      <div className="hidden md:flex justify-center mt-4 gap-1">
-        {arrangedProductPages.map((_, idx) => (
-          <div
-            key={idx}
-            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-              idx === desktopActiveIndex ? "bg-gray-600" : "bg-gray-300"
-            }`}
-          />
-        ))}
-      </div>
+      )}
     </section>
   );
 };

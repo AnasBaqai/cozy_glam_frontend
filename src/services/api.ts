@@ -114,6 +114,40 @@ export interface ImageUploadResponse {
   };
 }
 
+export interface Category {
+  _id: string;
+  name: string;
+  image: string;
+  type: string;
+  isActive: boolean;
+  createdAt: string;
+  __v: number;
+}
+
+export interface CategoryResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    categories: Category[];
+    totalPages: number;
+    currentPage: number;
+    totalCategory: number;
+  };
+}
+
+export const categoryService = {
+  getCategories: async (
+    page: number = 1,
+    limit: number = 12
+  ): Promise<CategoryResponse> => {
+    const response = await api.get<CategoryResponse>(
+      `/categories/allcategories?page=${page}&limit=${limit}`
+    );
+    return response.data;
+  },
+};
+
 export const uploadService = {
   uploadImage: async (file: File): Promise<ImageUploadResponse> => {
     const formData = new FormData();
