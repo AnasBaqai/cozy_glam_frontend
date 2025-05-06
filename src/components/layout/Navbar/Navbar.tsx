@@ -28,6 +28,7 @@ const Navbar: React.FC = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const subcategoryDebounceRef = useRef<number | null>(null);
+  const dropdownCloseTimer = useRef<number | null>(null);
 
   const { getTotalCount } = useCart();
   const cartCount = getTotalCount();
@@ -193,8 +194,17 @@ const Navbar: React.FC = () => {
               <div className="flex">
                 <div
                   className="relative hidden md:inline-block"
-                  onMouseEnter={() => setIsDropdownOpen(true)}
-                  onMouseLeave={() => setIsDropdownOpen(false)}
+                  onMouseEnter={() => {
+                    if (dropdownCloseTimer.current) {
+                      clearTimeout(dropdownCloseTimer.current);
+                    }
+                    setIsDropdownOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    dropdownCloseTimer.current = window.setTimeout(() => {
+                      setIsDropdownOpen(false);
+                    }, 150);
+                  }}
                 >
                   <button
                     type="button"
@@ -261,8 +271,25 @@ const Navbar: React.FC = () => {
                     </svg>
                   </button>
                   {isDropdownOpen && (
-                    <div className="absolute left-0 top-full mt-1 flex z-30">
-                      <div className="w-[260px] max-h-[400px] overflow-y-auto bg-white rounded-l-lg shadow-xl border border-gray-200 categories-dropdown animate-fade-in-dropdown">
+                    <div
+                      className="absolute left-0 top-full mt-1 flex z-30"
+                      style={{ pointerEvents: "auto" }}
+                      onMouseEnter={() => {
+                        if (dropdownCloseTimer.current) {
+                          clearTimeout(dropdownCloseTimer.current);
+                        }
+                        setIsDropdownOpen(true);
+                      }}
+                      onMouseLeave={() => {
+                        dropdownCloseTimer.current = window.setTimeout(() => {
+                          setIsDropdownOpen(false);
+                        }, 150);
+                      }}
+                    >
+                      <div
+                        className="w-[260px] max-h-[400px] overflow-y-auto bg-white rounded-l-lg shadow-xl border border-gray-200 categories-dropdown animate-fade-in-dropdown"
+                        style={{ pointerEvents: "auto" }}
+                      >
                         <button
                           className="flex items-center w-full text-left px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-100"
                           onClick={() => {
@@ -335,7 +362,10 @@ const Navbar: React.FC = () => {
                           ))}
                         </div>
                       </div>
-                      <div className="w-[420px] max-h-[400px] overflow-y-auto bg-white rounded-r-lg shadow-xl border-t border-b border-r border-gray-200 px-6 py-4 animate-fade-in-dropdown">
+                      <div
+                        className="w-[420px] max-h-[400px] overflow-y-auto bg-white rounded-r-lg shadow-xl border-t border-b border-r border-gray-200 px-6 py-4 animate-fade-in-dropdown"
+                        style={{ pointerEvents: "auto" }}
+                      >
                         {loadingSubcategories ? (
                           <SubcategorySkeleton />
                         ) : subcategories.length > 0 ? (
