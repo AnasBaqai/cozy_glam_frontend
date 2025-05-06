@@ -12,6 +12,7 @@ import { UserProvider } from "./context/UserContext";
 import "./App.css";
 import BusinessInfoForm from "./components/seller/BusinessInfoForm";
 import DashboardPage from "./pages/seller/DashboardPage";
+import CreateProductPage from "./pages/seller/CreateProductPage";
 
 function App() {
   return (
@@ -31,6 +32,10 @@ function App() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/business-info" element={<BusinessInfoForm />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route
+                  path="/seller/create-product"
+                  element={<CreateProductPage />}
+                />
                 {/* Add more routes as the application grows */}
               </Routes>
             </Router>

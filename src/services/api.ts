@@ -136,18 +136,269 @@ export interface CategoryResponse {
   };
 }
 
+// Add interface for subcategory
+export interface SubCategory {
+  _id: string;
+  name: string;
+  imageUrl?: string;
+  type: string;
+  category: {
+    _id: string;
+    name: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface SubCategoryResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    subcategories: SubCategory[];
+    totalPages: number;
+    currentPage: number;
+    totalSubCategory: number;
+  };
+}
+
 export const categoryService = {
   getCategories: async (
     page: number = 1,
-    limit: number = 12
+    limit: number = 100
   ): Promise<CategoryResponse> => {
     const response = await api.get<CategoryResponse>(
       `/categories/allcategories?page=${page}&limit=${limit}`
     );
     return response.data;
   },
+
+  // Update with the real API endpoint and handle the response correctly
+  getSubCategories: async (
+    categoryId: string,
+    page: number = 1,
+    limit: number = 100
+  ): Promise<SubCategoryResponse> => {
+    try {
+      console.log(
+        `Calling API: /subcategories/getsubcategories?categoryId=${categoryId}&page=${page}&limit=${limit}`
+      );
+      const response = await api.get<SubCategoryResponse>(
+        `/subcategories/getsubcategories?categoryId=${categoryId}&page=${page}&limit=${limit}`
+      );
+      console.log("Raw API response:", response);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      throw error;
+    }
+  },
+
+  // Keep the mock function for fallback
+  getMockSubCategories: (categoryId: string): SubCategory[] => {
+    // This is a mock function that returns fake subcategories based on category ID
+    // We'll use this until the real API endpoint is available
+    const mockSubcategories: Record<string, SubCategory[]> = {
+      // Fashion category subcategories
+      fashion123: [
+        {
+          _id: "sub1",
+          name: "Men's Clothing",
+          category: {
+            _id: "fashion123",
+            name: "Fashion",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1521334884684-d80222895322",
+        },
+        {
+          _id: "sub2",
+          name: "Women's Clothing",
+          category: {
+            _id: "fashion123",
+            name: "Fashion",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1541099649105-f69ad21f3246",
+        },
+        {
+          _id: "sub3",
+          name: "Accessories",
+          category: {
+            _id: "fashion123",
+            name: "Fashion",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1588444837495-c6cfeb53f32d",
+        },
+        {
+          _id: "sub4",
+          name: "Footwear",
+          category: {
+            _id: "fashion123",
+            name: "Fashion",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl: "https://images.unsplash.com/photo-1560343090-f0409e92791a",
+        },
+      ],
+      // Electronics category subcategories
+      electronics123: [
+        {
+          _id: "sub5",
+          name: "Smartphones",
+          category: {
+            _id: "electronics123",
+            name: "Electronics",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1598327105666-5b89351aff97",
+        },
+        {
+          _id: "sub6",
+          name: "Laptops",
+          category: {
+            _id: "electronics123",
+            name: "Electronics",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853",
+        },
+        {
+          _id: "sub7",
+          name: "Tablets",
+          category: {
+            _id: "electronics123",
+            name: "Electronics",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0",
+        },
+        {
+          _id: "sub8",
+          name: "Wearables",
+          category: {
+            _id: "electronics123",
+            name: "Electronics",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl: "https://images.unsplash.com/photo-1546868871-7041f2a55e12",
+        },
+      ],
+      // Home & Kitchen category subcategories
+      home123: [
+        {
+          _id: "sub9",
+          name: "Furniture",
+          category: {
+            _id: "home123",
+            name: "Home & Kitchen",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc",
+        },
+        {
+          _id: "sub10",
+          name: "Kitchen Appliances",
+          category: {
+            _id: "home123",
+            name: "Home & Kitchen",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1574269366091-705f4687f706",
+        },
+        {
+          _id: "sub11",
+          name: "Home Decor",
+          category: {
+            _id: "home123",
+            name: "Home & Kitchen",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1513519245088-0e12902e5a38",
+        },
+        {
+          _id: "sub12",
+          name: "Bedding",
+          category: {
+            _id: "home123",
+            name: "Home & Kitchen",
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          type: "subcategory",
+          imageUrl:
+            "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af",
+        },
+      ],
+    };
+
+    // Return subcategories for the given category ID, or an empty array if none found
+    return mockSubcategories[categoryId] || [];
+  },
 };
 
+// Add interfaces and methods for product service
+export interface Product {
+  title: string;
+  description: string;
+  price: number;
+  quantity: number;
+  images: string[];
+  seller_id: string;
+  category?: string;
+  subCategories?: string[];
+}
+
+export interface ProductResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    product: Product;
+  };
+}
+
+export const productService = {
+  createProduct: async (productData: Product): Promise<ProductResponse> => {
+    const response = await api.post<ProductResponse>(
+      "/products/createproduct",
+      productData
+    );
+    return response.data;
+  },
+};
+
+// Enhance uploadService to handle multiple files
 export const uploadService = {
   uploadImage: async (file: File): Promise<ImageUploadResponse> => {
     const formData = new FormData();
@@ -158,6 +409,30 @@ export const uploadService = {
       formData
     );
     return response.data;
+  },
+
+  uploadMultipleImages: async (files: File[]): Promise<string[]> => {
+    const imageUrls: string[] = [];
+
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await uploadApi.post<ImageUploadResponse>(
+          "/app/uploadImage",
+          formData
+        );
+
+        if (response.data.data?.imageUrl) {
+          imageUrls.push(response.data.data.imageUrl);
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    }
+
+    return imageUrls;
   },
 };
 

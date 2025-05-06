@@ -5,9 +5,19 @@ import Navbar from "../../components/layout/Navbar/Navbar";
 import Footer from "../../components/layout/Footer/Footer";
 import Marquee from "../../components/layout/Marquee/Marquee";
 
+// Interface for flash message
+interface FlashMessage {
+  type: "success" | "error";
+  message: string;
+  timestamp: number;
+}
+
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  // State for flash message
+  const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null);
 
   // Demo data for the dashboard
   const [salesData] = useState({
@@ -39,6 +49,33 @@ const DashboardPage = () => {
     conversionRate: 0,
   });
 
+  // Check for flash messages in localStorage
+  useEffect(() => {
+    const storedFlash = localStorage.getItem("dashboardFlash");
+    if (storedFlash) {
+      try {
+        const flashData = JSON.parse(storedFlash) as FlashMessage;
+
+        // Only show messages that are less than 5 seconds old
+        const now = Date.now();
+        if (now - flashData.timestamp < 5000) {
+          setFlashMessage(flashData);
+
+          // Remove message after animation completes (4.5s for animation)
+          setTimeout(() => {
+            setFlashMessage(null);
+          }, 4500);
+        }
+
+        // Clear the message from localStorage
+        localStorage.removeItem("dashboardFlash");
+      } catch (error) {
+        console.error("Error parsing flash message:", error);
+        localStorage.removeItem("dashboardFlash");
+      }
+    }
+  }, []);
+
   // Redirect non-sellers or sellers without a store to appropriate pages
   useEffect(() => {
     if (!isAuthenticated) {
@@ -55,6 +92,62 @@ const DashboardPage = () => {
       <Marquee />
       <Navbar />
       <main className="flex-1 flex flex-col items-center justify-start p-4 md:p-6 mt-28 md:mt-32">
+        {/* Flash Message as overlay */}
+        {flashMessage && (
+          <div className="fixed top-32 md:top-24 right-4 z-50 max-w-md animate-fadeInOut">
+            <div
+              className={`${
+                flashMessage.type === "success"
+                  ? "bg-green-50 border-green-500"
+                  : "bg-red-50 border-red-500"
+              } border-l-4 p-4 rounded-md shadow-lg`}
+            >
+              <div className="flex items-center">
+                {flashMessage.type === "success" ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-green-500 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-red-500 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                )}
+                <p
+                  className={`text-sm font-medium ${
+                    flashMessage.type === "success"
+                      ? "text-green-800"
+                      : "text-red-800"
+                  }`}
+                >
+                  {flashMessage.message}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="w-full max-w-7xl">
           {/* Top Summary Section */}
           <div className="bg-white rounded-lg shadow p-4 md:p-6 mb-6">
@@ -277,7 +370,10 @@ const DashboardPage = () => {
                   </div>
                 </div>
 
-                <button className="mt-4 bg-blue-600 text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  onClick={() => navigate("/seller/create-product")}
+                  className="mt-4 bg-blue-600 text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-blue-700 transition-colors"
+                >
                   List an item
                 </button>
               </div>

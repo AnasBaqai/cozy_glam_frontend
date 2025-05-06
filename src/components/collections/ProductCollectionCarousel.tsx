@@ -26,8 +26,8 @@ const ProductCollectionCarousel = () => {
   const [changingPage, setChangingPage] = useState(false);
 
   // Display settings
-  const ITEMS_PER_PAGE = 8;
-  const ITEMS_PER_ROW = 4;
+  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_ROW = 5;
   const ROWS_PER_PAGE = 2;
 
   // Initial fetch of categories
