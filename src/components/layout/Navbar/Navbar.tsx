@@ -4,8 +4,9 @@ import logo from "../../../assets/images/cozy_glam_logo-removebg-preview.png";
 import { useCart } from "../../../context/CartContext";
 import { useAppSelector, useAppDispatch } from "../../../store/hooks";
 import { logout } from "../../../store/slices/authSlice";
-import { Category, categoryService } from "../../../services/api";
+import { Category, SubCategory, categoryService } from "../../../services/api";
 import { getFullImageUrl } from "../../../utils/imageUtils";
+import "./navbar-animations.css";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,8 +17,17 @@ const Navbar: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(
+    null
+  );
+  const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
+  const [mobileExpandedCategoryId, setMobileExpandedCategoryId] = useState<
+    string | null
+  >(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const subcategoryDebounceRef = useRef<number | null>(null);
 
   const { getTotalCount } = useCart();
   const cartCount = getTotalCount();
@@ -44,6 +54,32 @@ const Navbar: React.FC = () => {
 
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (!hoveredCategoryId) {
+      setSubcategories([]);
+      return;
+    }
+    // Debounce: only fetch after 200ms of stable hover
+    if (subcategoryDebounceRef.current) {
+      clearTimeout(subcategoryDebounceRef.current);
+    }
+    setLoadingSubcategories(true);
+    subcategoryDebounceRef.current = window.setTimeout(() => {
+      categoryService
+        .getSubCategories(hoveredCategoryId)
+        .then((res) => {
+          setSubcategories(res.data.subcategories || []);
+        })
+        .catch(() => setSubcategories([]))
+        .finally(() => setLoadingSubcategories(false));
+    }, 200);
+    return () => {
+      if (subcategoryDebounceRef.current) {
+        clearTimeout(subcategoryDebounceRef.current);
+      }
+    };
+  }, [hoveredCategoryId]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -155,12 +191,18 @@ const Navbar: React.FC = () => {
           <div className="hidden md:block flex-grow mx-6">
             <form onSubmit={handleSearch} className="relative">
               <div className="flex">
-                <div className="relative">
+                <div
+                  className="relative hidden md:inline-block"
+                  onMouseEnter={() => setIsDropdownOpen(true)}
+                  onMouseLeave={() => setIsDropdownOpen(false)}
+                >
                   <button
                     type="button"
                     className="flex items-center justify-between max-w-[260px] min-w-[180px] h-[44px] py-0 px-4 bg-gray-100 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary text-gray-700 categories-dropdown"
                     style={{ lineHeight: "44px" }}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    tabIndex={0}
+                    aria-haspopup="true"
+                    aria-expanded={isDropdownOpen}
                   >
                     <div className="flex items-center">
                       {selectedCategory ? (
@@ -218,58 +260,123 @@ const Navbar: React.FC = () => {
                       />
                     </svg>
                   </button>
-
                   {isDropdownOpen && (
-                    <div className="absolute left-0 top-full mt-1 w-[260px] max-h-[300px] overflow-y-auto bg-white rounded-lg shadow-xl z-20 border border-gray-200 categories-dropdown">
-                      <button
-                        className="flex items-center w-full text-left px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-100"
-                        onClick={() => {
-                          setSelectedCategory("");
-                          setIsDropdownOpen(false);
-                        }}
-                      >
-                        <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-50 border border-gray-200 flex items-center justify-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-gray-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 6h16M4 12h16M4 18h16"
-                            />
-                          </svg>
-                        </div>
-                        All Categories
-                      </button>
-                      <div className="py-1">
-                        {categories.map((category) => (
-                          <button
-                            key={category._id}
-                            className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors"
-                            onClick={() => {
-                              setSelectedCategory(category.name);
-                              setIsDropdownOpen(false);
-                            }}
-                          >
-                            <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-100">
-                              <img
-                                src={getFullImageUrl(category.image)}
-                                alt={category.name}
-                                className="h-full w-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src =
-                                    "/placeholder.png";
-                                }}
+                    <div className="absolute left-0 top-full mt-1 flex z-30">
+                      <div className="w-[260px] max-h-[400px] overflow-y-auto bg-white rounded-l-lg shadow-xl border border-gray-200 categories-dropdown animate-fade-in-dropdown">
+                        <button
+                          className="flex items-center w-full text-left px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-100"
+                          onClick={() => {
+                            setSelectedCategory("");
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-50 border border-gray-200 flex items-center justify-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 text-gray-500"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 6h16M4 12h16M4 18h16"
                               />
+                            </svg>
+                          </div>
+                          All Categories
+                        </button>
+                        <div className="py-1">
+                          {categories.map((category) => (
+                            <div
+                              key={category._id}
+                              className={`flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors cursor-pointer ${
+                                hoveredCategoryId === category._id
+                                  ? "bg-gray-100"
+                                  : ""
+                              }`}
+                              onMouseEnter={() =>
+                                setHoveredCategoryId(category._id)
+                              }
+                              onMouseLeave={() => setHoveredCategoryId(null)}
+                              onClick={() => {
+                                setSelectedCategory(category.name);
+                                setIsDropdownOpen(false);
+                              }}
+                            >
+                              <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-100">
+                                <img
+                                  src={getFullImageUrl(category.image)}
+                                  alt={category.name}
+                                  className="h-full w-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src =
+                                      "/placeholder.png";
+                                  }}
+                                />
+                              </div>
+                              <span className="truncate">{category.name}</span>
+                              <svg
+                                className="ml-auto h-4 w-4 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
                             </div>
-                            <span className="truncate">{category.name}</span>
-                          </button>
-                        ))}
+                          ))}
+                        </div>
+                      </div>
+                      <div className="w-[420px] max-h-[400px] overflow-y-auto bg-white rounded-r-lg shadow-xl border-t border-b border-r border-gray-200 px-6 py-4 animate-fade-in-dropdown">
+                        {loadingSubcategories ? (
+                          <SubcategorySkeleton />
+                        ) : subcategories.length > 0 ? (
+                          <>
+                            <div className="font-semibold text-lg mb-3">
+                              {categories.find(
+                                (c) => c._id === hoveredCategoryId
+                              )?.name || "Subcategories"}
+                            </div>
+                            <div className="grid grid-cols-4 gap-4">
+                              {subcategories.map((sub) => (
+                                <Link
+                                  key={sub._id}
+                                  to={`/subcategory/${slugify(sub.name)}`}
+                                  className="flex flex-col items-center text-center hover:text-glam-primary"
+                                >
+                                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mb-2">
+                                    <img
+                                      src={sub.imageUrl || "/placeholder.png"}
+                                      alt={sub.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).src =
+                                          "/placeholder.png";
+                                      }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-medium truncate w-20">
+                                    {sub.name}
+                                  </span>
+                                </Link>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-gray-500 text-sm flex items-center justify-center h-full">
+                            {hoveredCategoryId
+                              ? "No subcategories found"
+                              : "Hover a category to see subcategories"}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -446,30 +553,60 @@ const Navbar: React.FC = () => {
             <div className="font-medium text-gray-800 mb-2">
               Shop by Category
             </div>
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="max-h-[400px] overflow-y-auto">
               {isLoading ? (
                 <div className="py-2 flex justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-glam-primary"></div>
                 </div>
               ) : categories.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div>
                   {categories.map((category) => (
-                    <Link
-                      key={category._id}
-                      to={`/category/${slugify(category.name)}`}
-                      className="text-sm text-gray-600 hover:text-glam-primary py-1.5"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
+                    <div key={category._id}>
+                      <button
+                        className="flex items-center w-full text-left px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors"
+                        onClick={() =>
+                          setMobileExpandedCategoryId(
+                            mobileExpandedCategoryId === category._id
+                              ? null
+                              : category._id
+                          )
+                        }
+                      >
+                        <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mr-3 bg-gray-100">
+                          <img
+                            src={getFullImageUrl(category.image)}
+                            alt={category.name}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/placeholder.png";
+                            }}
+                          />
+                        </div>
+                        <span className="truncate flex-1">{category.name}</span>
+                        <svg
+                          className={`ml-2 h-4 w-4 text-gray-400 transition-transform ${
+                            mobileExpandedCategoryId === category._id
+                              ? "rotate-90"
+                              : ""
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </button>
+                      {mobileExpandedCategoryId === category._id && (
+                        <MobileSubcategories categoryId={category._id} />
+                      )}
+                    </div>
                   ))}
-                  <Link
-                    to="/categories"
-                    className="text-sm font-medium text-glam-primary py-1.5"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    View All
-                  </Link>
                 </div>
               ) : (
                 <div className="py-2 text-sm text-gray-500">
@@ -599,5 +736,66 @@ const Navbar: React.FC = () => {
     </nav>
   );
 };
+
+const MobileSubcategories: React.FC<{ categoryId: string }> = ({
+  categoryId,
+}) => {
+  const [subcategories, setSubcategories] = React.useState<SubCategory[]>([]);
+  const [loading, setLoading] = React.useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    categoryService
+      .getSubCategories(categoryId)
+      .then((res) => setSubcategories(res.data.subcategories || []))
+      .catch(() => setSubcategories([]))
+      .finally(() => setLoading(false));
+  }, [categoryId]);
+
+  if (loading) {
+    return <SubcategorySkeleton />;
+  }
+  if (!subcategories.length) {
+    return (
+      <div className="py-2 text-sm text-gray-500 pl-10">
+        No subcategories found
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-3 gap-3 px-6 py-2">
+      {subcategories.map((sub) => (
+        <Link
+          key={sub._id}
+          to={`/subcategory/${sub.name.replace(/\s+/g, "-").toLowerCase()}`}
+          className="flex flex-col items-center text-center hover:text-glam-primary"
+        >
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mb-1">
+            <img
+              src={sub.imageUrl || "/placeholder.png"}
+              alt={sub.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/placeholder.png";
+              }}
+            />
+          </div>
+          <span className="text-xs font-medium truncate w-16">{sub.name}</span>
+        </Link>
+      ))}
+    </div>
+  );
+};
+
+const SubcategorySkeleton: React.FC = () => (
+  <div className="grid grid-cols-4 gap-4 animate-pulse">
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div key={i} className="flex flex-col items-center">
+        <div className="w-14 h-14 rounded-full bg-gray-200 mb-2" />
+        <div className="h-3 w-16 bg-gray-200 rounded" />
+      </div>
+    ))}
+  </div>
+);
 
 export default Navbar;
