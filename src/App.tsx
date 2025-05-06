@@ -10,7 +10,7 @@ import CartPage from "./pages/CartPage";
 import { CartProvider } from "./context/CartContext";
 import { UserProvider } from "./context/UserContext";
 import "./App.css";
-import BusinessInfoForm from "./components/seller/BusinessInfoForm";
+import BusinessInfoForm from "./components/seller/business-info/BusinessInfoForm";
 import DashboardPage from "./pages/seller/DashboardPage";
 import CreateProductPage from "./pages/seller/CreateProductPage";
 

@@ -1,21 +1,6 @@
 import React from "react";
 import FormInput from "./FormInput";
-
-interface BusinessInfoFieldsProps {
-  form: {
-    storeName: string;
-    storeDescription: string;
-    businessEmail: string;
-    businessPhone: string;
-    businessAddress: string;
-    country: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    website: string;
-  };
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import { BusinessInfoFieldsProps } from "../../../types/business.types";
 
 const BusinessInfoFields: React.FC<BusinessInfoFieldsProps> = ({
   form,

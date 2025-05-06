@@ -1,15 +1,9 @@
-import React, { useRef, useState } from "react";
-import { createImagePreview, validateImageSize } from "../../utils/imageUtils";
-
-interface LogoUploadFieldProps {
-  previewImage: string | null;
-  setPreviewImage: (url: string | null) => void;
-  onFileSelect: (file: File) => void;
-  uploadLoading?: boolean;
-  sizeError: string | null;
-  setSizeError: (error: string | null) => void;
-  isRequired?: boolean;
-}
+import React, { useRef } from "react";
+import {
+  createImagePreview,
+  validateImageSize,
+} from "../../../utils/imageUtils";
+import { LogoUploadFieldProps } from "../../../types/business.types";
 
 const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
   previewImage,
@@ -21,7 +15,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
   isRequired = true,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [dragActive, setDragActive] = useState(false);
+  const [dragActive, setDragActive] = React.useState(false);
 
   // Handle drag events
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {

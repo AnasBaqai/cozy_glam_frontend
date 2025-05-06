@@ -1,27 +1,31 @@
-import { useUser } from "../../context/UserContext";
+import { useUser } from "../../../context/UserContext";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Marquee from "../layout/Marquee/Marquee";
-import Navbar from "../layout/Navbar/Navbar";
-import Footer from "../layout/Footer/Footer";
+import Marquee from "../../layout/Marquee/Marquee";
+import Navbar from "../../layout/Navbar/Navbar";
+import Footer from "../../layout/Footer/Footer";
 import BusinessInfoFields from "./BusinessInfoFields";
 import SocialLinksSetup from "./SocialLinksSetup";
 import LogoUploadField from "./LogoUploadField";
 import FormHeader from "./FormHeader";
 import FeedbackMessage from "./FeedbackMessage";
-import SubmitButton from "../common/SubmitButton";
-import { storeService, uploadService } from "../../services/api";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setStoreCreated } from "../../store/slices/authSlice";
+import SubmitButton from "../../common/SubmitButton";
+import { storeService, uploadService } from "../../../services/api";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { setStoreCreated } from "../../../store/slices/authSlice";
+import {
+  BusinessFormData,
+  SocialPlatform,
+} from "../../../types/business.types";
 
-export default function BusinessInfoForm() {
+const BusinessInfoForm: React.FC = () => {
   const { setIsStoreCreated } = useUser();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
   // Form state
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<BusinessFormData>({
     storeName: "",
     storeDescription: "",
     storeLogo: "", // Will be filled after upload during form submission
@@ -77,10 +81,7 @@ export default function BusinessInfoForm() {
   };
 
   // Social media links handler
-  const setSocial = (
-    platform: "instagram" | "facebook" | "tiktok",
-    value: string
-  ) => {
+  const setSocial = (platform: SocialPlatform, value: string) => {
     setForm((prev) => ({ ...prev, [platform]: value }));
   };
 
@@ -210,4 +211,6 @@ export default function BusinessInfoForm() {
       <Footer />
     </div>
   );
-}
+};
+
+export default BusinessInfoForm;

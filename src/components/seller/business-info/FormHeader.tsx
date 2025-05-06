@@ -1,9 +1,5 @@
 import React from "react";
-
-interface FormHeaderProps {
-  title: string;
-  progressValue?: number; // Value between 0 and 1
-}
+import { FormHeaderProps } from "../../../types/business.types";
 
 const FormHeader: React.FC<FormHeaderProps> = ({
   title,

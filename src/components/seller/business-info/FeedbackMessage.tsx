@@ -1,9 +1,5 @@
 import React from "react";
-
-interface FeedbackMessageProps {
-  error?: string;
-  success?: string;
-}
+import { FeedbackMessageProps } from "../../../types/business.types";
 
 const FeedbackMessage: React.FC<FeedbackMessageProps> = ({
   error,

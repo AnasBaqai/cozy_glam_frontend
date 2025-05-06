@@ -1,9 +1,5 @@
 import React from "react";
-
-interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  requiredMark?: boolean;
-}
+import { FormInputProps } from "../../../types/business.types";
 
 const fieldBase =
   "h-11 w-full rounded-lg border border-gray-300 bg-white px-4 text-glam-dark placeholder-gray-400 focus:border-glam-primary focus:ring-2 focus:ring-glam-primary outline-none transition";
