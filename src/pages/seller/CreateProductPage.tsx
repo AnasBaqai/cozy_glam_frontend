@@ -31,6 +31,7 @@ const CreateProductPage: React.FC = () => {
     handleSubcategoryRemove,
     handleImagesChange,
     handleSubmit,
+    handleSaveAsDraft,
     setImagePreviews,
     setTotalImageSize,
     setSizeError,
@@ -115,6 +116,7 @@ const CreateProductPage: React.FC = () => {
               <ProductFormActions
                 isSubmitting={isSubmitting}
                 isDisabled={totalImageSize > MAX_TOTAL_SIZE}
+                onSaveAsDraft={handleSaveAsDraft}
               />
             </div>
           </form>

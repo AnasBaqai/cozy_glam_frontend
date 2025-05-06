@@ -6,6 +6,7 @@ const ProductFormActions: React.FC<ProductFormActionsProps> = ({
   isSubmitting,
   isDisabled,
   cancelRoute = "/dashboard",
+  onSaveAsDraft,
 }) => {
   const navigate = useNavigate();
 
@@ -18,6 +19,18 @@ const ProductFormActions: React.FC<ProductFormActionsProps> = ({
       >
         Cancel
       </button>
+      {onSaveAsDraft && (
+        <button
+          type="button"
+          onClick={onSaveAsDraft}
+          disabled={isSubmitting || isDisabled}
+          className={`mr-2 px-4 py-2 border border-indigo-300 rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+            isSubmitting || isDisabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {isSubmitting ? "Saving..." : "Save as Draft"}
+        </button>
+      )}
       <button
         type="submit"
         disabled={isSubmitting || isDisabled}

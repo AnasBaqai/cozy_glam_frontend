@@ -226,7 +226,17 @@ const useProductForm = () => {
       );
 
       // Create product data
-      const productData = {
+      const productData: {
+        title: string;
+        description: string;
+        price: number;
+        quantity: number;
+        images: string[];
+        seller_id: string;
+        category: string;
+        subCategories: string[];
+        status: "active" | "draft";
+      } = {
         title: formData.title,
         description: formData.description,
         price: Number(formData.price) * 100, // Convert to cents
@@ -235,6 +245,7 @@ const useProductForm = () => {
         seller_id: user?._id || "",
         category: formData.category,
         subCategories: formData.subCategories,
+        status: "active", // Set status to active for publish
       };
 
       // Call API to create product
@@ -279,6 +290,98 @@ const useProductForm = () => {
     }
   };
 
+  // Add the handleSaveAsDraft function
+  const handleSaveAsDraft = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSuccessMessage("");
+
+    // For drafts, we'll validate with less strict rules
+    // Title and at least one image are required, but other fields can be incomplete
+    const draftErrors: { [key: string]: string } = {};
+
+    if (!formData.title.trim())
+      draftErrors.title = "Title is required for draft";
+    if (formData.images.length === 0)
+      draftErrors.images = "At least one image is required for draft";
+
+    if (Object.keys(draftErrors).length > 0) {
+      setErrors(draftErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Upload images first
+      const imageUrls = await uploadService.uploadMultipleImages(
+        formData.images
+      );
+
+      // Create product data
+      const productData: {
+        title: string;
+        description: string;
+        price: number;
+        quantity: number;
+        images: string[];
+        seller_id: string;
+        category: string;
+        subCategories: string[];
+        status: "active" | "draft";
+      } = {
+        title: formData.title,
+        description: formData.description,
+        price: Number(formData.price || 0) * 100, // Use 0 as fallback
+        quantity: Number(formData.quantity || 0), // Use 0 as fallback
+        images: imageUrls,
+        seller_id: user?._id || "",
+        category: formData.category,
+        subCategories: formData.subCategories,
+        status: "draft", // Set status to draft
+      };
+
+      // Call API to create product
+      await productService.createProduct(productData);
+
+      // Store success message in localStorage for dashboard
+      localStorage.setItem(
+        "dashboardFlash",
+        JSON.stringify({
+          type: "success",
+          message: `Product "${formData.title}" was saved as draft.`,
+          timestamp: Date.now(),
+        })
+      );
+
+      // Navigate to dashboard immediately
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Error saving product as draft:", err);
+      setErrors({
+        submit:
+          err instanceof Error
+            ? err.message
+            : "Failed to save product as draft. Please try again.",
+      });
+
+      // Show error toast that fades out after 5 seconds
+      setToastMessage({
+        type: "error",
+        message:
+          err instanceof Error
+            ? err.message
+            : "Failed to save product as draft. Please try again.",
+        visible: true,
+      });
+
+      setTimeout(() => {
+        setToastMessage((prev) => ({ ...prev, visible: false }));
+      }, 5000);
+
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     formData,
     imagePreviews,
@@ -299,6 +402,7 @@ const useProductForm = () => {
     handleSubcategoryRemove,
     handleImagesChange,
     handleSubmit,
+    handleSaveAsDraft,
     setImagePreviews,
     setTotalImageSize,
     setSizeError,

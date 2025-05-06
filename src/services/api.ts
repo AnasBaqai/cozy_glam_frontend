@@ -377,6 +377,7 @@ export interface Product {
   seller_id: string;
   category?: string;
   subCategories?: string[];
+  status?: "active" | "draft";
 }
 
 export interface ProductResponse {

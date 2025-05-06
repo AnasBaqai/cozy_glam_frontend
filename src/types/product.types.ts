@@ -81,6 +81,7 @@ export interface ProductFormActionsProps {
   isSubmitting: boolean;
   isDisabled: boolean;
   cancelRoute?: string;
+  onSaveAsDraft?: (e: React.FormEvent) => void;
 }
 
 export interface ToastNotificationProps {
