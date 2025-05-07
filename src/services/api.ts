@@ -399,8 +399,8 @@ export interface Product {
   quantity: number;
   images: string[];
   seller_id: string;
-  category?: string;
-  subCategories?: string[];
+  categories: string;
+  subcategories: string[];
   status?: "active" | "draft";
 }
 
@@ -415,11 +415,28 @@ export interface ProductResponse {
 
 export const productService = {
   createProduct: async (productData: Product): Promise<ProductResponse> => {
-    const response = await api.post<ProductResponse>(
-      "/products/createproduct",
-      productData
+    console.log(
+      "productService.createProduct called with data:",
+      JSON.stringify(productData, null, 2)
     );
-    return response.data;
+    try {
+      const response = await api.post<ProductResponse>(
+        "/products/createproduct",
+        productData
+      );
+      console.log("Product API response:", response.data);
+      return response.data;
+    } catch (error: unknown) {
+      console.error("Error in productService.createProduct:", error);
+      const axiosError = error as {
+        response?: { data?: Record<string, unknown>; status?: number };
+      };
+      if (axiosError.response) {
+        console.error("Response data:", axiosError.response.data);
+        console.error("Response status:", axiosError.response.status);
+      }
+      throw error;
+    }
   },
 };
 

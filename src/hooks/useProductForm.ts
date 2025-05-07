@@ -210,46 +210,46 @@ const useProductForm = () => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submission started");
     setIsSubmitting(true);
     setSuccessMessage("");
 
     const isValid = validateForm();
     if (!isValid) {
+      console.log("Form validation failed:", errors);
       setIsSubmitting(false);
       return;
     }
 
     try {
+      console.log("Uploading images...");
       // Upload images first
       const imageUrls = await uploadService.uploadMultipleImages(
         formData.images
       );
+      console.log("Images uploaded successfully:", imageUrls);
 
       // Create product data
-      const productData: {
-        title: string;
-        description: string;
-        price: number;
-        quantity: number;
-        images: string[];
-        seller_id: string;
-        category: string;
-        subCategories: string[];
-        status: "active" | "draft";
-      } = {
+      const productData = {
         title: formData.title,
         description: formData.description,
-        price: Number(formData.price) * 100, // Convert to cents
+        price: Number(formData.price),
         quantity: Number(formData.quantity),
         images: imageUrls,
         seller_id: user?._id || "",
-        category: formData.category,
-        subCategories: formData.subCategories,
-        status: "active", // Set status to active for publish
+        categories: formData.category || "", // Changed from category to categories
+        subcategories: formData.subCategories,
+        status: "active" as const, // Set status to active for publish
       };
 
+      console.log(
+        "Sending product data to API:",
+        JSON.stringify(productData, null, 2)
+      );
+
       // Call API to create product
-      await productService.createProduct(productData);
+      const response = await productService.createProduct(productData);
+      console.log("Product created successfully:", response);
 
       // Store success message in localStorage for dashboard
       localStorage.setItem(
@@ -265,6 +265,13 @@ const useProductForm = () => {
       navigate("/dashboard");
     } catch (err) {
       console.error("Error creating product:", err);
+      if (err instanceof Error) {
+        console.error("Error message:", err.message);
+        console.error("Error stack:", err.stack);
+      } else {
+        console.error("Unknown error type:", err);
+      }
+
       setErrors({
         submit:
           err instanceof Error
@@ -293,6 +300,7 @@ const useProductForm = () => {
   // Add the handleSaveAsDraft function
   const handleSaveAsDraft = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Save as draft started");
     setIsSubmitting(true);
     setSuccessMessage("");
 
@@ -306,42 +314,41 @@ const useProductForm = () => {
       draftErrors.images = "At least one image is required for draft";
 
     if (Object.keys(draftErrors).length > 0) {
+      console.log("Draft validation failed:", draftErrors);
       setErrors(draftErrors);
       setIsSubmitting(false);
       return;
     }
 
     try {
+      console.log("Uploading images for draft...");
       // Upload images first
       const imageUrls = await uploadService.uploadMultipleImages(
         formData.images
       );
+      console.log("Images for draft uploaded successfully:", imageUrls);
 
       // Create product data
-      const productData: {
-        title: string;
-        description: string;
-        price: number;
-        quantity: number;
-        images: string[];
-        seller_id: string;
-        category: string;
-        subCategories: string[];
-        status: "active" | "draft";
-      } = {
+      const productData = {
         title: formData.title,
         description: formData.description,
-        price: Number(formData.price || 0) * 100, // Use 0 as fallback
+        price: Number(formData.price || 0),
         quantity: Number(formData.quantity || 0), // Use 0 as fallback
         images: imageUrls,
         seller_id: user?._id || "",
-        category: formData.category,
-        subCategories: formData.subCategories,
-        status: "draft", // Set status to draft
+        categories: formData.category || "", // Changed from category to categories
+        subcategories: formData.subCategories,
+        status: "draft" as const, // Set status to draft
       };
 
+      console.log(
+        "Sending draft product data to API:",
+        JSON.stringify(productData, null, 2)
+      );
+
       // Call API to create product
-      await productService.createProduct(productData);
+      const response = await productService.createProduct(productData);
+      console.log("Draft product created successfully:", response);
 
       // Store success message in localStorage for dashboard
       localStorage.setItem(
@@ -357,6 +364,13 @@ const useProductForm = () => {
       navigate("/dashboard");
     } catch (err) {
       console.error("Error saving product as draft:", err);
+      if (err instanceof Error) {
+        console.error("Error message:", err.message);
+        console.error("Error stack:", err.stack);
+      } else {
+        console.error("Unknown error type:", err);
+      }
+
       setErrors({
         submit:
           err instanceof Error
