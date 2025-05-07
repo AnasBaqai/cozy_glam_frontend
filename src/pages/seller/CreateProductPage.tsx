@@ -11,8 +11,12 @@ import ToastNotification from "../../components/seller/product/ToastNotification
 import useProductForm from "../../hooks/useProductForm";
 import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
 import "../../components/seller/dashboard/dashboard.css";
+import { useProductContext } from "../../context/ProductContext";
 
 const CreateProductPage: React.FC = () => {
+  // Get the refreshListings function from ProductContext
+  const { refreshListings } = useProductContext();
+
   // Sidebar collapse state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -39,12 +43,25 @@ const CreateProductPage: React.FC = () => {
     handleSubcategorySelect,
     handleSubcategoryRemove,
     handleImagesChange,
-    handleSubmit,
-    handleSaveAsDraft,
+    handleSubmit: originalHandleSubmit,
+    handleSaveAsDraft: originalHandleSaveAsDraft,
     setImagePreviews,
     setTotalImageSize,
     setSizeError,
   } = useProductForm();
+
+  // Wrap the original handlers to update product listings
+  const handleSubmit = async (e: React.FormEvent) => {
+    await originalHandleSubmit(e);
+    // After successful submission, refresh product listings
+    refreshListings();
+  };
+
+  const handleSaveAsDraft = async (e: React.FormEvent) => {
+    await originalHandleSaveAsDraft(e);
+    // After successful draft saving, refresh product listings
+    refreshListings();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

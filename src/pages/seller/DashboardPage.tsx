@@ -10,14 +10,19 @@ import "../../components/seller/dashboard/dashboard.css";
 import {
   FlashMessage,
   SalesData,
-  ListingsData,
   OrdersData,
 } from "../../types/dashboard.types";
 import { storeService, StoreResponse } from "../../services/api";
+import { useProductContext } from "../../context/ProductContext";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const {
+    listings,
+    loading: listingsLoading,
+    error: listingsError,
+  } = useProductContext();
 
   // Sidebar collapse state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -45,13 +50,6 @@ const DashboardPage = () => {
     last90Days: 188.69,
   });
 
-  const [listings] = useState<ListingsData>({
-    active: 0,
-    drafts: 2,
-    auctionsEnding: 0,
-    unsold: 286,
-  });
-
   const [orders] = useState<OrdersData>({
     awaiting: 0,
     returns: 0,
@@ -59,13 +57,6 @@ const DashboardPage = () => {
     awaitingPayment: 0,
     awaitingFeedback: 0,
   });
-
-  // const [trafficData] = useState<TrafficData>({
-  //   impressions: 61,
-  //   clickRate: 4.9,
-  //   pageViews: 4,
-  //   conversionRate: 0,
-  // });
 
   // Fetch store data
   useEffect(() => {
@@ -359,125 +350,130 @@ const DashboardPage = () => {
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Listings</h3>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                <Link
+                  to="/seller/listings"
+                  className="text-glam-primary hover:text-glam-dark"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Link>
               </div>
               <div className="p-4">
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="text-xs text-gray-500 uppercase font-medium">
-                      ACTIVE LISTINGS
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xl font-bold">
-                        {listings.active}
-                      </span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
+                {listingsLoading ? (
+                  <div className="flex items-center justify-center h-40">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
                   </div>
+                ) : listingsError ? (
+                  <div className="text-red-500 p-4 text-center">
+                    {listingsError}
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div
+                        className="bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() =>
+                          navigate("/seller/listings?status=active")
+                        }
+                      >
+                        <div className="text-xs text-gray-500 uppercase font-medium">
+                          ACTIVE LISTINGS
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-xl font-bold">
+                            {listings.active}
+                          </span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
 
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="text-xs text-gray-500 uppercase font-medium">
-                      DRAFTS
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xl font-bold">
-                        {listings.drafts}
-                      </span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                      <div
+                        className="bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() =>
+                          navigate("/seller/listings?status=draft")
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
+                        <div className="text-xs text-gray-500 uppercase font-medium">
+                          DRAFTS
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-xl font-bold">
+                            {listings.drafts}
+                          </span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="text-xs text-gray-500 uppercase font-medium">
-                      AUCTIONS ENDING TODAY
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xl font-bold">
-                        {listings.auctionsEnding}
-                      </span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                    <div className="border-t border-gray-100 pt-4">
+                      <div
+                        className="bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => navigate("/seller/listings")}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
+                        <div className="text-xs text-gray-500 uppercase font-medium">
+                          TOTAL LISTINGS
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-xl font-bold">
+                            {listings.total}
+                          </span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-100 pt-4">
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="text-xs text-gray-500 uppercase font-medium">
-                      UNSOLD AND NOT RELISTED
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xl font-bold">
-                        {listings.unsold}
-                      </span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
                 <button
                   onClick={() => navigate("/seller/create-product")}

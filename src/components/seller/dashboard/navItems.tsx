@@ -62,7 +62,7 @@ export const navItems: NavItem[] = [
         />
       </svg>
     ),
-    count: 2,
+    showCount: true,
   },
   {
     label: "Create Product",

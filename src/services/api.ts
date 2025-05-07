@@ -438,6 +438,51 @@ export const productService = {
       throw error;
     }
   },
+
+  getSellerProducts: async (
+    status?: string
+  ): Promise<{
+    status: boolean;
+    responseCode: number;
+    message: string;
+    data: {
+      products: Array<{
+        _id: string;
+        seller_id: {
+          _id: string;
+          name: string;
+          email: string;
+        };
+        title: string;
+        description: string;
+        price: number;
+        inventory_count: number;
+        subcategories: string[];
+        tags: string[];
+        images: string[];
+        quantity: number;
+        status: string;
+        reviews: unknown[];
+        ratings: {
+          average: number;
+          count: number;
+        };
+        created_at: string;
+        updated_at: string;
+      }>;
+      total: number;
+      totalPages: number;
+      currentPage: number;
+      pageSize: number;
+    };
+  }> => {
+    const url = status
+      ? `/products/getProductSeller?status=${status}`
+      : "/products/getProductSeller";
+
+    const response = await api.get(url);
+    return response.data;
+  },
 };
 
 // Enhance uploadService to handle multiple files

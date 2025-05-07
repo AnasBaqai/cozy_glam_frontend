@@ -6,6 +6,7 @@ export interface NavItem {
   path: string;
   icon: ReactNode;
   count?: number;
+  showCount?: boolean;
 }
 
 export interface SellerSidebarProps {

@@ -17,8 +17,7 @@ export interface SalesData {
 export interface ListingsData {
   active: number;
   drafts: number;
-  auctionsEnding: number;
-  unsold: number;
+  total: number;
 }
 
 // Interface for orders data

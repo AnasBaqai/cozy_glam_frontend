@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavItem } from "../../../types/sidebar.types";
+import { useProductContext } from "../../../context/ProductContext";
 
 interface SidebarNavigationProps {
   navItems: NavItem[];
@@ -12,12 +13,19 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   collapsed,
 }) => {
   const location = useLocation();
+  const { listings } = useProductContext();
 
   return (
     <nav className="flex-1 overflow-y-auto sidebar-scrollbar">
       <ul className="space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
+          // Determine count to display
+          let countToDisplay = item.count;
+          if (item.showCount && item.label === "Listings") {
+            countToDisplay = listings.total;
+          }
+
           return (
             <li key={item.path}>
               <Link
@@ -42,9 +50,9 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                     </span>
                   )}
                 </div>
-                {!collapsed && item.count !== undefined && (
+                {!collapsed && countToDisplay !== undefined && (
                   <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                    {item.count}
+                    {countToDisplay}
                   </span>
                 )}
               </Link>
