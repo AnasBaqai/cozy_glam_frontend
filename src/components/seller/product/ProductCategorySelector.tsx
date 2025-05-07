@@ -31,7 +31,7 @@ const ProductCategorySelector: React.FC<ProductCategorySelectorProps> = ({
               name="category"
               value={selectedCategory}
               onChange={onCategoryChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 ${
                 errors.category ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -48,7 +48,7 @@ const ProductCategorySelector: React.FC<ProductCategorySelectorProps> = ({
             </select>
             {loadingCategories && (
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-500"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
               </div>
             )}
           </div>
@@ -68,13 +68,13 @@ const ProductCategorySelector: React.FC<ProductCategorySelectorProps> = ({
           <div
             className={`relative rounded-lg border ${
               errors.subCategories ? "border-red-500" : "border-gray-300"
-            } focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500`}
+            } focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-amber-500`}
           >
             {/* Selected subcategories tags */}
             <div className="p-2 flex flex-wrap gap-2 min-h-[100px] max-h-[200px] overflow-y-auto">
               {loadingSubcategories ? (
                 <div className="w-full h-full flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
                 </div>
               ) : subcategories.length > 0 ? (
                 <>
@@ -87,7 +87,7 @@ const ProductCategorySelector: React.FC<ProductCategorySelectorProps> = ({
                       return subCat ? (
                         <div
                           key={subCat._id}
-                          className="bg-indigo-100 text-indigo-800 pl-1 pr-2 py-1 rounded-md text-sm flex items-center"
+                          className="bg-amber-100 text-amber-800 pl-1 pr-2 py-1 rounded-md text-sm flex items-center"
                         >
                           {subCat.imageUrl && (
                             <img
@@ -100,7 +100,7 @@ const ProductCategorySelector: React.FC<ProductCategorySelectorProps> = ({
                           <button
                             type="button"
                             onClick={() => onSubcategoryRemove(subCat._id)}
-                            className="ml-1.5 text-indigo-500 hover:text-indigo-700"
+                            className="ml-1.5 text-amber-500 hover:text-amber-700"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +151,7 @@ const ProductCategorySelector: React.FC<ProductCategorySelectorProps> = ({
                       <div
                         key={subcategory._id}
                         onClick={() => onSubcategorySelect(subcategory._id)}
-                        className="flex items-center gap-2 text-sm px-2 py-1.5 rounded hover:bg-gray-100 cursor-pointer transition-colors"
+                        className="flex items-center gap-2 text-sm px-2 py-1.5 rounded hover:bg-amber-50 cursor-pointer transition-colors"
                       >
                         {subcategory.imageUrl && (
                           <img

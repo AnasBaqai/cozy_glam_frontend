@@ -126,7 +126,7 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
         className={`border-2 border-dashed rounded-lg p-6 text-center ${
           sizeError
             ? "border-red-300 bg-red-50"
-            : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50"
+            : "border-gray-300 hover:border-amber-400 hover:bg-gray-50"
         } transition-colors duration-200`}
       >
         <input
@@ -158,7 +158,7 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
           <div className="text-sm text-gray-600">
             <label
               htmlFor="image-upload"
-              className="relative cursor-pointer text-indigo-600 hover:text-indigo-500 font-medium focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+              className="relative cursor-pointer text-amber-600 hover:text-amber-500 font-medium focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-amber-500"
             >
               <span>Upload product images</span>
             </label>

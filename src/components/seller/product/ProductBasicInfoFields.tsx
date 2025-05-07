@@ -24,7 +24,7 @@ const ProductBasicInfoFields: React.FC<ProductBasicInfoFieldsProps> = ({
           name="title"
           value={title}
           onChange={onChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 ${
             errors.title ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter a descriptive title"
@@ -48,7 +48,7 @@ const ProductBasicInfoFields: React.FC<ProductBasicInfoFieldsProps> = ({
           value={description}
           onChange={onChange}
           rows={4}
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 ${
             errors.description ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Describe your product in detail"

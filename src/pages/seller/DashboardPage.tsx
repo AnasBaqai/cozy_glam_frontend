@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
 import Navbar from "../../components/layout/Navbar/Navbar";
-import Footer from "../../components/layout/Footer/Footer";
+
 import Marquee from "../../components/layout/Marquee/Marquee";
+import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
+import "../../components/seller/dashboard/dashboard.css";
 
 // Interface for flash message
 interface FlashMessage {
@@ -15,6 +17,14 @@ interface FlashMessage {
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  // Sidebar collapse state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   // State for flash message
   const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null);
@@ -91,7 +101,18 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Marquee />
       <Navbar />
-      <main className="flex-1 flex flex-col items-center justify-start p-4 md:p-6 mt-28 md:mt-32">
+
+      {/* Sidebar */}
+      <SellerSidebar
+        collapsed={sidebarCollapsed}
+        toggleSidebar={toggleSidebar}
+      />
+
+      {/* Main content with adjusted margin */}
+      <main
+        className={`flex-1 flex flex-col items-center justify-start p-4 md:p-6 mt-28 md:mt-32 transition-all duration-300
+          ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"}`}
+      >
         {/* Flash Message as overlay */}
         {flashMessage && (
           <div className="fixed top-32 md:top-24 right-4 z-50 max-w-md animate-fadeInOut">
@@ -149,6 +170,16 @@ const DashboardPage = () => {
         )}
 
         <div className="w-full max-w-7xl">
+          {/* Dashboard Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">
+              Seller Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Welcome back, {user?.name || "Seller"}
+            </p>
+          </div>
+
           {/* Top Summary Section */}
           <div className="bg-white rounded-lg shadow p-4 md:p-6 mb-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -216,7 +247,7 @@ const DashboardPage = () => {
           {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Tasks Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Tasks</h3>
               </div>
@@ -247,7 +278,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Listings Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Listings</h3>
                 <svg
@@ -380,7 +411,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Orders Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Orders</h3>
                 <svg
@@ -461,7 +492,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Sales Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Sales</h3>
                 <svg
@@ -534,7 +565,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Advertising Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <div className="flex items-center">
                   <h3 className="text-lg font-medium">Advertising</h3>
@@ -584,7 +615,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Traffic Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Traffic</h3>
                 <svg
@@ -742,7 +773,6 @@ const DashboardPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

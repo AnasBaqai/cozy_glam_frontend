@@ -31,7 +31,7 @@ const ProductPricingFields: React.FC<ProductPricingFieldsProps> = ({
               name="price"
               value={price}
               onChange={onChange}
-              className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+              className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 ${
                 errors.price ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="0.00"
@@ -58,7 +58,7 @@ const ProductPricingFields: React.FC<ProductPricingFieldsProps> = ({
             name="quantity"
             value={quantity}
             onChange={onChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 ${
               errors.quantity ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="Number of items in stock"

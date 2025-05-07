@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../../components/layout/Navbar/Navbar";
-import Footer from "../../components/layout/Footer/Footer";
 import Marquee from "../../components/layout/Marquee/Marquee";
 import ProductFormHeader from "../../components/seller/product/ProductFormHeader";
 import ProductBasicInfoFields from "../../components/seller/product/ProductBasicInfoFields";
@@ -10,8 +9,18 @@ import ProductImageUpload from "../../components/seller/product/ProductImageUplo
 import ProductFormActions from "../../components/seller/product/ProductFormActions";
 import ToastNotification from "../../components/seller/product/ToastNotification";
 import useProductForm from "../../hooks/useProductForm";
+import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
+import "../../components/seller/dashboard/dashboard.css";
 
 const CreateProductPage: React.FC = () => {
+  // Sidebar collapse state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
   const {
     formData,
     imagePreviews,
@@ -41,7 +50,19 @@ const CreateProductPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Marquee />
       <Navbar />
-      <main className="flex-1 flex flex-col items-center justify-start p-4 md:p-6 mt-28 md:mt-32">
+
+      {/* Sidebar */}
+      <SellerSidebar
+        collapsed={sidebarCollapsed}
+        toggleSidebar={toggleSidebar}
+      />
+
+      {/* Main content with adjusted margin */}
+      <main
+        className={`flex-1 flex flex-col items-center justify-start p-4 md:p-6 mt-28 md:mt-32 transition-all duration-300 ${
+          sidebarCollapsed ? "md:ml-20" : "md:ml-64"
+        }`}
+      >
         <div className="w-full max-w-4xl">
           {/* Header */}
           <ProductFormHeader
@@ -55,7 +76,7 @@ const CreateProductPage: React.FC = () => {
             className="bg-white rounded-xl shadow-sm overflow-hidden"
           >
             {/* Form Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 py-4 px-6">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-600 py-4 px-6">
               <h2 className="text-white text-lg font-medium">
                 Product Information
               </h2>
@@ -129,7 +150,6 @@ const CreateProductPage: React.FC = () => {
           message={toastMessage.message}
         />
       </main>
-      <Footer />
     </div>
   );
 };
