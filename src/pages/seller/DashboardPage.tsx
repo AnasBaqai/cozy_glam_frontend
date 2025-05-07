@@ -6,13 +6,13 @@ import Navbar from "../../components/layout/Navbar/Navbar";
 import Marquee from "../../components/layout/Marquee/Marquee";
 import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
 import "../../components/seller/dashboard/dashboard.css";
-
-// Interface for flash message
-interface FlashMessage {
-  type: "success" | "error";
-  message: string;
-  timestamp: number;
-}
+import {
+  FlashMessage,
+  SalesData,
+  ListingsData,
+  OrdersData,
+  TrafficData,
+} from "../../types/dashboard.types";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -30,21 +30,21 @@ const DashboardPage = () => {
   const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null);
 
   // Demo data for the dashboard
-  const [salesData] = useState({
+  const [salesData] = useState<SalesData>({
     today: 0,
     last7Days: 0,
     last31Days: 0,
     last90Days: 188.69,
   });
 
-  const [listings] = useState({
+  const [listings] = useState<ListingsData>({
     active: 0,
     drafts: 2,
     auctionsEnding: 0,
     unsold: 286,
   });
 
-  const [orders] = useState({
+  const [orders] = useState<OrdersData>({
     awaiting: 0,
     returns: 0,
     canceled: 0,
@@ -52,7 +52,7 @@ const DashboardPage = () => {
     awaitingFeedback: 0,
   });
 
-  const [trafficData] = useState({
+  const [trafficData] = useState<TrafficData>({
     impressions: 61,
     clickRate: 4.9,
     pageViews: 4,
