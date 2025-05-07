@@ -87,6 +87,7 @@ export const authService = {
 };
 
 export interface StoreData {
+  _id?: string;
   storeName: string;
   storeDescription: string;
   storeLogo: string;
@@ -105,9 +106,70 @@ export interface StoreData {
   };
 }
 
+export interface StoreResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    stores: Array<{
+      _id: string;
+      userId: {
+        _id: string;
+        name: string;
+        email: string;
+        phone_number: string;
+      };
+      storeName: string;
+      storeDescription: string;
+      storeLogo: string;
+      businessEmail: string;
+      businessPhone: string;
+      businessAddress: string;
+      country: string;
+      city: string;
+      state: string;
+      postcode: string;
+      website: string;
+      socialLinks: {
+        instagram: string;
+        facebook: string;
+        tiktok: string;
+      };
+      isVerified: boolean;
+      isActive: boolean;
+      rating: number;
+      productsCount: number;
+      joinedAt: string;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+    totalPages: number;
+    currentPage: number;
+    totalStore: number;
+  };
+}
+
 export const storeService = {
   createStore: async (storeData: StoreData) => {
     const response = await api.post("/store/createstore", storeData);
+    return response.data;
+  },
+
+  getStore: async (): Promise<StoreResponse> => {
+    const response = await api.get<StoreResponse>("/store/getstore");
+    return response.data;
+  },
+
+  updateStore: async (storeData: StoreData, storeId?: string) => {
+    if (!storeId && storeData._id) {
+      storeId = storeData._id;
+    }
+
+    if (!storeId) {
+      throw new Error("Store ID is required for updating");
+    }
+
+    const response = await api.put(`/store/updateStore/${storeId}`, storeData);
     return response.data;
   },
 };

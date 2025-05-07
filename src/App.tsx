@@ -37,6 +37,10 @@ function App() {
                 />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/business-info" element={<BusinessInfoForm />} />
+                <Route
+                  path="/update-store"
+                  element={<BusinessInfoForm isUpdateMode={true} />}
+                />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route
                   path="/seller/create-product"

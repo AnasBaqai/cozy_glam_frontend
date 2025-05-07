@@ -47,9 +47,9 @@ const SocialModal: React.FC<SocialModalProps> = ({
         </button>
       </div>
     </div>
-    <form method="dialog" className="modal-backdrop">
+    <div className="modal-backdrop" onClick={onClose}>
       <button className="hidden">close</button>
-    </form>
+    </div>
   </dialog>
 );
 

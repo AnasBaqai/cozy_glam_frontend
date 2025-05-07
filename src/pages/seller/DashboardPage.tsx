@@ -5,14 +5,15 @@ import Navbar from "../../components/layout/Navbar/Navbar";
 
 import Marquee from "../../components/layout/Marquee/Marquee";
 import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
+import StoreInfoCard from "../../components/seller/dashboard/StoreInfoCard";
 import "../../components/seller/dashboard/dashboard.css";
 import {
   FlashMessage,
   SalesData,
   ListingsData,
   OrdersData,
-  TrafficData,
 } from "../../types/dashboard.types";
+import { storeService, StoreResponse } from "../../services/api";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,13 @@ const DashboardPage = () => {
 
   // Sidebar collapse state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Store data state
+  const [storeData, setStoreData] = useState<
+    StoreResponse["data"]["stores"][0] | null
+  >(null);
+  const [storeLoading, setStoreLoading] = useState(false);
+  const [storeError, setStoreError] = useState<string | null>(null);
 
   // Toggle sidebar function
   const toggleSidebar = () => {
@@ -52,12 +60,34 @@ const DashboardPage = () => {
     awaitingFeedback: 0,
   });
 
-  const [trafficData] = useState<TrafficData>({
-    impressions: 61,
-    clickRate: 4.9,
-    pageViews: 4,
-    conversionRate: 0,
-  });
+  // const [trafficData] = useState<TrafficData>({
+  //   impressions: 61,
+  //   clickRate: 4.9,
+  //   pageViews: 4,
+  //   conversionRate: 0,
+  // });
+
+  // Fetch store data
+  useEffect(() => {
+    const fetchStoreData = async () => {
+      if (user?.isStoreCreated) {
+        try {
+          setStoreLoading(true);
+          const response = await storeService.getStore();
+          if (response.data.stores && response.data.stores.length > 0) {
+            setStoreData(response.data.stores[0]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch store data:", error);
+          setStoreError("Failed to load store data. Please try again later.");
+        } finally {
+          setStoreLoading(false);
+        }
+      }
+    };
+
+    fetchStoreData();
+  }, [user]);
 
   // Check for flash messages in localStorage
   useEffect(() => {
@@ -96,6 +126,15 @@ const DashboardPage = () => {
       navigate("/business-info");
     }
   }, [isAuthenticated, user, navigate]);
+
+  // Navigate to business info when store card is clicked
+  const handleStoreCardClick = () => {
+    if (user?.isStoreCreated) {
+      navigate("/update-store");
+    } else {
+      navigate("/business-info");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -251,36 +290,70 @@ const DashboardPage = () => {
 
           {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Tasks Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-medium">Tasks</h3>
+            {/* Store Info Card (replacing Tasks) */}
+            {storeLoading ? (
+              <div className="bg-white rounded-lg shadow p-4 dashboard-card flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-glam-primary"></div>
               </div>
-              <div className="p-4">
-                <div className="text-sm text-gray-500 mb-3">
-                  No tasks pending.
+            ) : storeError ? (
+              <div className="bg-white rounded-lg shadow p-4 dashboard-card h-64">
+                <div className="text-red-500 p-4 text-center">{storeError}</div>
+              </div>
+            ) : storeData ? (
+              <StoreInfoCard
+                storeName={storeData.storeName}
+                storeDescription={storeData.storeDescription}
+                storeLogo={storeData.storeLogo}
+                onClick={handleStoreCardClick}
+              />
+            ) : (
+              <div
+                className="bg-white rounded-lg shadow overflow-hidden dashboard-card cursor-pointer hover:shadow-md transition-shadow"
+                onClick={handleStoreCardClick}
+              >
+                <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Store Details</h3>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-glam-primary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
                 </div>
-
-                <div className="border-t border-gray-100 pt-3">
-                  <h4 className="text-sm font-medium mb-2">
-                    Suggested actions
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="text-sm text-blue-600 hover:underline cursor-pointer">
-                      Update profile
+                <div className="p-4 flex items-center justify-center h-40">
+                  <div className="text-center">
+                    <div className="bg-gray-100 rounded-full p-4 inline-block mb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 text-glam-primary"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        />
+                      </svg>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-blue-600 hover:underline cursor-pointer">
-                        Finish setting up your Store to help improve conversion
-                      </div>
-                      <span className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded">
-                        6
-                      </span>
-                    </div>
+                    <h4 className="font-medium">Set up your store</h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Create your store to start selling
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Listings Card */}
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
@@ -408,7 +481,7 @@ const DashboardPage = () => {
 
                 <button
                   onClick={() => navigate("/seller/create-product")}
-                  className="mt-4 bg-blue-600 text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-blue-700 transition-colors"
+                  className="mt-4 bg-glam-primary text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-glam-dark transition-colors"
                 >
                   List an item
                 </button>
@@ -565,213 +638,6 @@ const DashboardPage = () => {
                 <div className="mt-2 text-xs text-gray-500">
                   Data is for May 5 - June 5 at 7:40pm. Percentage change
                   compared to prior period.
-                </div>
-              </div>
-            </div>
-
-            {/* Advertising Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <div className="flex items-center">
-                  <h3 className="text-lg font-medium">Advertising</h3>
-                  <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
-                    NEW
-                  </span>
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-center mb-4">
-                  <img
-                    src="/illustrations/marketing_illustraion_remove_bg.png"
-                    alt="Marketing"
-                    className="h-28 w-auto"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "https://placehold.co/100x100?text=Ad";
-                    }}
-                  />
-                </div>
-
-                <h4 className="font-medium text-lg mb-2">Reach more buyers</h4>
-                <p className="text-sm text-gray-600 mb-4">
-                  CozyGlam Advertising connects you with more buyers around the
-                  world with simple-to-use, high-performing solutions that match
-                  your sales goals and campaign budget.
-                </p>
-
-                <button className="bg-white border border-gray-300 rounded-full py-2 px-4 text-sm font-medium hover:bg-gray-50 transition-colors">
-                  Get started
-                </button>
-              </div>
-            </div>
-
-            {/* Traffic Card */}
-            <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-medium">Traffic</h3>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-              <div className="p-4">
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center">
-                        <span className="text-sm">Listing impressions</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 ml-1 text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-xs text-red-500 mr-1">99.8%</span>
-                        <span className="text-sm">
-                          {trafficData.impressions}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center">
-                        <span className="text-sm">Click-through rate</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 ml-1 text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-sm">
-                          {trafficData.clickRate}%
-                        </span>
-                        <span className="text-xs text-green-500 ml-1">
-                          2.7% pts
-                        </span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 ml-1 text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center">
-                        <span className="text-sm">Listing page views</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 ml-1 text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-xs text-red-500 mr-1">99.4%</span>
-                        <span className="text-sm">{trafficData.pageViews}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center">
-                        <span className="text-sm">Sales conversion rate</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 ml-1 text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-sm">
-                          {trafficData.conversionRate}.0%
-                        </span>
-                        <span className="text-xs text-red-500 ml-1">
-                          0.08 pts
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 text-xs text-gray-500">
-                  Data for May 5 - June 5 at 7:40pm. Percentage change compared
-                  to prior period.
                 </div>
               </div>
             </div>

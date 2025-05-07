@@ -13,12 +13,16 @@ import SubmitButton from "../../common/SubmitButton";
 import { storeService, uploadService } from "../../../services/api";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setStoreCreated } from "../../../store/slices/authSlice";
+import { getFullImageUrl } from "../../../utils/imageUtils";
 import {
   BusinessFormData,
   SocialPlatform,
+  BusinessInfoFormProps,
 } from "../../../types/business.types";
 
-const BusinessInfoForm: React.FC = () => {
+const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
+  isUpdateMode = false,
+}) => {
   const { setIsStoreCreated } = useUser();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -44,6 +48,7 @@ const BusinessInfoForm: React.FC = () => {
 
   // UI state
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(isUpdateMode);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -53,27 +58,83 @@ const BusinessInfoForm: React.FC = () => {
   // File state - store the file for upload at form submission
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
+  // Fetch existing store data if in update mode
+  useEffect(() => {
+    if (isUpdateMode && user?.isStoreCreated) {
+      const fetchStoreData = async () => {
+        try {
+          setFetchLoading(true);
+          const response = await storeService.getStore();
+          console.log("Store API response:", response);
+
+          if (response.data.stores && response.data.stores.length > 0) {
+            const store = response.data.stores[0];
+            console.log("Store data:", store);
+            console.log("Store logo path:", store.storeLogo);
+            console.log("Store ID:", store._id);
+
+            setForm({
+              _id: store._id,
+              storeName: store.storeName || "",
+              storeDescription: store.storeDescription || "",
+              storeLogo: store.storeLogo || "",
+              businessEmail: store.businessEmail || "",
+              businessPhone: store.businessPhone || "",
+              businessAddress: store.businessAddress || "",
+              country: store.country || "",
+              city: store.city || "",
+              state: store.state || "",
+              postalCode: store.postcode || "",
+              website: store.website || "",
+              instagram: store.socialLinks?.instagram || "",
+              facebook: store.socialLinks?.facebook || "",
+              tiktok: store.socialLinks?.tiktok || "",
+            });
+
+            // Set preview image for the logo with full URL
+            if (store.storeLogo) {
+              const fullLogoUrl = getFullImageUrl(store.storeLogo);
+              console.log("Setting preview image:", fullLogoUrl);
+              setPreviewImage(fullLogoUrl);
+            } else {
+              console.log("No store logo found in the data");
+            }
+          } else {
+            console.log("No stores found in the API response");
+          }
+        } catch (err) {
+          console.error("Failed to fetch store data:", err);
+          setError("Failed to load store data. Please try again.");
+        } finally {
+          setFetchLoading(false);
+        }
+      };
+
+      fetchStoreData();
+    }
+  }, [isUpdateMode, user]);
+
   // Redirect if user is not authenticated or is not a seller
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
     } else if (user?.role !== "seller") {
       navigate("/");
-    } else if (user?.isStoreCreated) {
+    } else if (!isUpdateMode && user?.isStoreCreated) {
       navigate("/dashboard");
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, isUpdateMode]);
 
   // Pre-fill business email and phone with user data
   useEffect(() => {
-    if (user) {
+    if (user && !isUpdateMode) {
       setForm((prev) => ({
         ...prev,
         businessEmail: user.email || "",
         businessPhone: user.phone_number || "",
       }));
     }
-  }, [user]);
+  }, [user, isUpdateMode]);
 
   // Form field change handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,21 +196,27 @@ const BusinessInfoForm: React.FC = () => {
         },
       };
 
-      // Step 3: Create the store
-      await storeService.createStore(payload);
-
-      // Step 4: Update app state
-      dispatch(setStoreCreated());
-      setIsStoreCreated(true);
+      // Step 3: Create or update the store
+      if (isUpdateMode) {
+        await storeService.updateStore(payload, payload._id);
+        setSuccess("Store updated successfully!");
+      } else {
+        await storeService.createStore(payload);
+        dispatch(setStoreCreated());
+        setIsStoreCreated(true);
+        setSuccess("Store created successfully!");
+      }
 
       // Show success message and redirect
-      setSuccess("Store created successfully!");
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || "Failed to create store");
+      setError(
+        error.response?.data?.message ||
+          `Failed to ${isUpdateMode ? "update" : "create"} store`
+      );
     } finally {
       setLoading(false);
     }
@@ -175,36 +242,49 @@ const BusinessInfoForm: React.FC = () => {
             onSubmit={handleContinue}
             className="bg-white/90 rounded-3xl shadow-lg backdrop-blur-sm px-6 py-6 w-full lg:col-span-7"
           >
-            <FormHeader title="Create Your Store" />
+            <FormHeader
+              title={isUpdateMode ? "Update Your Store" : "Create Your Store"}
+            />
 
             <FeedbackMessage error={error} success={success} />
 
-            <LogoUploadField
-              previewImage={previewImage}
-              setPreviewImage={setPreviewImage}
-              onFileSelect={handleFileSelect}
-              uploadLoading={uploadLoading}
-              sizeError={sizeError}
-              setSizeError={setSizeError}
-            />
+            {fetchLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-glam-primary"></div>
+              </div>
+            ) : (
+              <>
+                <LogoUploadField
+                  previewImage={previewImage}
+                  setPreviewImage={setPreviewImage}
+                  onFileSelect={handleFileSelect}
+                  uploadLoading={uploadLoading}
+                  sizeError={sizeError}
+                  setSizeError={setSizeError}
+                  isRequired={!isUpdateMode}
+                />
 
-            <BusinessInfoFields form={form} onChange={handleChange} />
+                <BusinessInfoFields form={form} onChange={handleChange} />
 
-            <SocialLinksSetup
-              socials={{
-                instagram: form.instagram,
-                facebook: form.facebook,
-                tiktok: form.tiktok,
-              }}
-              setSocial={setSocial}
-            />
+                <SocialLinksSetup
+                  socials={{
+                    instagram: form.instagram,
+                    facebook: form.facebook,
+                    tiktok: form.tiktok,
+                  }}
+                  setSocial={setSocial}
+                />
 
-            <SubmitButton
-              label="Continue"
-              loadingLabel="Creating Store..."
-              loading={loading}
-              className="mt-4"
-            />
+                <SubmitButton
+                  label={isUpdateMode ? "Update Store" : "Continue"}
+                  loadingLabel={
+                    isUpdateMode ? "Updating Store..." : "Creating Store..."
+                  }
+                  loading={loading}
+                  className="mt-4"
+                />
+              </>
+            )}
           </form>
         </section>
       </main>

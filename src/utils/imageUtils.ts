@@ -1,15 +1,36 @@
-// Image utilities
-const IMAGE_CDN_URL = import.meta.env.VITE_IMAGE_CDN_URL;
-
 /**
- * Generates a full URL for an image by combining the CDN base URL with the image path
- * @param path - The image path or URL
- * @returns Full image URL
+ * Utility function to construct the full URL for an image based on the API base URL
+ * If the image path already starts with http/https, it will be returned as is
+ * Otherwise, it will be prefixed with the API base URL
  */
-export const getFullImageUrl = (path: string): string => {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-  return `${IMAGE_CDN_URL}${path}`;
+export const getFullImageUrl = (imagePath: string): string => {
+  if (!imagePath) {
+    console.log("No image path provided, using placeholder");
+    return "/assets/images/placeholder-image.png";
+  }
+
+  // If the image path already includes http/https, return it as is
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    console.log("Image path already has http/https, using as is:", imagePath);
+    return imagePath;
+  }
+
+  // Otherwise, prepend the API base URL
+  // Get the API base URL from environment or use a default
+  const apiBaseUrl =
+    import.meta.env.VITE_IMAGE_CDN_URL ||
+    import.meta.env.VITE_BACKEND_URL ||
+    "http://localhost:5000";
+  console.log("Using API base URL:", apiBaseUrl);
+
+  // Remove any leading slash from the image path to avoid double slashes
+  const cleanImagePath = imagePath.startsWith("/")
+    ? imagePath.substring(1)
+    : imagePath;
+
+  const fullUrl = `${apiBaseUrl}/${cleanImagePath}`;
+  console.log("Full image URL constructed:", fullUrl);
+  return fullUrl;
 };
 
 /**

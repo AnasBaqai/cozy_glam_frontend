@@ -74,6 +74,11 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
     fileInputRef.current?.click();
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error("Failed to load image:", e.currentTarget.src);
+    e.currentTarget.src = "/assets/images/placeholder-store.png";
+  };
+
   return (
     <div className="mb-5">
       <label className="block text-base font-medium text-glam-dark mb-2">
@@ -109,6 +114,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
                   src={previewImage}
                   alt="Logo Preview"
                   className="w-full h-full object-contain rounded-lg p-2"
+                  onError={handleImageError}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center rounded-lg transition-all">
                   <button

@@ -1,7 +1,8 @@
-import { RefObject } from "react";
+import { ChangeEvent } from "react";
 
 // Form data interface for BusinessInfoForm
 export interface BusinessFormData {
+  _id?: string;
   storeName: string;
   storeDescription: string;
   storeLogo: string;
@@ -20,19 +21,8 @@ export interface BusinessFormData {
 
 // Props interfaces for business info components
 export interface BusinessInfoFieldsProps {
-  form: {
-    storeName: string;
-    storeDescription: string;
-    businessEmail: string;
-    businessPhone: string;
-    businessAddress: string;
-    country: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    website: string;
-  };
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  form: BusinessFormData;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export interface FormInputProps
@@ -53,11 +43,11 @@ export interface FeedbackMessageProps {
 
 export interface LogoUploadFieldProps {
   previewImage: string | null;
-  setPreviewImage: (url: string | null) => void;
+  setPreviewImage: React.Dispatch<React.SetStateAction<string | null>>;
   onFileSelect: (file: File) => void;
   uploadLoading?: boolean;
   sizeError: string | null;
-  setSizeError: (error: string | null) => void;
+  setSizeError: React.Dispatch<React.SetStateAction<string | null>>;
   isRequired?: boolean;
 }
 
@@ -67,18 +57,15 @@ export interface SocialLinksSetupProps {
     facebook: string;
     tiktok: string;
   };
-  setSocial: (
-    platform: "instagram" | "facebook" | "tiktok",
-    value: string
-  ) => void;
+  setSocial: (platform: SocialPlatform, value: string) => void;
 }
 
 export interface SocialModalProps {
   open: boolean;
-  dialogRef: RefObject<HTMLDialogElement | null>;
-  platform: "instagram" | "facebook" | "tiktok";
+  dialogRef: React.RefObject<HTMLDialogElement | null>;
+  platform: SocialPlatform;
   value: string;
-  onChange: (v: string) => void;
+  onChange: (value: string) => void;
   onSave: () => void;
   onClose: () => void;
 }
@@ -99,8 +86,19 @@ export const SOCIAL_PLATFORM_DATA = {
     tiktok: "TikTok",
   },
   exampleUrls: {
-    instagram: "https://instagram.com/yourusername",
-    facebook: "https://facebook.com/yourbusiness",
-    tiktok: "https://tiktok.com/@yourusername",
+    instagram: "https://instagram.com/your_username",
+    facebook: "https://facebook.com/your_username",
+    tiktok: "https://tiktok.com/@your_username",
   },
 };
+
+export interface BusinessInfoFormProps {
+  isUpdateMode?: boolean;
+}
+
+export interface StoreInfoCardProps {
+  storeName: string;
+  storeDescription: string;
+  storeLogo: string;
+  onClick: () => void;
+}
