@@ -6,6 +6,7 @@ import LoginPage from "./pages/auth/login/LoginPage";
 import SignupPage from "./pages/auth/signup/SignupPage";
 import HomePage from "./pages/HomePage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
+import SubcategoryProductsPage from "./pages/SubcategoryProductsPage";
 import CartPage from "./pages/CartPage";
 import { CartProvider } from "./context/CartContext";
 import { UserProvider } from "./context/UserContext";
@@ -28,6 +29,10 @@ function App() {
                 <Route
                   path="/category/:slug"
                   element={<CategoryDetailPage />}
+                />
+                <Route
+                  path="/category/:categorySlug/:subcategorySlug"
+                  element={<SubcategoryProductsPage />}
                 />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/business-info" element={<BusinessInfoForm />} />

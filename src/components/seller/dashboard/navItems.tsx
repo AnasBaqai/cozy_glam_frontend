@@ -1,4 +1,3 @@
-import React from "react";
 import { NavItem } from "../../../types/sidebar.types";
 
 // List of navigation items for the seller sidebar

@@ -4,6 +4,12 @@ import type {
   LoginRequest,
   AuthResponse,
 } from "../types/auth.types";
+import {
+  Category,
+  CategoryResponse,
+  SubCategory,
+  SubCategoryResponse,
+} from "../types/category.types";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -114,53 +120,8 @@ export interface ImageUploadResponse {
   };
 }
 
-export interface Category {
-  _id: string;
-  name: string;
-  image: string;
-  type: string;
-  isActive: boolean;
-  createdAt: string;
-  __v: number;
-}
-
-export interface CategoryResponse {
-  status: boolean;
-  responseCode: number;
-  message: string;
-  data: {
-    categories: Category[];
-    totalPages: number;
-    currentPage: number;
-    totalCategory: number;
-  };
-}
-
-// Add interface for subcategory
-export interface SubCategory {
-  _id: string;
-  name: string;
-  imageUrl?: string;
-  type: string;
-  category: {
-    _id: string;
-    name: string;
-  };
-  isActive: boolean;
-  createdAt: string;
-}
-
-export interface SubCategoryResponse {
-  status: boolean;
-  responseCode: number;
-  message: string;
-  data: {
-    subcategories: SubCategory[];
-    totalPages: number;
-    currentPage: number;
-    totalSubCategory: number;
-  };
-}
+// Export types from category.types.ts
+export type { Category, CategoryResponse, SubCategory, SubCategoryResponse };
 
 export const categoryService = {
   getCategories: async (
