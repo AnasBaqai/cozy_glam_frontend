@@ -37,3 +37,29 @@ export interface TrafficData {
   pageViews: number;
   conversionRate: number;
 }
+
+export interface UserProfile {
+  _id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  role: string;
+  skills: string[];
+  loyalty_balance: {
+    points: number;
+  };
+  status: string;
+  isStoreCreated: boolean;
+  isProfileComplete: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserProfileResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    user: UserProfile;
+  };
+}

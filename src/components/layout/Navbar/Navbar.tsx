@@ -658,13 +658,6 @@ const Navbar: React.FC = () => {
                 Home
               </Link>
               <Link
-                to="/deals"
-                className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Today's Deals
-              </Link>
-              <Link
                 to="/about"
                 className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
                 onClick={() => setIsMenuOpen(false)}
@@ -734,12 +727,7 @@ const Navbar: React.FC = () => {
           <Link to="/" className="text-gray-600 hover:text-glam-primary">
             Home
           </Link>
-          <Link to="/deals" className="text-gray-600 hover:text-glam-primary">
-            Today's Deals
-          </Link>
-          <Link to="/popular" className="text-gray-600 hover:text-glam-primary">
-            Popular Items
-          </Link>
+
           <Link to="/about" className="text-gray-600 hover:text-glam-primary">
             About Us
           </Link>

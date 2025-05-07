@@ -10,6 +10,7 @@ import {
   SubCategory,
   SubCategoryResponse,
 } from "../types/category.types";
+import { UserProfileResponse } from "../types/dashboard.types";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -395,6 +396,13 @@ export const uploadService = {
     }
 
     return imageUrls;
+  },
+};
+
+export const userService = {
+  getProfile: async (): Promise<UserProfileResponse> => {
+    const response = await api.get<UserProfileResponse>("/users/getProfile");
+    return response.data;
   },
 };
 
