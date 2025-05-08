@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import LoginPage from "./pages/auth/login/LoginPage";
 import SignupPage from "./pages/auth/signup/SignupPage";
 import HomePage from "./pages/HomePage";
@@ -58,6 +60,7 @@ function App() {
                   />
                   {/* Add more routes as the application grows */}
                 </Routes>
+                <ToastContainer position="bottom-right" autoClose={3000} />
               </Router>
             </CartProvider>
           </ProductProvider>
