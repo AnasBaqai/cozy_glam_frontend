@@ -5,8 +5,56 @@ import Footer from "../components/layout/Footer/Footer";
 import Marquee from "../components/layout/Marquee/Marquee";
 import ProductSubcategoryCard from "../components/ui/ProductSubcategoryCard";
 import { slugToName } from "../utils/urlUtils";
-import { MockProduct } from "../types/category.types";
-import { getProductsForSubcategory } from "../services/mockProductService";
+import { getFullImageUrl } from "../utils/imageUtils";
+import { productService } from "../services/api";
+import { getCategoryId, getSubcategoryId } from "../utils/categoryUtils";
+
+// Define Product interface based on API response
+interface Product {
+  _id: string;
+  seller_id: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  title: string;
+  description: string;
+  price: number;
+  inventory_count: number;
+  categories: {
+    _id: string;
+    name: string;
+  };
+  subcategories: Array<{
+    _id: string;
+    name: string;
+  }>;
+  tags: string[];
+  images: string[];
+  quantity: number;
+  status: string;
+  ratings: {
+    average: number;
+    count: number;
+  };
+  reviews: Array<{
+    _id: string;
+    user_id: string;
+    rating: number;
+    comment: string;
+    created_at: string;
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
+// Pagination interface
+interface PaginationData {
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
 
 const SubcategoryProductsPage: React.FC = () => {
   const { categorySlug, subcategorySlug } = useParams<{
@@ -19,30 +67,99 @@ const SubcategoryProductsPage: React.FC = () => {
     ? slugToName(subcategorySlug)
     : "Subcategory";
 
+  // State for products and UI
   const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState<MockProduct[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Simulate API call with a delay
+  // Pagination state
+  const [pagination, setPagination] = useState<PaginationData>({
+    total: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 50,
+  });
+
+  // Fetch products from API
+  const fetchProducts = async (page: number = 1) => {
     setLoading(true);
-    const timer = setTimeout(() => {
-      // Generate mock products for this subcategory
-      const mockProducts = getProductsForSubcategory(
-        categorySlug || "unknown",
-        categoryName,
-        subcategorySlug || "unknown",
-        subcategoryName
+    setError(null);
+
+    try {
+      // Get the stored category and subcategory IDs using our utility functions
+      const categoryId = getCategoryId(categorySlug || "");
+      const subcategoryId = getSubcategoryId(subcategorySlug || "");
+
+      if (!categoryId) {
+        setError(
+          "Category information missing. Please navigate from the category page."
+        );
+        setLoading(false);
+        return;
+      }
+
+      console.log(
+        "Fetching products with categoryId:",
+        categoryId,
+        "subcategoryId:",
+        subcategoryId
       );
-      setProducts(mockProducts);
+
+      const response = await productService.getProductsByCategoryAndSubcategory(
+        categoryId,
+        subcategoryId,
+        page,
+        pagination.pageSize
+      );
+
+      console.log("API Response:", response);
+
+      if (response.status) {
+        console.log("Product data received:", response.data.products);
+
+        // Log first product's image URLs for debugging
+        if (response.data.products.length > 0) {
+          console.log(
+            "First product images:",
+            response.data.products[0].images
+          );
+          const firstImageUrl = getFullImageUrl(
+            response.data.products[0].images[0]
+          );
+          console.log("First image URL constructed:", firstImageUrl);
+        }
+
+        setProducts(response.data.products);
+        setPagination({
+          total: response.data.total,
+          totalPages: response.data.totalPages,
+          currentPage: response.data.currentPage,
+          pageSize: response.data.pageSize,
+        });
+      } else {
+        setError("Failed to load products");
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError("An error occurred while fetching products. Please try again.");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
+  };
 
-    return () => clearTimeout(timer);
-  }, [categorySlug, categoryName, subcategorySlug, subcategoryName]);
+  // Initial load and when parameters change
+  useEffect(() => {
+    fetchProducts(1);
+  }, [categorySlug, subcategorySlug]);
 
-  // Filter products
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    fetchProducts(page);
+  };
+
+  // Filter products (client-side)
   const filteredProducts = products.filter((product) => {
     if (filter === "all") return true;
     if (filter === "under50" && product.price < 50) return true;
@@ -52,13 +169,69 @@ const SubcategoryProductsPage: React.FC = () => {
     return false;
   });
 
-  // Sort products
+  // Sort products (client-side)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === "priceLow") return a.price - b.price;
     if (sortBy === "priceHigh") return b.price - a.price;
-    if (sortBy === "newest") return Math.random() - 0.5; // Mock random sort for demo
+    if (sortBy === "newest") {
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    }
     return 0; // Default: featured
   });
+
+  // Generate pagination buttons
+  const renderPagination = () => {
+    const pages = [];
+    const { currentPage, totalPages } = pagination;
+
+    // Previous button
+    pages.push(
+      <button
+        key="prev"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 text-gray-600"
+      >
+        &lt;
+      </button>
+    );
+
+    // Page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-1 rounded border ${
+            currentPage === i
+              ? "bg-glam-primary text-white border-glam-primary"
+              : "border-gray-300 hover:bg-glam-light hover:text-glam-primary text-gray-600 transition-colors"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Next button
+    pages.push(
+      <button
+        key="next"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 text-gray-600"
+      >
+        &gt;
+      </button>
+    );
+
+    return <div className="flex space-x-2 justify-center mt-6">{pages}</div>;
+  };
 
   return (
     <div className="min-h-screen bg-glam-light flex flex-col">
@@ -153,6 +326,13 @@ const SubcategoryProductsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
+            <p>{error}</p>
+          </div>
+        )}
+
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center h-64">
@@ -161,25 +341,32 @@ const SubcategoryProductsPage: React.FC = () => {
         )}
 
         {/* Products Grid */}
-        {!loading && sortedProducts.length > 0 && (
+        {!loading && !error && sortedProducts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {sortedProducts.map((product) => (
-              <ProductSubcategoryCard
-                key={product.id}
-                id={product.id}
-                title={product.title}
-                image={product.image}
-                price={product.price}
-                description={product.description}
-                categoryName={product.categoryName}
-                subcategoryName={product.subcategoryName}
-              />
-            ))}
+            {sortedProducts.map((product) => {
+              console.log("Product:", product.title);
+              console.log("Product images:", product.images);
+              const imageUrl = getFullImageUrl(product.images[0]);
+              console.log("Generated image URL:", imageUrl);
+
+              return (
+                <ProductSubcategoryCard
+                  key={product._id}
+                  id={product._id}
+                  title={product.title}
+                  image={imageUrl}
+                  price={product.price}
+                  description={product.description}
+                  categoryName={product.categories.name}
+                  subcategoryName={product.subcategories[0]?.name || ""}
+                />
+              );
+            })}
           </div>
         )}
 
         {/* No Products Found */}
-        {!loading && sortedProducts.length === 0 && (
+        {!loading && !error && sortedProducts.length === 0 && (
           <div className="bg-amber-50 border border-amber-100 text-amber-700 px-4 py-3 rounded-lg">
             <p>
               No products found with the selected filters. Please try different
@@ -189,11 +376,14 @@ const SubcategoryProductsPage: React.FC = () => {
         )}
 
         {/* Results Summary */}
-        {!loading && sortedProducts.length > 0 && (
+        {!loading && !error && sortedProducts.length > 0 && (
           <div className="mt-8 text-center text-gray-600">
-            Showing {sortedProducts.length} products
+            Showing {sortedProducts.length} of {pagination.total} products
           </div>
         )}
+
+        {/* Pagination */}
+        {!loading && !error && pagination.totalPages > 1 && renderPagination()}
       </div>
       <Footer />
     </div>

@@ -5,7 +5,7 @@ import Footer from "../components/layout/Footer/Footer";
 import Marquee from "../components/layout/Marquee/Marquee";
 import SubCategoryCard from "../components/ui/SubCategoryCard";
 import { categoryService } from "../services/api";
-import { SubCategory } from "../types/category.types";
+import { Category, SubCategory } from "../types/category.types";
 import { createSlug, slugToName } from "../utils/urlUtils";
 
 const CategoryDetailPage: React.FC = () => {
@@ -15,6 +15,7 @@ const CategoryDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
+  const [matchedCategory, setMatchedCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     const fetchCategoryAndSubcategories = async () => {
@@ -26,27 +27,29 @@ const CategoryDetailPage: React.FC = () => {
         const categoriesResponse = await categoryService.getCategories();
         const categories = categoriesResponse.data.categories;
 
-        const matchedCategory = categories.find(
+        const foundCategory = categories.find(
           (cat) => createSlug(cat.name) === slug
         );
 
-        if (!matchedCategory) {
+        if (!foundCategory) {
           setError("Category not found");
           setLoading(false);
           return;
         }
 
+        setMatchedCategory(foundCategory);
+
         // Now fetch subcategories for this category
         try {
           const subcategoriesResponse = await categoryService.getSubCategories(
-            matchedCategory._id
+            foundCategory._id
           );
           setSubcategories(subcategoriesResponse.data.subcategories);
         } catch (subcatError) {
           console.error("Error fetching subcategories:", subcatError);
           // Fallback to mock data if API fails
           const mockSubcategories = categoryService.getMockSubCategories(
-            matchedCategory._id
+            foundCategory._id
           );
           setSubcategories(mockSubcategories);
         }
@@ -115,8 +118,10 @@ const CategoryDetailPage: React.FC = () => {
                 <SubCategoryCard
                   key={subcategory._id}
                   name={subcategory.name}
-                  image={subcategory.imageUrl}
+                  image={subcategory.imageUrl || ""}
                   categoryName={categoryName}
+                  id={subcategory._id}
+                  categoryId={matchedCategory?._id}
                 />
               ))}
             </div>

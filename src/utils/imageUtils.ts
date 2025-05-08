@@ -1,31 +1,45 @@
 /**
- * Utility function to construct the full URL for an image based on the API base URL
- * If the image path already starts with http/https, it will be returned as is
- * Otherwise, it will be prefixed with the API base URL
+ * Gets the full URL for an image path.
+ * If the image path starts with http, it's assumed to be a complete URL.
+ * Otherwise, it's a relative path to be appended to the API base URL.
+ *
+ * @param imagePath - The path to the image
+ * @returns The full URL to the image
  */
-export const getFullImageUrl = (imagePath: string): string => {
+export const getFullImageUrl = (imagePath: string | undefined): string => {
+  // If no image path is provided, return a default placeholder
   if (!imagePath) {
-    console.log("No image path provided, using placeholder");
-    return "/assets/images/placeholder-image.png";
+    return "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg";
   }
 
-  // If the image path already includes http/https, return it as is
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    console.log("Image path already has http/https, using as is:", imagePath);
+  // If the image path already starts with http, it's already a full URL
+  if (imagePath.startsWith("http")) {
     return imagePath;
   }
 
-  // Otherwise, prepend the API base URL
-  // Get the API base URL from environment or use a default
+  // Get the API base URL from environment
   const apiBaseUrl = import.meta.env.VITE_IMAGE_CDN_URL;
 
-  // Remove any leading slash from the image path to avoid double slashes
-  const cleanImagePath = imagePath.startsWith("/")
+  console.log("Image path:", imagePath);
+  console.log("API base URL:", apiBaseUrl);
+
+  // Ensure we have a valid base URL
+  if (!apiBaseUrl) {
+    console.error("Backend URL environment variable is missing");
+    return imagePath; // Return the path as-is if no base URL
+  }
+
+  // Create a properly formatted URL by ensuring no double slashes
+  const baseWithTrailingSlash = apiBaseUrl.endsWith("/")
+    ? apiBaseUrl
+    : `${apiBaseUrl}/`;
+  const pathWithoutLeadingSlash = imagePath.startsWith("/")
     ? imagePath.substring(1)
     : imagePath;
 
-  const fullUrl = `${apiBaseUrl}/${cleanImagePath}`;
-  console.log("Full image URL constructed:", fullUrl);
+  const fullUrl = `${baseWithTrailingSlash}${pathWithoutLeadingSlash}`;
+  console.log("Full image URL:", fullUrl);
+
   return fullUrl;
 };
 

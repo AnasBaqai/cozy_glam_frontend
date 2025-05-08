@@ -487,6 +487,69 @@ export const productService = {
     const response = await api.get(url);
     return response.data;
   },
+
+  getProductsByCategoryAndSubcategory: async (
+    category_id: string,
+    subcategory_id?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
+    status: boolean;
+    responseCode: number;
+    message: string;
+    data: {
+      products: Array<{
+        _id: string;
+        seller_id: {
+          _id: string;
+          name: string;
+          email: string;
+        };
+        title: string;
+        description: string;
+        price: number;
+        inventory_count: number;
+        categories: {
+          _id: string;
+          name: string;
+        };
+        subcategories: Array<{
+          _id: string;
+          name: string;
+        }>;
+        tags: string[];
+        images: string[];
+        quantity: number;
+        status: string;
+        ratings: {
+          average: number;
+          count: number;
+        };
+        reviews: Array<{
+          _id: string;
+          user_id: string;
+          rating: number;
+          comment: string;
+          created_at: string;
+        }>;
+        created_at: string;
+        updated_at: string;
+      }>;
+      total: number;
+      totalPages: number;
+      currentPage: number;
+      pageSize: number;
+    };
+  }> => {
+    let url = `/products/getProduct?category_id=${category_id}&page=${page}&limit=${limit}`;
+
+    if (subcategory_id) {
+      url += `&subcategory_id=${subcategory_id}`;
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  },
 };
 
 // Enhance uploadService to handle multiple files

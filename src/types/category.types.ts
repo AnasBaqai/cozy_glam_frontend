@@ -63,8 +63,10 @@ export interface MockProduct {
 // Component props types
 export interface SubCategoryCardProps {
   name: string;
-  image?: string;
+  image: string;
   categoryName: string;
+  id?: string; // ID of the subcategory
+  categoryId?: string; // ID of the parent category
 }
 
 export interface ProductSubcategoryCardProps {

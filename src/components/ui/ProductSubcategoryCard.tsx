@@ -14,6 +14,8 @@ const ProductSubcategoryCard: React.FC<ProductSubcategoryCardProps> = ({
   const { addToCart, removeFromCart, getItemCount } = useCart();
   const quantity = getItemCount(id);
 
+  console.log("ProductCard rendering with image URL:", image);
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg">
       <div className="relative h-48 overflow-hidden">
@@ -21,6 +23,10 @@ const ProductSubcategoryCard: React.FC<ProductSubcategoryCardProps> = ({
           src={image}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          onError={(e) => {
+            console.error(`Image load error for ${title}:`, image);
+            (e.target as HTMLImageElement).src = "/placeholder.png";
+          }}
         />
         <div className="absolute top-0 left-0 bg-amber-500 text-white px-2 py-1 text-xs font-medium rounded-br-lg">
           {subcategoryName}
