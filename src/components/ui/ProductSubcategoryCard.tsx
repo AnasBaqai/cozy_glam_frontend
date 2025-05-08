@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { ProductSubcategoryCardProps } from "../../types/category.types";
 
@@ -18,29 +19,36 @@ const ProductSubcategoryCard: React.FC<ProductSubcategoryCardProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg">
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-          onError={(e) => {
-            console.error(`Image load error for ${title}:`, image);
-            (e.target as HTMLImageElement).src = "/placeholder.png";
-          }}
-        />
-        <div className="absolute top-0 left-0 bg-amber-500 text-white px-2 py-1 text-xs font-medium rounded-br-lg">
-          {subcategoryName}
-        </div>
-        {categoryName && (
-          <div className="absolute top-0 right-0 bg-gray-100 text-gray-800 px-2 py-1 text-xs font-medium rounded-bl-lg">
-            {categoryName}
+      <Link to={`/product/${id}`} className="block">
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            onError={(e) => {
+              console.error(`Image load error for ${title}:`, image);
+              (e.target as HTMLImageElement).src = "/placeholder.png";
+            }}
+          />
+          <div className="absolute top-0 left-0 bg-amber-500 text-white px-2 py-1 text-xs font-medium rounded-br-lg">
+            {subcategoryName}
           </div>
-        )}
-      </div>
+          {categoryName && (
+            <div className="absolute top-0 right-0 bg-gray-100 text-gray-800 px-2 py-1 text-xs font-medium rounded-bl-lg">
+              {categoryName}
+            </div>
+          )}
+        </div>
+      </Link>
 
       <div className="p-4">
         <div className="flex justify-between items-start">
-          <h3 className="font-semibold text-gray-800 text-lg">{title}</h3>
+          <Link
+            to={`/product/${id}`}
+            className="hover:text-amber-600 transition-colors"
+          >
+            <h3 className="font-semibold text-gray-800 text-lg">{title}</h3>
+          </Link>
           <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-sm font-medium">
             ${price.toFixed(2)}
           </span>

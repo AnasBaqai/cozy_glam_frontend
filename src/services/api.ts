@@ -550,6 +550,54 @@ export const productService = {
     const response = await api.get(url);
     return response.data;
   },
+
+  getProductById: async (
+    productId: string
+  ): Promise<{
+    status: boolean;
+    responseCode: number;
+    message: string;
+    data: {
+      _id: string;
+      seller_id: {
+        _id: string;
+        name: string;
+        email: string;
+      };
+      title: string;
+      description: string;
+      price: number;
+      inventory_count: number;
+      categories: {
+        _id: string;
+        name: string;
+      };
+      subcategories: Array<{
+        _id: string;
+        name: string;
+      }>;
+      tags: string[];
+      images: string[];
+      quantity: number;
+      status: string;
+      ratings: {
+        average: number;
+        count: number;
+      };
+      reviews: Array<{
+        _id: string;
+        user_id: string;
+        rating: number;
+        comment: string;
+        created_at: string;
+      }>;
+      created_at: string;
+      updated_at: string;
+    };
+  }> => {
+    const response = await api.get(`/products/getProductById/${productId}`);
+    return response.data;
+  },
 };
 
 // Enhance uploadService to handle multiple files

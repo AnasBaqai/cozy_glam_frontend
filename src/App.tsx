@@ -17,6 +17,7 @@ import DashboardPage from "./pages/seller/DashboardPage";
 import CreateProductPage from "./pages/seller/CreateProductPage";
 import ListingsPage from "./pages/seller/ListingsPage";
 import ProfilePage from "./pages/ProfilePage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 function App() {
   return (
@@ -51,6 +52,10 @@ function App() {
                   />
                   <Route path="/seller/listings" element={<ListingsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route
+                    path="/product/:productId"
+                    element={<ProductDetailPage />}
+                  />
                   {/* Add more routes as the application grows */}
                 </Routes>
               </Router>
