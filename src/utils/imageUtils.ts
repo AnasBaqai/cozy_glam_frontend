@@ -17,11 +17,7 @@ export const getFullImageUrl = (imagePath: string): string => {
 
   // Otherwise, prepend the API base URL
   // Get the API base URL from environment or use a default
-  const apiBaseUrl =
-    import.meta.env.VITE_IMAGE_CDN_URL ||
-    import.meta.env.VITE_BACKEND_URL ||
-    "http://localhost:5000";
-  console.log("Using API base URL:", apiBaseUrl);
+  const apiBaseUrl = import.meta.env.VITE_IMAGE_CDN_URL;
 
   // Remove any leading slash from the image path to avoid double slashes
   const cleanImagePath = imagePath.startsWith("/")

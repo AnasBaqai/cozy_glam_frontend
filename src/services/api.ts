@@ -440,7 +440,9 @@ export const productService = {
   },
 
   getSellerProducts: async (
-    status?: string
+    status?: string,
+    page: number = 1,
+    limit: number = 10
   ): Promise<{
     status: boolean;
     responseCode: number;
@@ -476,9 +478,11 @@ export const productService = {
       pageSize: number;
     };
   }> => {
-    const url = status
-      ? `/products/getProductSeller?status=${status}`
-      : "/products/getProductSeller";
+    let url = `/products/getProductSeller?page=${page}&limit=${limit}`;
+
+    if (status) {
+      url += `&status=${status}`;
+    }
 
     const response = await api.get(url);
     return response.data;

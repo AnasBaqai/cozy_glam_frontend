@@ -350,8 +350,8 @@ const DashboardPage = () => {
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Listings</h3>
-                <Link
-                  to="/seller/listings"
+                <button
+                  onClick={() => navigate("/seller/listings")}
                   className="text-glam-primary hover:text-glam-dark"
                 >
                   <svg
@@ -368,7 +368,7 @@ const DashboardPage = () => {
                       d="M9 5l7 7-7 7"
                     />
                   </svg>
-                </Link>
+                </button>
               </div>
               <div className="p-4">
                 {listingsLoading ? (
@@ -383,7 +383,7 @@ const DashboardPage = () => {
                   <>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div
-                        className="bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="bg-glam-light p-3 rounded cursor-pointer hover:bg-glam-light/70 transition-colors"
                         onClick={() =>
                           navigate("/seller/listings?status=active")
                         }
@@ -392,12 +392,12 @@ const DashboardPage = () => {
                           ACTIVE LISTINGS
                         </div>
                         <div className="flex justify-between items-center mt-1">
-                          <span className="text-xl font-bold">
+                          <span className="text-xl font-bold text-glam-primary">
                             {listings.active}
                           </span>
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-gray-400"
+                            className="h-5 w-5 text-glam-primary"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -477,9 +477,23 @@ const DashboardPage = () => {
 
                 <button
                   onClick={() => navigate("/seller/create-product")}
-                  className="mt-4 bg-glam-primary text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-glam-dark transition-colors"
+                  className="mt-4 bg-glam-primary text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-glam-dark transition-colors w-full flex items-center justify-center"
                 >
-                  List an item
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Create Listing
                 </button>
               </div>
             </div>

@@ -15,6 +15,7 @@ import "./App.css";
 import BusinessInfoForm from "./components/seller/business-info/BusinessInfoForm";
 import DashboardPage from "./pages/seller/DashboardPage";
 import CreateProductPage from "./pages/seller/CreateProductPage";
+import ListingsPage from "./pages/seller/ListingsPage";
 import ProfilePage from "./pages/ProfilePage";
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
                     path="/seller/create-product"
                     element={<CreateProductPage />}
                   />
+                  <Route path="/seller/listings" element={<ListingsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   {/* Add more routes as the application grows */}
                 </Routes>
