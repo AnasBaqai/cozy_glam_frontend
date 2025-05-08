@@ -12,6 +12,7 @@ export interface User {
   isStoreCreated?: boolean;
   created_at: string;
   updated_at: string;
+  token: string;
 }
 
 export interface AuthState {
@@ -41,6 +42,5 @@ export interface AuthResponse {
   message: string;
   data: {
     user: User;
-    token: string;
   };
 }

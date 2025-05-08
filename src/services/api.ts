@@ -20,6 +20,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Enable cookies for all requests
 });
 
 // Create a separate instance for file uploads
@@ -31,10 +32,34 @@ const uploadApi = axios.create({
   withCredentials: true, // Include credentials for CORS
 });
 
+// Helper function to set a cookie
+const setCookie = (name: string, value: string, days: number = 30) => {
+  const date = new Date();
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value};${expires};path=/`;
+};
+
+// Helper function to get a cookie
+const getCookie = (name: string): string | null => {
+  const nameEQ = `${name}=`;
+  const ca = document.cookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === " ") c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+};
+
 // Add request interceptor to include auth token if available for both instances
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    // Try to get token from cookie first, then fall back to localStorage
+    const tokenFromCookie = getCookie("token");
+    const tokenFromStorage = localStorage.getItem("token");
+    const token = tokenFromCookie || tokenFromStorage;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -45,7 +70,11 @@ api.interceptors.request.use(
 
 uploadApi.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    // Try to get token from cookie first, then fall back to localStorage
+    const tokenFromCookie = getCookie("token");
+    const tokenFromStorage = localStorage.getItem("token");
+    const token = tokenFromCookie || tokenFromStorage;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -64,12 +93,23 @@ export const authService = {
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>("/users/login", credentials);
     console.log(response.data);
+
+    // Store token in both localStorage and cookies
+    if (response.data?.data?.user?.token) {
+      const token = response.data.data.user.token;
+      localStorage.setItem("token", token);
+      setCookie("token", token);
+      localStorage.setItem("user", JSON.stringify(response.data.data.user));
+    }
+
     return response.data;
   },
 
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    // Also clear the cookie
+    setCookie("token", "", -1); // Expire immediately
   },
 
   getCurrentUser: () => {
@@ -78,11 +118,13 @@ export const authService = {
   },
 
   getToken: () => {
-    return localStorage.getItem("token");
+    // Try cookie first, then localStorage
+    return getCookie("token") || localStorage.getItem("token");
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem("token");
+    // Check both cookie and localStorage
+    return !!(getCookie("token") || localStorage.getItem("token"));
   },
 };
 
