@@ -27,7 +27,7 @@ export const signup = createAsyncThunk(
       const response = await authService.signup(userData);
 
       // Save to localStorage
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data.user.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       return response.data;
@@ -45,7 +45,7 @@ export const login = createAsyncThunk(
       const response = await authService.login(credentials);
 
       // Save to localStorage
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data.user.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       return response.data;
@@ -90,7 +90,7 @@ const authSlice = createSlice({
     builder.addCase(signup.fulfilled, (state, action) => {
       state.isLoading = false;
       state.user = action.payload.user;
-      state.token = action.payload.token;
+      state.token = action.payload.user.token;
       state.isAuthenticated = true;
       state.error = null;
     });
@@ -107,7 +107,7 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, action) => {
       state.isLoading = false;
       state.user = action.payload.user;
-      state.token = action.payload.token;
+      state.token = action.payload.user.token;
       state.isAuthenticated = true;
       state.error = null;
     });
