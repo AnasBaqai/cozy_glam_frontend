@@ -14,6 +14,7 @@ import {
 } from "../../types/dashboard.types";
 import { storeService, StoreResponse } from "../../services/api";
 import { useProductContext } from "../../context/ProductContext";
+import useSidebarState from "../../hooks/useSidebarState";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const DashboardPage = () => {
   } = useProductContext();
 
   // Sidebar collapse state
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarState();
 
   // Store data state
   const [storeData, setStoreData] = useState<

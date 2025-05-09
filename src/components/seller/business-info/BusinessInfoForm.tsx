@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Marquee from "../../layout/Marquee/Marquee";
 import Navbar from "../../layout/Navbar/Navbar";
-import Footer from "../../layout/Footer/Footer";
 import BusinessInfoFields from "./BusinessInfoFields";
 import SocialLinksSetup from "./SocialLinksSetup";
 import LogoUploadField from "./LogoUploadField";
@@ -19,6 +18,9 @@ import {
   SocialPlatform,
   BusinessInfoFormProps,
 } from "../../../types/business.types";
+import SellerSidebar from "../../seller/dashboard/SellerSidebar";
+import SidebarMobileToggle from "../../seller/dashboard/SidebarMobileToggle";
+import useSidebarState from "../../../hooks/useSidebarState";
 
 const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
   isUpdateMode = false,
@@ -27,6 +29,14 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  // Sidebar state for mobile view
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarState();
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   // Form state
   const [form, setForm] = useState<BusinessFormData>({
@@ -226,7 +236,23 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
     <div className="min-h-screen bg-glam-light flex flex-col">
       <Marquee />
       <Navbar />
-      <main className="flex-1 flex items-center justify-center p-4 mt-20">
+
+      {/* Show sidebar and mobile toggle only in update mode */}
+      {isUpdateMode && (
+        <>
+          <SellerSidebar
+            collapsed={sidebarCollapsed}
+            toggleSidebar={toggleSidebar}
+          />
+          <SidebarMobileToggle toggleSidebar={toggleSidebar} />
+        </>
+      )}
+
+      <main
+        className={`flex-1 flex items-center justify-center p-4 mt-20 ${
+          isUpdateMode ? (sidebarCollapsed ? "md:ml-20" : "md:ml-64") : ""
+        }`}
+      >
         <section className="grid max-w-7xl w-full gap-8 lg:grid-cols-10 items-start">
           {/* ── Illustration ─────────────────────────────── */}
           <div className="hidden lg:flex lg:col-span-3 items-center justify-center">
@@ -288,7 +314,6 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
           </form>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

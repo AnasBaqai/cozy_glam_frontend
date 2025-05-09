@@ -8,6 +8,7 @@ import { productService } from "../../services/api";
 import { getFullImageUrl } from "../../utils/imageUtils";
 import { toast } from "react-toastify";
 import "../../components/seller/dashboard/dashboard.css";
+import useSidebarState from "../../hooks/useSidebarState";
 
 // Define product type
 interface Product {
@@ -42,8 +43,10 @@ const ListingsPage: React.FC = () => {
   // Status state (active or draft)
   const [activeTab, setActiveTab] = useState<string>(statusParam || "active");
 
+  // Replace the useState with our custom hook
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarState();
+
   // UI states
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -517,8 +520,7 @@ const ListingsPage: React.FC = () => {
                                     alt={product.title}
                                     className="h-full w-full object-cover"
                                     onError={(e) => {
-                                      e.currentTarget.src =
-                                        "https://via.placeholder.com/150";
+                                      e.currentTarget.src = "/placeholder.jpg";
                                     }}
                                   />
                                 ) : (

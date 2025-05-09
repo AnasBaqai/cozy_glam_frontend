@@ -25,6 +25,7 @@ const Navbar: React.FC = () => {
   const [mobileExpandedCategoryId, setMobileExpandedCategoryId] = useState<
     string | null
   >(null);
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const subcategoryDebounceRef = useRef<number | null>(null);
@@ -548,6 +549,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile menu */}
         {isMenuOpen && (
           <div className="mt-3 md:hidden">
             <form onSubmit={handleSearch} className="relative">
@@ -578,75 +580,100 @@ const Navbar: React.FC = () => {
           </div>
         )}
 
+        {/* Mobile Categories Section - Collapsible */}
         {isMenuOpen && (
           <div className="mt-3 md:hidden border-t border-gray-100 pt-3">
-            <div className="font-medium text-gray-800 mb-2">
-              Shop by Category
-            </div>
-            <div className="max-h-[400px] overflow-y-auto">
-              {isLoading ? (
-                <div className="py-2 flex justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-glam-primary"></div>
-                </div>
-              ) : categories.length > 0 ? (
-                <div>
-                  {categories.map((category) => (
-                    <div key={category._id}>
-                      <button
-                        className="flex items-center w-full text-left px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors"
-                        onClick={() =>
-                          setMobileExpandedCategoryId(
-                            mobileExpandedCategoryId === category._id
-                              ? null
-                              : category._id
-                          )
-                        }
-                      >
-                        <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mr-3 bg-gray-100">
-                          <img
-                            src={getFullImageUrl(category.image)}
-                            alt={category.name}
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src =
-                                "/placeholder.png";
-                            }}
-                          />
-                        </div>
-                        <span className="truncate flex-1">{category.name}</span>
-                        <svg
-                          className={`ml-2 h-4 w-4 text-gray-400 transition-transform ${
-                            mobileExpandedCategoryId === category._id
-                              ? "rotate-90"
-                              : ""
-                          }`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+            <button
+              onClick={() => setShowMobileCategories(!showMobileCategories)}
+              className="flex items-center justify-between w-full font-medium text-gray-800 mb-2 py-2"
+            >
+              <span>Shop by Category</span>
+              <svg
+                className={`ml-2 h-5 w-5 text-gray-500 transition-transform ${
+                  showMobileCategories ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showMobileCategories && (
+              <div className="max-h-[400px] overflow-y-auto">
+                {isLoading ? (
+                  <div className="py-2 flex justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-glam-primary"></div>
+                  </div>
+                ) : categories.length > 0 ? (
+                  <div>
+                    {categories.map((category) => (
+                      <div key={category._id}>
+                        <button
+                          className="flex items-center w-full text-left px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors"
+                          onClick={() =>
+                            setMobileExpandedCategoryId(
+                              mobileExpandedCategoryId === category._id
+                                ? null
+                                : category._id
+                            )
+                          }
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </button>
-                      {mobileExpandedCategoryId === category._id && (
-                        <MobileSubcategories categoryId={category._id} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-2 text-sm text-gray-500">
-                  No categories found
-                </div>
-              )}
-            </div>
+                          <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mr-3 bg-gray-100">
+                            <img
+                              src={getFullImageUrl(category.image)}
+                              alt={category.name}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src =
+                                  "/placeholder.png";
+                              }}
+                            />
+                          </div>
+                          <span className="truncate flex-1">
+                            {category.name}
+                          </span>
+                          <svg
+                            className={`ml-2 h-4 w-4 text-gray-400 transition-transform ${
+                              mobileExpandedCategoryId === category._id
+                                ? "rotate-90"
+                                : ""
+                            }`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                        {mobileExpandedCategoryId === category._id && (
+                          <MobileSubcategories categoryId={category._id} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-2 text-sm text-gray-500">
+                    No categories found
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
+        {/* Mobile Navigation Links */}
         {isMenuOpen && (
           <div className="md:hidden mt-3 border-t border-gray-100 pt-3">
             <div className="flex flex-col space-y-2 pb-3">
@@ -723,6 +750,7 @@ const Navbar: React.FC = () => {
           </div>
         )}
 
+        {/* Desktop Navigation Links */}
         <div className="hidden md:flex mt-2 justify-center space-x-8 text-sm">
           <Link to="/" className="text-gray-600 hover:text-glam-primary">
             Home

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Navbar from "../../components/layout/Navbar/Navbar";
 import Marquee from "../../components/layout/Marquee/Marquee";
 import ProductFormHeader from "../../components/seller/product/ProductFormHeader";
@@ -12,13 +12,14 @@ import useProductForm from "../../hooks/useProductForm";
 import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
 import "../../components/seller/dashboard/dashboard.css";
 import { useProductContext } from "../../context/ProductContext";
+import useSidebarState from "../../hooks/useSidebarState";
 
 const CreateProductPage: React.FC = () => {
   // Get the refreshListings function from ProductContext
   const { refreshListings } = useProductContext();
 
-  // Sidebar collapse state
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Replace the useState with our custom hook
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarState();
 
   // Toggle sidebar function
   const toggleSidebar = () => {

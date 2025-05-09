@@ -6,11 +6,12 @@ import { UserProfile } from "../types/dashboard.types";
 import Navbar from "../components/layout/Navbar/Navbar";
 import Marquee from "../components/layout/Marquee/Marquee";
 import SellerSidebar from "../components/seller/dashboard/SellerSidebar";
+import useSidebarState from "../hooks/useSidebarState";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarState();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

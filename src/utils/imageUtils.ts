@@ -9,7 +9,7 @@
 export const getFullImageUrl = (imagePath: string | undefined): string => {
   // If no image path is provided, return a default placeholder
   if (!imagePath) {
-    return "https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg";
+    return "/placeholder.jpg";
   }
 
   // If the image path already starts with http, it's already a full URL
