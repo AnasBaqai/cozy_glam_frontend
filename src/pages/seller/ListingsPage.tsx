@@ -31,6 +31,18 @@ interface Pagination {
   pageSize: number;
 }
 
+// Add this type definition after the existing interfaces
+type SortOption = {
+  value: string;
+  label: string;
+};
+
+// Add this type definition after SortOption
+type PageSizeOption = {
+  value: number;
+  label: string;
+};
+
 const ListingsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,6 +72,27 @@ const ListingsPage: React.FC = () => {
     pageSize: 10,
   });
 
+  // Add new state for sorting
+  const [sortBy, setSortBy] = useState<string>("newest");
+
+  // Add sorting options
+  const sortOptions: SortOption[] = [
+    { value: "newest", label: "Recently Created" },
+    { value: "oldest", label: "Oldest Created" },
+    { value: "price-low", label: "Price: Low to High" },
+    { value: "price-high", label: "Price: High to Low" },
+    { value: "quantity-low", label: "Quantity: Low to High" },
+    { value: "quantity-high", label: "Quantity: High to Low" },
+  ];
+
+  // Add page size options
+  const pageSizeOptions: PageSizeOption[] = [
+    { value: 10, label: "10 per page" },
+    { value: 20, label: "20 per page" },
+    { value: 50, label: "50 per page" },
+    { value: 100, label: "100 per page" },
+  ];
+
   // Add the resetSearch function near the top of the component, right after the useState declarations
   const resetSearch = () => {
     setSearchTerm("");
@@ -79,7 +112,75 @@ const ListingsPage: React.FC = () => {
     toast.info(`Viewing ${status} listings`);
   };
 
-  // Fetch products based on the active tab
+  // Add sort function
+  const sortProducts = (productsToSort: Product[]) => {
+    return [...productsToSort].sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "quantity-low":
+          return a.quantity - b.quantity;
+        case "quantity-high":
+          return b.quantity - a.quantity;
+        default:
+          return 0;
+      }
+    });
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = async (newSize: number) => {
+    setLoading(true); // Show loading state while fetching new data
+    setPagination({
+      ...pagination,
+      pageSize: newSize,
+      currentPage: 1, // Reset to first page when changing page size
+    });
+
+    try {
+      const response = await productService.getSellerProducts(
+        activeTab,
+        1, // Reset to first page
+        newSize // Use new page size
+      );
+
+      if (response.status) {
+        const sortedProducts = sortProducts(response.data.products);
+        setProducts(sortedProducts);
+        setPagination({
+          total: response.data.total,
+          totalPages: response.data.totalPages,
+          currentPage: response.data.currentPage,
+          pageSize: newSize,
+        });
+        toast.success(`Now showing ${newSize} items per page`);
+      } else {
+        setError("Failed to update items per page");
+        toast.error("Failed to update items per page");
+      }
+    } catch (err) {
+      console.error("Error updating page size:", err);
+      setError("Failed to update items per page");
+      toast.error("Failed to update items per page");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add raw products state to store the original data
+  const [rawProducts, setRawProducts] = useState<Product[]>([]);
+
+  // Update fetchProductsForCurrentTab to store raw products
   const fetchProductsForCurrentTab = async () => {
     if (!user?.isStoreCreated) return;
 
@@ -87,6 +188,7 @@ const ListingsPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      console.log(`Fetching products with page size: ${pagination.pageSize}`);
       const response = await productService.getSellerProducts(
         activeTab,
         pagination.currentPage,
@@ -94,12 +196,17 @@ const ListingsPage: React.FC = () => {
       );
 
       if (response.status) {
-        setProducts(response.data.products);
+        // Store the raw products
+        setRawProducts(response.data.products);
+
+        // Apply filtering and sorting
+        applyFiltersAndSort(response.data.products);
+
         setPagination({
           total: response.data.total,
           totalPages: response.data.totalPages,
           currentPage: response.data.currentPage,
-          pageSize: response.data.pageSize,
+          pageSize: pagination.pageSize,
         });
       } else {
         setError("Failed to load products");
@@ -114,41 +221,78 @@ const ListingsPage: React.FC = () => {
     }
   };
 
-  // Update the useEffect to use fetchProductsForCurrentTab
+  // Add a separate function to handle filtering and sorting
+  const applyFiltersAndSort = (productsToProcess: Product[]) => {
+    let processedProducts = [...productsToProcess];
+
+    // Apply search filter if search term exists
+    if (searchTerm) {
+      processedProducts = processedProducts.filter((product) =>
+        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply sorting
+    processedProducts.sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "quantity-low":
+          return a.quantity - b.quantity;
+        case "quantity-high":
+          return b.quantity - a.quantity;
+        default:
+          return 0;
+      }
+    });
+
+    setProducts(processedProducts);
+  };
+
+  // Update useEffect to only fetch when necessary
   useEffect(() => {
-    fetchProductsForCurrentTab();
-  }, [activeTab, pagination.currentPage, user]);
+    // Only fetch from API when page, page size, tab, or user changes
+    if (activeTab || pagination.currentPage || pagination.pageSize || user) {
+      fetchProductsForCurrentTab();
+    }
+  }, [activeTab, pagination.currentPage, pagination.pageSize, user]);
+
+  // Add useEffect for client-side filtering and sorting
+  useEffect(() => {
+    // Only apply filters and sort if we have raw products
+    if (rawProducts.length > 0) {
+      applyFiltersAndSort(rawProducts);
+    }
+  }, [sortBy, searchTerm]);
+
+  // Update handleSearch to use client-side filtering
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Apply filters to existing data
+    applyFiltersAndSort(rawProducts);
+  };
+
+  // Add handler for sort changes
+  const handleSortChange = (newSortValue: string) => {
+    setSortBy(newSortValue);
+    // Sorting will be handled by the useEffect
+  };
 
   // Handle page change
   const handlePageChange = (page: number) => {
     // Update the current page in pagination state
     setPagination({ ...pagination, currentPage: page });
     // The useEffect will trigger a new API call with the updated pagination
-  };
-
-  // Handle search
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Reset pagination to page 1 when searching
-    setPagination({ ...pagination, currentPage: 1 });
-
-    // If search term is empty, just fetch all products again
-    if (!searchTerm.trim()) {
-      // The useEffect will trigger to fetch all products
-      return;
-    }
-
-    // Filter products locally based on the search term
-    // Note: In a production app, this would ideally be handled by the API
-    if (products.length > 0) {
-      const filteredProducts = products.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      // Update UI with filtered products
-      setProducts(filteredProducts);
-    }
   };
 
   // Format date
@@ -200,9 +344,13 @@ const ListingsPage: React.FC = () => {
         key="prev"
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 text-gray-600"
+        className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+          currentPage === 1
+            ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+            : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+        }`}
       >
-        &lt;
+        Previous
       </button>
     );
 
@@ -215,10 +363,10 @@ const ListingsPage: React.FC = () => {
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 rounded border ${
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
             currentPage === i
-              ? "bg-glam-primary text-white border-glam-primary"
-              : "border-gray-300 hover:bg-glam-light hover:text-glam-primary text-gray-600 transition-colors"
+              ? "bg-glam-primary text-white border border-glam-primary"
+              : "border border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
           }`}
         >
           {i}
@@ -232,13 +380,29 @@ const ListingsPage: React.FC = () => {
         key="next"
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 text-gray-600"
+        className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+          currentPage === totalPages
+            ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+            : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+        }`}
       >
-        &gt;
+        Next
       </button>
     );
 
-    return <div className="flex space-x-2 justify-center mt-6">{pages}</div>;
+    return (
+      <div className="mt-8 mb-6 flex flex-col items-center space-y-4">
+        <div className="flex items-center space-x-2">{pages}</div>
+        <div className="text-sm text-gray-600">
+          Page {currentPage} of {totalPages}
+        </div>
+      </div>
+    );
+  };
+
+  // Add helper function to get sort label
+  const getSortLabel = (value: string): string => {
+    return sortOptions.find((option) => option.value === value)?.label || "";
   };
 
   return (
@@ -379,23 +543,113 @@ const ListingsPage: React.FC = () => {
                 </button>
               </div>
             </form>
+
+            {/* Sort and Page Size Controls */}
+            <div className="flex gap-2">
+              {/* Page Size Dropdown */}
+              <div className="flex-shrink-0">
+                <select
+                  value={pagination.pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary sm:text-sm rounded-md bg-white"
+                  aria-label="Select number of items per page"
+                >
+                  {pageSizeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex-shrink-0">
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary sm:text-sm rounded-md bg-white"
+                  aria-label="Sort products"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          {/* Active Search Indicator */}
-          {searchTerm && (
-            <div className="mb-4 px-3 py-2 bg-glam-light rounded-md flex items-center">
+          {/* Active Filters Status */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {/* Page Size Indicator */}
+            <div className="px-3 py-2 bg-glam-light rounded-md">
               <span className="text-sm text-glam-dark">
-                Showing results for:{" "}
-                <span className="font-medium">{searchTerm}</span>
+                Showing{" "}
+                <span className="font-medium">{pagination.pageSize}</span> items
+                per page
               </span>
-              <button
-                onClick={resetSearch}
-                className="ml-auto text-glam-primary hover:text-glam-dark text-sm"
-              >
-                Clear Search
-              </button>
             </div>
-          )}
+
+            {/* Sort Status */}
+            <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 text-glam-primary mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+                />
+              </svg>
+              <span className="text-sm text-glam-dark">
+                Sorted by:{" "}
+                <span className="font-medium">{getSortLabel(sortBy)}</span>
+              </span>
+            </div>
+
+            {/* Search Term Indicator */}
+            {searchTerm && (
+              <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-glam-primary mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <span className="text-sm text-glam-dark">
+                  Search: <span className="font-medium">"{searchTerm}"</span>
+                </span>
+                <button
+                  onClick={resetSearch}
+                  className="ml-2 text-glam-primary hover:text-glam-dark text-sm"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+
+            {/* Total Results */}
+            <div className="px-3 py-2 bg-glam-light rounded-md ml-auto">
+              <span className="text-sm text-glam-dark">
+                Total: <span className="font-medium">{pagination.total}</span>{" "}
+                items
+              </span>
+            </div>
+          </div>
 
           {/* Products List */}
           <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -435,34 +689,45 @@ const ListingsPage: React.FC = () => {
                   No Products Found
                 </h3>
                 <p className="mt-2 text-gray-600 max-w-md mx-auto">
-                  {activeTab === "active"
+                  {searchTerm
+                    ? `No products match your search "${searchTerm}"`
+                    : activeTab === "active"
                     ? "You don't have any active product listings yet. Create a new listing to start selling."
                     : "You don't have any draft products yet. Save a listing as draft while you work on it."}
                 </p>
                 <div className="mt-6">
-                  <button
-                    onClick={() => navigate("/seller/create-product")}
-                    className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
-                  >
-                    <svg
-                      className="-ml-1 mr-2 h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                  {searchTerm ? (
+                    <button
+                      onClick={resetSearch}
+                      className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Create a New Product
-                  </button>
+                      Clear Search
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate("/seller/create-product")}
+                      className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
+                    >
+                      <svg
+                        className="-ml-1 mr-2 h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Create a New Product
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
               <>
-                {/* Table Header */}
+                {/* Table Header with Sort Indicators */}
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-glam-light">
@@ -475,15 +740,27 @@ const ListingsPage: React.FC = () => {
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-glam-dark uppercase tracking-wider"
+                          className={`px-6 py-3 text-left text-xs font-medium tracking-wider ${
+                            sortBy.includes("price")
+                              ? "text-glam-primary"
+                              : "text-glam-dark"
+                          }`}
                         >
                           Price
+                          {sortBy === "price-low" && " ↓"}
+                          {sortBy === "price-high" && " ↑"}
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-glam-dark uppercase tracking-wider"
+                          className={`px-6 py-3 text-left text-xs font-medium tracking-wider ${
+                            sortBy.includes("quantity")
+                              ? "text-glam-primary"
+                              : "text-glam-dark"
+                          }`}
                         >
                           Quantity
+                          {sortBy === "quantity-low" && " ↓"}
+                          {sortBy === "quantity-high" && " ↑"}
                         </th>
                         <th
                           scope="col"
@@ -493,9 +770,16 @@ const ListingsPage: React.FC = () => {
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-glam-dark uppercase tracking-wider"
+                          className={`px-6 py-3 text-left text-xs font-medium tracking-wider ${
+                            sortBy.includes("newest") ||
+                            sortBy.includes("oldest")
+                              ? "text-glam-primary"
+                              : "text-glam-dark"
+                          }`}
                         >
                           Created
+                          {sortBy === "newest" && " ↓"}
+                          {sortBy === "oldest" && " ↑"}
                         </th>
                         <th
                           scope="col"
@@ -564,31 +848,45 @@ const ListingsPage: React.FC = () => {
                             {formatDate(product.created_at)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                            <button
-                              onClick={() =>
-                                navigate(`/seller/edit-product/${product._id}`)
-                              }
-                              className="text-glam-primary hover:text-glam-dark mr-4 transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    `Are you sure you want to delete "${product.title}"?`
+                            <div className="flex items-center justify-end space-x-3">
+                              <button
+                                onClick={() =>
+                                  navigate(
+                                    `/seller/edit-product/${product._id}`
                                   )
-                                ) {
-                                  handleDeleteProduct(
-                                    product._id,
-                                    product.title
-                                  );
                                 }
-                              }}
-                              className="text-red-500 hover:text-red-700 transition-colors"
-                            >
-                              Delete
-                            </button>
+                                className="p-2 text-glam-primary hover:text-glam-dark transition-colors rounded-full hover:bg-gray-100"
+                                title="Edit product"
+                              >
+                                <img
+                                  src="/icons/edit.png"
+                                  alt="Edit"
+                                  className="w-5 h-5"
+                                />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      `Are you sure you want to delete "${product.title}"?`
+                                    )
+                                  ) {
+                                    handleDeleteProduct(
+                                      product._id,
+                                      product.title
+                                    );
+                                  }
+                                }}
+                                className="p-2 text-red-500 hover:text-red-700 transition-colors rounded-full hover:bg-red-50"
+                                title="Delete product"
+                              >
+                                <img
+                                  src="/icons/delete.png"
+                                  alt="Delete"
+                                  className="w-5 h-5"
+                                />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -597,7 +895,11 @@ const ListingsPage: React.FC = () => {
                 </div>
 
                 {/* Pagination */}
-                {pagination.totalPages > 1 && renderPagination()}
+                {pagination.totalPages > 1 && (
+                  <div className="border-t border-gray-100 bg-gray-50">
+                    {renderPagination()}
+                  </div>
+                )}
               </>
             )}
           </div>
