@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import ProductCard from "../ui/ProductCard";
 import { useRef, useState, useEffect } from "react";
 import { Category, categoryService } from "../../services/api";
 import { getFullImageUrl } from "../../utils/imageUtils";
@@ -15,7 +14,6 @@ const ProductCollectionCarousel = () => {
   const desktopScrollRef = useRef<HTMLDivElement>(null);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
 
-  // State for categories data
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,13 +22,12 @@ const ProductCollectionCarousel = () => {
     ""
   );
   const [changingPage, setChangingPage] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
-  // Display settings
   const ITEMS_PER_PAGE = 8;
   const ITEMS_PER_ROW = 4;
   const ROWS_PER_PAGE = 2;
 
-  // Initial fetch of categories
   useEffect(() => {
     const fetchInitialCategories = async () => {
       try {
@@ -48,13 +45,11 @@ const ProductCollectionCarousel = () => {
     fetchInitialCategories();
   }, []);
 
-  // Function to load categories for a specific page
   const loadPage = async (pageNumber: number) => {
     if (pageNumber < 1 || (pageNumber > totalPages && totalPages > 0)) return;
 
     try {
       setChangingPage(true);
-      // Set slide animation direction
       setSlideDirection(pageNumber > currentPage ? "left" : "right");
 
       const response = await categoryService.getCategories(
@@ -62,26 +57,19 @@ const ProductCollectionCarousel = () => {
         ITEMS_PER_PAGE
       );
 
-      // Small delay to make animation visible
       setTimeout(() => {
         setCategories(response.data.categories);
         setCurrentPage(pageNumber);
         setTotalPages(Math.ceil(response.data.totalPages));
 
-        // Clear animation after transition
         setTimeout(() => {
           setSlideDirection("");
           setChangingPage(false);
         }, 300);
       }, 200);
 
-      // Scroll to top of carousel
-      if (desktopScrollRef.current) {
-        desktopScrollRef.current.scrollLeft = 0;
-      }
-      if (mobileScrollRef.current) {
-        mobileScrollRef.current.scrollLeft = 0;
-      }
+      if (desktopScrollRef.current) desktopScrollRef.current.scrollLeft = 0;
+      if (mobileScrollRef.current) mobileScrollRef.current.scrollLeft = 0;
     } catch (error) {
       console.error(`Failed to fetch page ${pageNumber}:`, error);
       setSlideDirection("");
@@ -89,7 +77,6 @@ const ProductCollectionCarousel = () => {
     }
   };
 
-  // Navigation handlers
   const goToNextPage = () => {
     if (currentPage < totalPages && !changingPage) {
       loadPage(currentPage + 1);
@@ -102,12 +89,10 @@ const ProductCollectionCarousel = () => {
     }
   };
 
-  // Create pages for desktop and mobile views
   const itemsPerDesktopPage = ITEMS_PER_ROW * ROWS_PER_PAGE;
 
-  // CSS classes for slide animation
   const slideClasses = {
-    container: `transition-transform duration-300 ease-in-out transform ${
+    container: `transition-all duration-500 ease-in-out transform ${
       slideDirection === "left"
         ? "-translate-x-8 opacity-0"
         : slideDirection === "right"
@@ -116,145 +101,230 @@ const ProductCollectionCarousel = () => {
     }`,
   };
 
+  const renderCategoryCard = (category: Category, idx: number) => (
+    <Link
+      to={`/category/${slugify(category.name)}`}
+      className="group relative block overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl"
+      onMouseEnter={() => setHoveredCategory(category._id)}
+      onMouseLeave={() => setHoveredCategory(null)}
+      key={`${category._id}-${idx}`}
+    >
+      <div className="aspect-[4/3] overflow-hidden">
+        <img
+          src={getFullImageUrl(category.image)}
+          alt={category.name}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80"></div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+        <h3 className="text-xl font-bold tracking-wide mb-2">
+          {category.name}
+        </h3>
+        <div
+          className={`transform transition-all duration-300 ${
+            hoveredCategory === category._id
+              ? "translate-y-0 opacity-100"
+              : "translate-y-4 opacity-0"
+          }`}
+        >
+          <p className="text-sm text-gray-200 mb-3">
+            Explore our collection of {category.name.toLowerCase()}
+          </p>
+          <span className="inline-flex items-center text-sm font-medium text-white">
+            View Collection
+            <svg
+              className="w-4 h-4 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-12 relative z-0">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold">Our Categories</h2>
+    <section className="w-full max-w-7xl mx-auto px-4 py-16 relative z-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
+        <div>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Explore Categories
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Discover our curated collection of products
+          </p>
+        </div>
+
+        {/* Desktop Navigation Controls */}
+        <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
+          <button
+            onClick={goToPrevPage}
+            disabled={currentPage <= 1 || changingPage}
+            className={`group flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+              currentPage <= 1 || changingPage
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 hover:bg-glam-primary hover:text-white shadow-sm hover:shadow-md"
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span>Previous</span>
+          </button>
+
+          <span className="text-gray-600 font-medium">
+            {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={goToNextPage}
+            disabled={currentPage >= totalPages || changingPage}
+            className={`group flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+              currentPage >= totalPages || changingPage
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 hover:bg-glam-primary hover:text-white shadow-sm hover:shadow-md"
+            }`}
+          >
+            <span>Next</span>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {loading && categories.length === 0 ? (
-        <div className="flex justify-center items-center h-[300px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-glam-primary"></div>
+        <div className="flex justify-center items-center h-[400px]">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200"></div>
+            <div className="absolute top-0 left-0 animate-spin rounded-full h-16 w-16 border-4 border-glam-primary border-t-transparent"></div>
+          </div>
         </div>
       ) : (
         <div className="relative">
-          {/* Centered spinner that appears during page transitions */}
+          {/* Loading Overlay */}
           {changingPage && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-              <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-glam-primary"></div>
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-sm">
+              <div className="relative">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200"></div>
+                <div className="absolute top-0 left-0 animate-spin rounded-full h-16 w-16 border-4 border-glam-primary border-t-transparent"></div>
+              </div>
             </div>
           )}
 
-          {/* Mobile Layout: Carousel with navigation */}
-          <div className="relative block md:hidden">
+          {/* Mobile Layout */}
+          <div className="block md:hidden">
             <div
               ref={mobileScrollRef}
-              className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 snap-x snap-mandatory"
+              className="overflow-x-auto pb-6 snap-x snap-mandatory hide-scrollbar"
             >
-              <div
-                className={`flex gap-4 w-max px-2 ${slideClasses.container}`}
-              >
+              <div className={`flex gap-4 ${slideClasses.container}`}>
                 {categories.map((category, idx) => (
                   <div
                     key={`${category._id}-${idx}`}
                     className="w-[300px] flex-shrink-0 snap-start"
                   >
-                    <Link
-                      to={`/category/${slugify(category.name)}`}
-                      className="block"
-                      aria-label={`View ${category.name} category`}
-                    >
-                      <ProductCard
-                        title={category.name}
-                        image={getFullImageUrl(category.image)}
-                      />
-                    </Link>
+                    {renderCategoryCard(category, idx)}
                   </div>
                 ))}
-
-                {/* Loading indicator for more items */}
-                {loading && (
-                  <div className="w-[300px] flex-shrink-0 snap-start flex justify-center items-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* Mobile page indicator & navigation */}
-            <div className="flex justify-center items-center mt-6 gap-6">
+            {/* Mobile Navigation */}
+            <div className="flex justify-center items-center mt-8 gap-4">
               <button
                 onClick={goToPrevPage}
                 disabled={currentPage <= 1 || changingPage}
-                className={`w-10 h-10 flex items-center justify-center rounded-full border ${
+                className={`p-2 rounded-lg transition-all duration-300 ${
                   currentPage <= 1 || changingPage
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                    ? "bg-gray-100 text-gray-400"
+                    : "bg-white text-gray-700 hover:bg-glam-primary hover:text-white shadow-sm"
                 }`}
-                aria-label="Previous page"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                    clipRule="evenodd"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
                   />
                 </svg>
               </button>
 
-              {changingPage ? (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
-              ) : (
-                <span className="text-center font-medium text-gray-800">
-                  Page {currentPage} of {totalPages}
-                </span>
-              )}
+              <span className="text-gray-600 font-medium">
+                {currentPage} / {totalPages}
+              </span>
 
               <button
                 onClick={goToNextPage}
                 disabled={currentPage >= totalPages || changingPage}
-                className={`w-10 h-10 flex items-center justify-center rounded-full border ${
+                className={`p-2 rounded-lg transition-all duration-300 ${
                   currentPage >= totalPages || changingPage
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                    ? "bg-gray-100 text-gray-400"
+                    : "bg-white text-gray-700 hover:bg-glam-primary hover:text-white shadow-sm"
                 }`}
-                aria-label="Next page"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 5l7 7-7 7"
                   />
                 </svg>
               </button>
             </div>
           </div>
 
-          {/* Desktop Layout: 4x2 grid with navigation */}
-          <div className="relative hidden md:block">
+          {/* Desktop Layout */}
+          <div className="hidden md:block">
             <div className="overflow-hidden">
-              <div
-                ref={desktopScrollRef}
-                className={`${slideClasses.container} relative`}
-              >
-                <div className="grid grid-cols-4 grid-rows-2 gap-6 w-full">
+              <div ref={desktopScrollRef} className={slideClasses.container}>
+                <div className="grid grid-cols-4 gap-6">
                   {categories.map((category, idx) => (
                     <div key={`${category._id}-${idx}`} className="w-full">
-                      <Link
-                        to={`/category/${slugify(category.name)}`}
-                        className="block"
-                        aria-label={`View ${category.name} category`}
-                      >
-                        <ProductCard
-                          title={category.name}
-                          image={getFullImageUrl(category.image)}
-                        />
-                      </Link>
+                      {renderCategoryCard(category, idx)}
                     </div>
                   ))}
-
-                  {/* Add empty cells to complete the grid if needed */}
                   {[...Array(itemsPerDesktopPage - categories.length)].map(
                     (_, idx) => (
                       <div key={`empty-${idx}`} className="w-full"></div>
@@ -262,69 +332,6 @@ const ProductCollectionCarousel = () => {
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Fixed position left/right arrows for desktop - with increased spacing */}
-            {categories.length > 0 && (
-              <>
-                <button
-                  onClick={goToPrevPage}
-                  disabled={currentPage <= 1 || changingPage}
-                  className={`absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-md ${
-                    currentPage <= 1 || changingPage
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  aria-label="Previous page"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={goToNextPage}
-                  disabled={currentPage >= totalPages || changingPage}
-                  className={`absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-12 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-md ${
-                    currentPage >= totalPages || changingPage
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  aria-label="Next page"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </>
-            )}
-
-            {/* Desktop page indicator - centered below the carousel */}
-            <div className="flex justify-center items-center mt-8">
-              {changingPage ? (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
-              ) : (
-                <span className="text-center font-medium text-lg text-gray-800">
-                  Page {currentPage} of {totalPages}
-                </span>
-              )}
             </div>
           </div>
         </div>

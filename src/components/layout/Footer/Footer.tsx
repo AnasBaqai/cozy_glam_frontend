@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const packaging = [
   "Mailing Bags",
@@ -18,11 +19,64 @@ const homeImprovement = [
   "Nursery bedding",
   "Blanket",
 ];
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "Home-improvement", href: "/category/home-improvement" },
+  { label: "Fashion", href: "/category/fashion" },
+  { label: "Packaging", href: "/category/packaging" },
+  { label: "About us", href: "/about" },
+  { label: "Cart", href: "/cart" },
+];
+
 const policies = [
-  { label: "Privacy Policy", href: "#" },
-  { label: "Refund Policy", href: "#" },
-  { label: "Shipping Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Refund Policy", href: "/refund" },
+  { label: "Shipping Policy", href: "/shipping" },
+  { label: "Terms of Service", href: "/terms" },
+];
+
+const socialLinks = [
+  {
+    name: "Instagram",
+    icon: "/icons/instagram.png",
+    url: "https://www.instagram.com/cozyglamshop/",
+    active: true,
+  },
+  {
+    name: "YouTube",
+    icon: "/icons/youtube.png",
+    url: "https://www.youtube.com/@cozyglamshop",
+    active: true,
+  },
+  {
+    name: "Pinterest",
+    icon: "/icons/pintrest.png",
+    url: "https://www.pinterest.com/cozyglamshop/",
+    active: true,
+  },
+  {
+    name: "TikTok",
+    icon: "/icons/tiktok.png",
+    url: "https://www.tiktok.com/@cozyglamshop",
+    active: true,
+  },
+  {
+    name: "Facebook",
+    icon: "/icons/facebook.png",
+    url: "#",
+    active: false,
+  },
+];
+
+const paymentMethods = [
+  { name: "Visa", icon: "/card_icons/visa.png" },
+  { name: "Mastercard", icon: "/card_icons/master.png" },
+  { name: "Apple Pay", icon: "/card_icons/apple_pay.png" },
+  { name: "Google Pay", icon: "/card_icons/gpay.png" },
+  { name: "PayPal", icon: "/card_icons/paypal.png" },
+  { name: "Discover", icon: "/card_icons/discover.png" },
+  { name: "American Express", icon: "/card_icons/am_ex.png" },
+  { name: "UnionPay", icon: "/card_icons/union_pay.png" },
 ];
 
 const Footer: React.FC = () => {
@@ -107,9 +161,9 @@ const Footer: React.FC = () => {
           >
             {policies.map((item) => (
               <li key={item.label}>
-                <a href={item.href} className="hover:underline">
+                <Link to={item.href} className="hover:underline">
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -137,72 +191,42 @@ const Footer: React.FC = () => {
             <input type="checkbox" id="privacy" className="mr-2" />
             <label htmlFor="privacy" className="text-xs text-gray-400">
               I accept the{" "}
-              <a href="#" className="underline">
+              <Link to="/privacy" className="underline">
                 privacy policy
-              </a>
+              </Link>
             </label>
           </div>
           <div className="flex space-x-6 mt-4 mb-2">
             {/* Social icons using Flaticon PNGs and real links */}
-            <a
-              href="https://www.instagram.com/cozyglamshop/"
-              aria-label="Instagram"
-              className="hover:opacity-80"
-              target="_blank"
-              rel="noopener"
-            >
-              <img
-                src="/icons/instagram.png"
-                alt="Instagram"
-                className="h-6 w-6 object-contain"
-              />
-            </a>
-            <a
-              href="https://www.youtube.com/@cozyglamshop"
-              aria-label="YouTube"
-              className="hover:opacity-80"
-              target="_blank"
-              rel="noopener"
-            >
-              <img
-                src="/icons/youtube.png"
-                alt="YouTube"
-                className="h-6 w-6 object-contain"
-              />
-            </a>
-            <a
-              href="https://www.pinterest.com/cozyglamshop/"
-              aria-label="Pinterest"
-              className="hover:opacity-80"
-              target="_blank"
-              rel="noopener"
-            >
-              <img
-                src="/icons/pintrest.png"
-                alt="Pinterest"
-                className="h-6 w-6 object-contain"
-              />
-            </a>
-            <a
-              href="https://www.tiktok.com/@cozyglamshop"
-              aria-label="TikTok"
-              className="hover:opacity-80"
-              target="_blank"
-              rel="noopener"
-            >
-              <img
-                src="/icons/tiktok.png"
-                alt="TikTok"
-                className="h-6 w-6 object-contain"
-              />
-            </a>
-            <span>
-              <img
-                src="/icons/facebook.png"
-                alt="Facebook"
-                className="h-6 w-6 object-contain opacity-50"
-              />
-            </span>
+            {socialLinks.map((social) =>
+              social.active ? (
+                <a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-80"
+                  aria-label={social.name}
+                >
+                  <img
+                    src={social.icon}
+                    alt={social.name}
+                    className="h-6 w-6 object-contain"
+                  />
+                </a>
+              ) : (
+                <span
+                  key={social.name}
+                  className="bg-[#232323] rounded-full p-1 opacity-50 cursor-not-allowed"
+                >
+                  <img
+                    src={social.icon}
+                    alt={social.name}
+                    className="h-6 w-6 object-contain"
+                  />
+                </span>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -210,71 +234,25 @@ const Footer: React.FC = () => {
       <div className="bg-[#111] py-6 text-gray-400 text-xs mt-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 gap-4">
           <div className="flex gap-4 mb-2 md:mb-0">
-            <span>Home</span>
-            <span>Home-improvement</span>
-            <span>Fashion</span>
-            <span>Packaging</span>
-            <span>About us</span>
-            <span>Cart</span>
+            {quickLinks.map((link) => (
+              <span key={link.label}>{link.label}</span>
+            ))}
           </div>
           <div className="flex gap-2 items-center">
             {/* Payment icons using real images, styled as cards */}
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/visa.png"
-                alt="Visa"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/master.png"
-                alt="Mastercard"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/apple_pay.png"
-                alt="Apple Pay"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/gpay.png"
-                alt="Google Pay"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/paypal.png"
-                alt="PayPal"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/discover.png"
-                alt="Discover"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/am_ex.png"
-                alt="American Express"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
-            <span className="bg-white rounded-xl px-2 py-1 shadow flex items-center">
-              <img
-                src="/card_icons/union_pay.png"
-                alt="UnionPay"
-                className="h-7 w-auto object-contain"
-              />
-            </span>
+            {paymentMethods.map((method) => (
+              <span
+                key={method.name}
+                className="bg-white rounded-xl px-2 py-1 shadow flex items-center"
+                title={method.name}
+              >
+                <img
+                  src={method.icon}
+                  alt={method.name}
+                  className="h-7 w-auto object-contain"
+                />
+              </span>
+            ))}
           </div>
         </div>
         {/* Flaticon Attribution */}

@@ -8,13 +8,15 @@ import { Category, SubCategory, categoryService } from "../../../services/api";
 import { getFullImageUrl } from "../../../utils/imageUtils";
 import "./navbar-animations.css";
 
+const DROPDOWN_DELAY = 200;
+const HOVER_DELAY = 100;
+
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(
@@ -30,6 +32,8 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const subcategoryDebounceRef = useRef<number | null>(null);
   const dropdownCloseTimer = useRef<number | null>(null);
+  const dropdownOpenTimer = useRef<number | null>(null);
+  const hoverCategoryTimer = useRef<number | null>(null);
 
   const { getTotalCount } = useCart();
   const cartCount = getTotalCount();
@@ -44,13 +48,10 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setIsLoading(true);
         const response = await categoryService.getCategories(1, 50);
         setCategories(response.data.categories);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -59,13 +60,19 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     if (!hoveredCategoryId) {
-      setSubcategories([]);
-      return;
+      const timer = setTimeout(() => {
+        if (!hoveredCategoryId) {
+          setSubcategories([]);
+        }
+      }, DROPDOWN_DELAY);
+
+      return () => clearTimeout(timer);
     }
-    // Debounce: only fetch after 200ms of stable hover
+
     if (subcategoryDebounceRef.current) {
       clearTimeout(subcategoryDebounceRef.current);
     }
+
     setLoadingSubcategories(true);
     subcategoryDebounceRef.current = window.setTimeout(() => {
       categoryService
@@ -75,7 +82,8 @@ const Navbar: React.FC = () => {
         })
         .catch(() => setSubcategories([]))
         .finally(() => setLoadingSubcategories(false));
-    }, 200);
+    }, HOVER_DELAY);
+
     return () => {
       if (subcategoryDebounceRef.current) {
         clearTimeout(subcategoryDebounceRef.current);
@@ -145,6 +153,14 @@ const Navbar: React.FC = () => {
       .replace(/(^-|-$)/g, "");
   }
 
+  const handleSubcategoryAreaEnter = () => {
+    if (dropdownCloseTimer.current) {
+      clearTimeout(dropdownCloseTimer.current);
+      dropdownCloseTimer.current = null;
+    }
+    setIsDropdownOpen(true);
+  };
+
   return (
     <nav
       className={`w-full bg-white shadow-md px-2 md:px-4 py-3 fixed left-0 right-0 z-[1000] transition-all duration-300 ${
@@ -194,22 +210,35 @@ const Navbar: React.FC = () => {
             <form onSubmit={handleSearch} className="relative">
               <div className="flex">
                 <div
-                  className="relative hidden md:inline-block"
+                  className="relative hidden md:inline-block hover-stable"
                   onMouseEnter={() => {
                     if (dropdownCloseTimer.current) {
                       clearTimeout(dropdownCloseTimer.current);
+                      dropdownCloseTimer.current = null;
                     }
-                    setIsDropdownOpen(true);
+
+                    if (dropdownOpenTimer.current) {
+                      clearTimeout(dropdownOpenTimer.current);
+                    }
+
+                    dropdownOpenTimer.current = window.setTimeout(() => {
+                      setIsDropdownOpen(true);
+                    }, HOVER_DELAY);
                   }}
                   onMouseLeave={() => {
+                    if (dropdownOpenTimer.current) {
+                      clearTimeout(dropdownOpenTimer.current);
+                      dropdownOpenTimer.current = null;
+                    }
+
                     dropdownCloseTimer.current = window.setTimeout(() => {
                       setIsDropdownOpen(false);
-                    }, 150);
+                    }, DROPDOWN_DELAY);
                   }}
                 >
                   <button
                     type="button"
-                    className="flex items-center justify-between max-w-[260px] min-w-[180px] h-[44px] py-0 px-4 bg-gray-100 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary text-gray-700 categories-dropdown"
+                    className="flex items-center justify-between max-w-[260px] min-w-[180px] h-[44px] py-0 px-4 bg-gray-100 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary text-gray-700 categories-dropdown hardware-accelerated"
                     style={{ lineHeight: "44px" }}
                     tabIndex={0}
                     aria-haspopup="true"
@@ -273,22 +302,22 @@ const Navbar: React.FC = () => {
                   </button>
                   {isDropdownOpen && (
                     <div
-                      className="absolute left-0 top-full mt-1 flex z-30"
+                      className="absolute left-0 top-full mt-1 flex z-30 dropdown-transition"
                       style={{ pointerEvents: "auto" }}
-                      onMouseEnter={() => {
-                        if (dropdownCloseTimer.current) {
-                          clearTimeout(dropdownCloseTimer.current);
-                        }
-                        setIsDropdownOpen(true);
-                      }}
+                      onMouseEnter={handleSubcategoryAreaEnter}
                       onMouseLeave={() => {
                         dropdownCloseTimer.current = window.setTimeout(() => {
                           setIsDropdownOpen(false);
-                        }, 150);
+                          setTimeout(() => {
+                            if (!isDropdownOpen) {
+                              setHoveredCategoryId(null);
+                            }
+                          }, DROPDOWN_DELAY);
+                        }, DROPDOWN_DELAY);
                       }}
                     >
                       <div
-                        className="w-[260px] max-h-[400px] overflow-y-auto bg-white rounded-l-lg shadow-xl border border-gray-200 categories-dropdown animate-fade-in-dropdown"
+                        className="w-[260px] max-h-[400px] overflow-y-auto bg-white rounded-l-lg shadow-xl border border-gray-200 categories-dropdown animate-fade-in-dropdown dropdown-scroll hardware-accelerated"
                         style={{ pointerEvents: "auto" }}
                       >
                         <button
@@ -320,15 +349,29 @@ const Navbar: React.FC = () => {
                           {categories.map((category) => (
                             <div
                               key={category._id}
-                              className={`flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors cursor-pointer ${
+                              className={`flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-all duration-150 cursor-pointer hover-stable ${
                                 hoveredCategoryId === category._id
                                   ? "bg-gray-100"
                                   : ""
                               }`}
-                              onMouseEnter={() =>
-                                setHoveredCategoryId(category._id)
-                              }
-                              onMouseLeave={() => setHoveredCategoryId(null)}
+                              onMouseEnter={() => {
+                                if (hoverCategoryTimer.current) {
+                                  clearTimeout(hoverCategoryTimer.current);
+                                }
+
+                                hoverCategoryTimer.current = window.setTimeout(
+                                  () => {
+                                    setHoveredCategoryId(category._id);
+                                  },
+                                  50
+                                );
+                              }}
+                              onMouseLeave={() => {
+                                if (hoverCategoryTimer.current) {
+                                  clearTimeout(hoverCategoryTimer.current);
+                                  hoverCategoryTimer.current = null;
+                                }
+                              }}
                               onClick={() => {
                                 setSelectedCategory(category.name);
                                 setIsDropdownOpen(false);
@@ -364,8 +407,14 @@ const Navbar: React.FC = () => {
                         </div>
                       </div>
                       <div
-                        className="w-[420px] max-h-[400px] overflow-y-auto bg-white rounded-r-lg shadow-xl border-t border-b border-r border-gray-200 px-6 py-4 animate-fade-in-dropdown"
+                        className="w-[420px] max-h-[400px] overflow-y-auto bg-white rounded-r-lg shadow-xl border-t border-b border-r border-gray-200 px-6 py-4 animate-fade-in-dropdown dropdown-scroll hardware-accelerated"
                         style={{ pointerEvents: "auto" }}
+                        onMouseEnter={() => {
+                          if (dropdownCloseTimer.current) {
+                            clearTimeout(dropdownCloseTimer.current);
+                            dropdownCloseTimer.current = null;
+                          }
+                        }}
                       >
                         {loadingSubcategories ? (
                           <SubcategorySkeleton />
@@ -549,203 +598,205 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="mt-3 md:hidden">
-            <form onSubmit={handleSearch} className="relative">
-              <div className="flex">
-                <input
-                  type="text"
-                  placeholder="Search for anything"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full py-2 pl-4 pr-12 bg-gray-100 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary text-sm"
-                />
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg animate-fade-in hardware-accelerated">
+            <div className="p-4">
+              {/* Mobile Search */}
+              <form onSubmit={handleSearch} className="mb-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search for anything"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-12 pl-4 pr-12 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-glam-primary"
+                  >
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+
+              {/* Mobile Categories */}
+              <div className="mb-4">
                 <button
-                  type="submit"
-                  className="flex items-center justify-center bg-glam-primary text-white px-4 rounded-r-full hover:bg-glam-primary-dark transition-colors"
+                  className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all duration-200"
+                  onClick={() => setShowMobileCategories(!showMobileCategories)}
                 >
+                  <span className="font-medium">Categories</span>
                   <svg
-                    className="h-5 w-5"
+                    className={`w-5 h-5 transition-transform duration-300 ${
+                      showMobileCategories ? "rotate-180" : ""
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
-              </div>
-            </form>
-          </div>
-        )}
 
-        {/* Mobile Categories Section - Collapsible */}
-        {isMenuOpen && (
-          <div className="mt-3 md:hidden border-t border-gray-100 pt-3">
-            <button
-              onClick={() => setShowMobileCategories(!showMobileCategories)}
-              className="flex items-center justify-between w-full font-medium text-gray-800 mb-2 py-2"
-            >
-              <span>Shop by Category</span>
-              <svg
-                className={`ml-2 h-5 w-5 text-gray-500 transition-transform ${
-                  showMobileCategories ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-
-            {showMobileCategories && (
-              <div className="max-h-[400px] overflow-y-auto">
-                {isLoading ? (
-                  <div className="py-2 flex justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-glam-primary"></div>
-                  </div>
-                ) : categories.length > 0 ? (
-                  <div>
+                {showMobileCategories && (
+                  <div className="mt-2 space-y-1 animate-fade-in dropdown-transition">
                     {categories.map((category) => (
-                      <div key={category._id}>
+                      <div key={category._id} className="overflow-hidden">
                         <button
-                          className="flex items-center w-full text-left px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-glam-primary transition-colors"
-                          onClick={() =>
+                          className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-150"
+                          onClick={() => {
                             setMobileExpandedCategoryId(
                               mobileExpandedCategoryId === category._id
                                 ? null
                                 : category._id
-                            )
-                          }
+                            );
+                          }}
                         >
-                          <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mr-3 bg-gray-100">
-                            <img
-                              src={getFullImageUrl(category.image)}
-                              alt={category.name}
-                              className="h-full w-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "/placeholder.png";
-                              }}
-                            />
+                          <div className="flex items-center">
+                            <div className="h-6 w-6 rounded-full overflow-hidden mr-2 bg-gray-100">
+                              <img
+                                src={getFullImageUrl(category.image)}
+                                alt={category.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src =
+                                    "/placeholder.png";
+                                }}
+                              />
+                            </div>
+                            <span className="font-medium">{category.name}</span>
                           </div>
-                          <span className="truncate flex-1">
-                            {category.name}
-                          </span>
                           <svg
-                            className={`ml-2 h-4 w-4 text-gray-400 transition-transform ${
+                            className={`w-5 h-5 transition-transform duration-300 ${
                               mobileExpandedCategoryId === category._id
-                                ? "rotate-90"
+                                ? "rotate-180"
                                 : ""
                             }`}
                             fill="none"
-                            viewBox="0 0 24 24"
                             stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
                             />
                           </svg>
                         </button>
-                        {mobileExpandedCategoryId === category._id && (
-                          <MobileSubcategories categoryId={category._id} />
-                        )}
+
+                        {/* Mobile Subcategories with smoother transition */}
+                        <div
+                          className={`pl-4 pr-2 mt-1 overflow-hidden transition-all duration-300 hardware-accelerated ${
+                            mobileExpandedCategoryId === category._id
+                              ? "max-h-96 opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          {mobileExpandedCategoryId === category._id && (
+                            <MobileSubcategoriesComponent
+                              categoryId={category._id}
+                            />
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="py-2 text-sm text-gray-500">
-                    No categories found
-                  </div>
                 )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Mobile Navigation Links */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-3 border-t border-gray-100 pt-3">
-            <div className="flex flex-col space-y-2 pb-3">
-              <Link
-                to="/"
-                className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/about"
-                className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About Us
-              </Link>
-              {isSellerWithStore && (
+              {/* Mobile Nav Links */}
+              <div className="space-y-2">
                 <Link
-                  to="/dashboard"
-                  className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
+                  to="/"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Dashboard
+                  Home
                 </Link>
-              )}
-              {isSellerWithoutStore && (
                 <Link
-                  to="/business-info"
-                  className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
+                  to="/cart"
+                  className="flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Business Info
+                  <span>Cart</span>
+                  {cartCount > 0 && (
+                    <span className="bg-glam-primary text-white text-xs rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
-              )}
-              {isAuthenticated ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-left text-base font-medium text-glam-dark hover:text-glam-primary py-2"
-                >
-                  Sign out
-                </button>
-              ) : (
-                <Link
-                  to="/login"
-                  className="text-base font-medium text-glam-dark hover:text-glam-primary py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign in
-                </Link>
-              )}
-            </div>
-            <div className="flex justify-start gap-6 pt-3 border-t border-gray-100">
-              <Link
-                to="/cart"
-                className="text-glam-dark hover:text-glam-primary py-2 relative"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <img
-                  src={"/icons/shopping_bag.png"}
-                  alt="cart"
-                  className="h-6 w-6"
-                />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-glam-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                    {cartCount}
-                  </span>
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    {isSellerWithStore && (
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Seller Dashboard
+                      </Link>
+                    )}
+                    {isSellerWithoutStore && (
+                      <Link
+                        to="/business-info"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Create Store
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="block px-4 py-2 bg-glam-primary text-white rounded-lg hover:bg-glam-dark transition-colors text-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
                 )}
-              </Link>
+              </div>
             </div>
           </div>
         )}
@@ -783,40 +834,66 @@ const Navbar: React.FC = () => {
   );
 };
 
-const MobileSubcategories: React.FC<{ categoryId: string }> = ({
+const MobileSubcategoriesComponent: React.FC<{ categoryId: string }> = ({
   categoryId,
 }) => {
-  const [subcategories, setSubcategories] = React.useState<SubCategory[]>([]);
-  const [loading, setLoading] = React.useState(false);
+  const [subs, setSubs] = useState<SubCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    categoryService
-      .getSubCategories(categoryId)
-      .then((res) => setSubcategories(res.data.subcategories || []))
-      .catch(() => setSubcategories([]))
-      .finally(() => setLoading(false));
+    const fetchSubcategories = async () => {
+      try {
+        setIsLoading(true);
+        const response = await categoryService.getSubCategories(categoryId);
+        setSubs(response.data.subcategories || []);
+      } catch (err) {
+        console.error("Failed to fetch subcategories:", err);
+        setSubs([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSubcategories();
   }, [categoryId]);
 
-  if (loading) {
-    return <SubcategorySkeleton />;
+  function slugify(text: string) {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
   }
-  if (!subcategories.length) {
+
+  if (isLoading) {
     return (
-      <div className="py-2 text-sm text-gray-500 pl-10">
-        No subcategories found
+      <div className="py-2 animate-pulse">
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="h-8 bg-gray-200 rounded-md mb-2 last:mb-0"
+          ></div>
+        ))}
       </div>
     );
   }
+
+  if (subs.length === 0) {
+    return (
+      <div className="py-2 text-sm text-gray-500">
+        No subcategories available
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-3 gap-3 px-6 py-2">
-      {subcategories.map((sub) => (
+    <div className="py-1 grid grid-cols-2 gap-2 hardware-accelerated">
+      {subs.map((sub) => (
         <Link
           key={sub._id}
-          to={`/subcategory/${sub.name.replace(/\s+/g, "-").toLowerCase()}`}
-          className="flex flex-col items-center text-center hover:text-glam-primary"
+          to={`/subcategory/${slugify(sub.name)}`}
+          className="px-3 py-2 text-sm text-gray-600 hover:text-glam-primary hover:bg-gray-50 rounded-md transition-all duration-150 flex items-center"
         >
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mb-1">
+          <div className="w-6 h-6 rounded-full bg-gray-100 flex-shrink-0 mr-2 overflow-hidden">
             <img
               src={sub.imageUrl || "/placeholder.png"}
               alt={sub.name}
@@ -826,7 +903,7 @@ const MobileSubcategories: React.FC<{ categoryId: string }> = ({
               }}
             />
           </div>
-          <span className="text-xs font-medium truncate w-16">{sub.name}</span>
+          <span className="truncate">{sub.name}</span>
         </Link>
       ))}
     </div>
@@ -834,13 +911,16 @@ const MobileSubcategories: React.FC<{ categoryId: string }> = ({
 };
 
 const SubcategorySkeleton: React.FC = () => (
-  <div className="grid grid-cols-4 gap-4 animate-pulse">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <div key={i} className="flex flex-col items-center">
-        <div className="w-14 h-14 rounded-full bg-gray-200 mb-2" />
-        <div className="h-3 w-16 bg-gray-200 rounded" />
-      </div>
-    ))}
+  <div className="animate-pulse">
+    <div className="font-semibold text-lg mb-3 h-6 bg-gray-200 rounded w-1/2"></div>
+    <div className="grid grid-cols-4 gap-4">
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="flex flex-col items-center">
+          <div className="w-14 h-14 rounded-full bg-gray-200 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-16"></div>
+        </div>
+      ))}
+    </div>
   </div>
 );
 

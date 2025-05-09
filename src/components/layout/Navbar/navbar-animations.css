@@ -27,16 +27,42 @@
 }
 
 .animate-fade-in-dropdown {
-  animation: fadeInDropdown 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInDropdown 0.3s ease-out;
+  transform-origin: top center;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
 }
 
 @keyframes fadeInDropdown {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translateY(0) scale(1);
   }
+}
+
+/* Smooth scrolling for dropdown menus */
+.dropdown-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent flickering on hover transitions */
+.hover-stable {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Smooth transition for dropdown opening/closing */
+.dropdown-transition {
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+
+/* Optimize rendering performance */
+.hardware-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
 } 
