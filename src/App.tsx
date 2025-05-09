@@ -20,6 +20,8 @@ import CreateProductPage from "./pages/seller/CreateProductPage";
 import ListingsPage from "./pages/seller/ListingsPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 
 function App() {
   return (
@@ -42,6 +44,11 @@ function App() {
                     element={<SubcategoryProductsPage />}
                   />
                   <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route
+                    path="/checkout/success"
+                    element={<CheckoutSuccessPage />}
+                  />
                   <Route path="/business-info" element={<BusinessInfoForm />} />
                   <Route
                     path="/update-store"

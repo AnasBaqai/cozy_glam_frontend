@@ -91,8 +91,25 @@ const ProductDetailPage: React.FC = () => {
   }, [productId]);
 
   // Handle quantity change
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setQuantity(parseInt(e.target.value, 10));
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = parseInt(e.target.value, 10);
+
+    // Handle NaN
+    if (isNaN(value)) {
+      value = 1;
+    }
+
+    // Ensure quantity is at least 1
+    if (value < 1) {
+      value = 1;
+    }
+
+    // Ensure quantity doesn't exceed available stock
+    if (product && value > product.quantity) {
+      value = product.quantity;
+    }
+
+    setQuantity(value);
   };
 
   // Handle add to cart
@@ -329,18 +346,22 @@ const ProductDetailPage: React.FC = () => {
                     >
                       Quantity:
                     </label>
-                    <select
-                      id="quantity"
-                      value={quantity}
-                      onChange={handleQuantityChange}
-                      className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    >
-                      {[...Array(10)].map((_, i) => (
-                        <option key={i} value={i + 1}>
-                          {i + 1}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <input
+                        id="quantity"
+                        type="number"
+                        min="1"
+                        max={product.quantity}
+                        value={quantity}
+                        onChange={handleQuantityChange}
+                        className="border border-gray-300 rounded-md px-3 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                      {quantity > product.quantity && (
+                        <p className="absolute text-xs text-red-500 mt-1">
+                          Max: {product.quantity} available
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3">
