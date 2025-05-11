@@ -147,7 +147,9 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
   }, [user, isUpdateMode]);
 
   // Form field change handler
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -249,24 +251,113 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
       )}
 
       <main
-        className={`flex-1 flex items-center justify-center p-4 mt-20 ${
+        className={`flex-1 flex items-center justify-center p-10 mt-24 ${
           isUpdateMode ? (sidebarCollapsed ? "md:ml-20" : "md:ml-64") : ""
         }`}
       >
         <section className="grid max-w-7xl w-full gap-8 lg:grid-cols-10 items-start">
-          {/* ── Illustration ─────────────────────────────── */}
-          <div className="hidden lg:flex lg:col-span-3 items-center justify-center">
-            <img
-              src="/illustrations/shop_1.png"
-              alt="Cozy Glam boutique illustration"
-              className="max-w-full w-full opacity-90"
-            />
+          {/* ── Illustration & Progress ─────────────────────────────── */}
+          <div className="hidden lg:flex lg:col-span-3 flex-col gap-8">
+            {/* Illustration */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-glam-primary/20 to-transparent rounded-3xl"></div>
+              <img
+                src="/illustrations/shop_1.png"
+                alt="Cozy Glam boutique illustration"
+                className="w-full rounded-3xl"
+              />
+              <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent rounded-b-3xl">
+                <h2 className="text-2xl font-serif text-white mb-2">
+                  {isUpdateMode
+                    ? "Update Your Store"
+                    : "Let's Set Up Your Store"}
+                </h2>
+                <p className="text-white/80">
+                  Fill in your business details to get started with selling on
+                  Cozy Glam
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Steps */}
+            <div className="bg-white/90 rounded-3xl shadow-lg backdrop-blur-sm p-6">
+              <h3 className="text-lg font-medium text-glam-dark mb-4">
+                Setup Progress
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-glam-primary text-white flex items-center justify-center">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-medium text-glam-dark">Create Account</p>
+                    <p className="text-sm text-gray-500">Completed</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-glam-primary text-white flex items-center justify-center">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-medium text-glam-dark">
+                      Business Information
+                    </p>
+                    <p className="text-sm text-gray-500">In Progress</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-400">Start Selling</p>
+                    <p className="text-sm text-gray-500">Next Step</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Help Box */}
+            <div className="bg-glam-primary/10 rounded-3xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-glam-primary/20 flex items-center justify-center flex-shrink-0">
+                  <svg
+                    className="w-5 h-5 text-glam-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-glam-dark mb-1">
+                    Need Help?
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Our support team is here to help you set up your store
+                    successfully.
+                  </p>
+                  <a
+                    href="/help"
+                    className="text-sm text-glam-primary hover:text-glam-dark font-medium"
+                  >
+                    View Setup Guide →
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* ── Form Card ────────────────────────────────── */}
           <form
             onSubmit={handleContinue}
-            className="bg-white/90 rounded-3xl shadow-lg backdrop-blur-sm px-6 py-6 w-full lg:col-span-7"
+            className="bg-white/90 rounded-3xl shadow-lg backdrop-blur-sm px-6 py-8 w-full lg:col-span-7"
           >
             <FormHeader
               title={isUpdateMode ? "Update Your Store" : "Create Your Store"}
@@ -280,35 +371,58 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
               </div>
             ) : (
               <>
-                <LogoUploadField
-                  previewImage={previewImage}
-                  setPreviewImage={setPreviewImage}
-                  onFileSelect={handleFileSelect}
-                  uploadLoading={uploadLoading}
-                  sizeError={sizeError}
-                  setSizeError={setSizeError}
-                  isRequired={!isUpdateMode}
-                />
+                {/* Form Sections */}
+                <div className="space-y-8">
+                  {/* Store Logo Section */}
+                  <div className="bg-glam-light/30 rounded-2xl p-6">
+                    <h3 className="text-lg font-medium text-glam-dark mb-4">
+                      Store Logo
+                    </h3>
+                    <LogoUploadField
+                      previewImage={previewImage}
+                      setPreviewImage={setPreviewImage}
+                      onFileSelect={handleFileSelect}
+                      uploadLoading={uploadLoading}
+                      sizeError={sizeError}
+                      setSizeError={setSizeError}
+                      isRequired={!isUpdateMode}
+                    />
+                  </div>
 
-                <BusinessInfoFields form={form} onChange={handleChange} />
+                  {/* Store Information Section */}
+                  <div className="bg-glam-light/30 rounded-2xl p-6">
+                    <h3 className="text-lg font-medium text-glam-dark mb-4">
+                      Store Information
+                    </h3>
+                    <BusinessInfoFields form={form} onChange={handleChange} />
+                  </div>
 
-                <SocialLinksSetup
-                  socials={{
-                    instagram: form.instagram,
-                    facebook: form.facebook,
-                    tiktok: form.tiktok,
-                  }}
-                  setSocial={setSocial}
-                />
+                  {/* Social Media Section */}
+                  <div className="bg-glam-light/30 rounded-2xl p-6">
+                    <h3 className="text-lg font-medium text-glam-dark mb-4">
+                      Social Media Links
+                    </h3>
+                    <SocialLinksSetup
+                      socials={{
+                        instagram: form.instagram,
+                        facebook: form.facebook,
+                        tiktok: form.tiktok,
+                      }}
+                      setSocial={setSocial}
+                    />
+                  </div>
+                </div>
 
-                <SubmitButton
-                  label={isUpdateMode ? "Update Store" : "Continue"}
-                  loadingLabel={
-                    isUpdateMode ? "Updating Store..." : "Creating Store..."
-                  }
-                  loading={loading}
-                  className="mt-4"
-                />
+                {/* Submit Button */}
+                <div className="mt-8">
+                  <SubmitButton
+                    label={isUpdateMode ? "Update Store" : "Create Store"}
+                    loadingLabel={
+                      isUpdateMode ? "Updating Store..." : "Creating Store..."
+                    }
+                    loading={loading}
+                  />
+                </div>
               </>
             )}
           </form>

@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.7.0",
     "@types/js-cookie": "^3.0.6",
     "axios": "^1.9.0",
+    "country-state-city": "^3.2.1",
     "daisyui": "^5.0.28",
     "js-cookie": "^3.0.5",
     "react": "^19.0.0",

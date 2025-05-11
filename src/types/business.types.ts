@@ -22,7 +22,7 @@ export interface BusinessFormData {
 // Props interfaces for business info components
 export interface BusinessInfoFieldsProps {
   form: BusinessFormData;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
 export interface FormInputProps
