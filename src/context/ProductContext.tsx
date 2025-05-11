@@ -54,11 +54,11 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
 
         // Get active products
         const activeResponse = await productService.getSellerProducts("active");
-        const activeCount = activeResponse.data.total || 0;
+        const activeCount = activeResponse?.data?.total || 0;
 
         // Get draft products
         const draftResponse = await productService.getSellerProducts("draft");
-        const draftCount = draftResponse.data.total || 0;
+        const draftCount = draftResponse?.data?.total || 0;
 
         // Calculate total
         const totalCount = activeCount + draftCount;
@@ -71,6 +71,12 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
       } catch (error) {
         console.error("Failed to fetch product listings:", error);
         setError("Failed to load product listings");
+        // Set default values in case of error
+        setListings({
+          active: 0,
+          drafts: 0,
+          total: 0,
+        });
       } finally {
         setLoading(false);
       }

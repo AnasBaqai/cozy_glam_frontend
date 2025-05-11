@@ -87,6 +87,12 @@ uploadApi.interceptors.request.use(
 export const authService = {
   signup: async (userData: SignupRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>("/users/signup", userData);
+    if (response.data?.data?.user?.token) {
+      const token = response.data.data.user.token;
+      localStorage.setItem("token", token);
+      setCookie("token", token);
+      localStorage.setItem("user", JSON.stringify(response.data.data.user));
+    }
     return response.data;
   },
 

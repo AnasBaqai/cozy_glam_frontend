@@ -180,49 +180,16 @@ const ListingsPage: React.FC = () => {
   // Add raw products state to store the original data
   const [rawProducts, setRawProducts] = useState<Product[]>([]);
 
-  // Update fetchProductsForCurrentTab to store raw products
-  const fetchProductsForCurrentTab = async () => {
-    if (!user?.isStoreCreated) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      console.log(`Fetching products with page size: ${pagination.pageSize}`);
-      const response = await productService.getSellerProducts(
-        activeTab,
-        pagination.currentPage,
-        pagination.pageSize
-      );
-
-      if (response.status) {
-        // Store the raw products
-        setRawProducts(response.data.products);
-
-        // Apply filtering and sorting
-        applyFiltersAndSort(response.data.products);
-
-        setPagination({
-          total: response.data.total,
-          totalPages: response.data.totalPages,
-          currentPage: response.data.currentPage,
-          pageSize: pagination.pageSize,
-        });
-      } else {
-        setError("Failed to load products");
-        toast.error("Failed to load products");
-      }
-    } catch (err) {
-      console.error("Error fetching products:", err);
-      setError("Failed to load products. Please try again.");
-      toast.error("Failed to load products. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Add a separate function to handle filtering and sorting
-  const applyFiltersAndSort = (productsToProcess: Product[]) => {
+  const applyFiltersAndSort = (
+    productsToProcess: Product[] | undefined | null
+  ) => {
+    // Return empty array if productsToProcess is undefined or null
+    if (!productsToProcess) {
+      setProducts([]);
+      return;
+    }
+
     let processedProducts = [...productsToProcess];
 
     // Apply search filter if search term exists
@@ -257,6 +224,63 @@ const ListingsPage: React.FC = () => {
     });
 
     setProducts(processedProducts);
+  };
+
+  // Update fetchProductsForCurrentTab to handle the response properly
+  const fetchProductsForCurrentTab = async () => {
+    if (!user?.isStoreCreated) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log(`Fetching products with page size: ${pagination.pageSize}`);
+      const response = await productService.getSellerProducts(
+        activeTab,
+        pagination.currentPage,
+        pagination.pageSize
+      );
+
+      // Check if the response is successful
+      if (response?.status) {
+        // Initialize empty arrays and default pagination values
+        const products: Product[] = [];
+        const paginationData = {
+          total: 0,
+          totalPages: 1,
+          currentPage: 1,
+          pageSize: pagination.pageSize,
+        };
+
+        // If response has data and products, use them
+        if (response.data?.products) {
+          products.push(...response.data.products);
+          paginationData.total = response.data.total || 0;
+          paginationData.totalPages = response.data.totalPages || 1;
+          paginationData.currentPage = response.data.currentPage || 1;
+        }
+
+        // Update state with products (even if empty)
+        setRawProducts(products);
+        applyFiltersAndSort(products);
+        setPagination(paginationData);
+        setError(null);
+      } else {
+        console.error("Failed to fetch products:", response);
+        setError("Failed to connect to the server. Please try again later.");
+        toast.error("Failed to connect to the server");
+        setProducts([]);
+        setRawProducts([]);
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError("Failed to connect to the server. Please try again later.");
+      toast.error("Failed to connect to the server");
+      setProducts([]);
+      setRawProducts([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Update useEffect to only fetch when necessary
@@ -404,6 +428,56 @@ const ListingsPage: React.FC = () => {
   const getSortLabel = (value: string): string => {
     return sortOptions.find((option) => option.value === value)?.label || "";
   };
+
+  // Update the empty state message in the render section
+  const renderEmptyState = () => (
+    <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+      <div className="w-24 h-24 mx-auto mb-6">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full text-gray-300"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+          />
+        </svg>
+      </div>
+      <h3 className="text-xl font-medium text-gray-900 mb-4">
+        {activeTab === "active"
+          ? "No Active Listings Yet"
+          : "No Draft Listings Yet"}
+      </h3>
+      <p className="text-gray-600 mb-8">
+        {activeTab === "active"
+          ? "Start selling by creating your first product listing."
+          : "Save product listings as drafts while you work on them."}
+      </p>
+      <button
+        onClick={() => navigate("/seller/create-product")}
+        className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
+      >
+        <svg
+          className="-ml-1 mr-2 h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Create Your First Product
+      </button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -670,61 +744,7 @@ const ListingsPage: React.FC = () => {
                 </div>
               </div>
             ) : products.length === 0 ? (
-              <div className="p-12 text-center">
-                <svg
-                  className="mx-auto h-16 w-16 text-glam-primary"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
-                </svg>
-                <h3 className="mt-4 text-xl font-medium text-gray-900">
-                  No Products Found
-                </h3>
-                <p className="mt-2 text-gray-600 max-w-md mx-auto">
-                  {searchTerm
-                    ? `No products match your search "${searchTerm}"`
-                    : activeTab === "active"
-                    ? "You don't have any active product listings yet. Create a new listing to start selling."
-                    : "You don't have any draft products yet. Save a listing as draft while you work on it."}
-                </p>
-                <div className="mt-6">
-                  {searchTerm ? (
-                    <button
-                      onClick={resetSearch}
-                      className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
-                    >
-                      Clear Search
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => navigate("/seller/create-product")}
-                      className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
-                    >
-                      <svg
-                        className="-ml-1 mr-2 h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Create a New Product
-                    </button>
-                  )}
-                </div>
-              </div>
+              renderEmptyState()
             ) : (
               <>
                 {/* Table Header with Sort Indicators */}
