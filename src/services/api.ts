@@ -693,4 +693,77 @@ export const userService = {
   },
 };
 
+// Add interfaces and methods for order service
+export interface OrderProduct {
+  product_id: string;
+  seller_id: string;
+  title: string;
+  quantity: number;
+  price_per_unit: number;
+}
+
+export interface ShippingAddress {
+  street: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  country: string;
+}
+
+export interface OrderRequest {
+  products: OrderProduct[];
+  subtotal: number;
+  shipping_cost: number;
+  total_amount: number;
+  payment_status: string;
+  order_status: string;
+  shipping_address: ShippingAddress;
+  payment_method: "COD" | "credit_card" | "paypal" | "klarna" | "google_pay";
+}
+
+export interface OrderResponse {
+  status: boolean;
+  responseCode: number;
+  message: string;
+  data: {
+    order: {
+      _id: string;
+      user_id: string;
+      products: OrderProduct[];
+      subtotal: number;
+      shipping_cost: number;
+      total_amount: number;
+      payment_status: string;
+      order_status: string;
+      shipping_address: ShippingAddress;
+      payment_method: string;
+      created_at: string;
+      updated_at: string;
+    };
+  };
+}
+
+export const orderService = {
+  createOrder: async (orderData: OrderRequest): Promise<OrderResponse> => {
+    try {
+      const response = await api.post<OrderResponse>(
+        "/orders/createOrder",
+        orderData
+      );
+      console.log("Order API response:", response.data);
+      return response.data;
+    } catch (error: unknown) {
+      console.error("Error in orderService.createOrder:", error);
+      const axiosError = error as {
+        response?: { data?: Record<string, unknown>; status?: number };
+      };
+      if (axiosError.response) {
+        console.error("Response data:", axiosError.response.data);
+        console.error("Response status:", axiosError.response.status);
+      }
+      throw error;
+    }
+  },
+};
+
 export default api;

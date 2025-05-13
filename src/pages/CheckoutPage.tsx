@@ -4,22 +4,44 @@ import { useCart } from "../context/CartContext";
 import Navbar from "../components/layout/Navbar/Navbar";
 import Footer from "../components/layout/Footer/Footer";
 import Marquee from "../components/layout/Marquee/Marquee";
+import { orderService } from "../services/api";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
+import { useAppSelector } from "../store/hooks";
 
 // Payment method type
-type PaymentMethod = "card" | "paypal" | "klarna" | "googlepay";
+type PaymentMethod = "COD" | "credit_card" | "paypal" | "klarna" | "google_pay";
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, clearCart } = useCart();
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("card");
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("COD");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+
+  // Form state
+  const [shippingAddress, setShippingAddress] = useState({
+    fullName: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "USA",
+  });
 
   // Calculate totals
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shipping = 0; // Free shipping
+  const shipping = 0; // $5 shipping
   const total = subtotal + shipping;
 
   // Handle payment method selection
@@ -27,17 +49,84 @@ const CheckoutPage: React.FC = () => {
     setSelectedPayment(method);
   };
 
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShippingAddress((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   // Handle checkout submission
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    // Simulate payment processing
-    setTimeout(() => {
-      clearCart();
-      navigate("/checkout/success");
+    if (!isAuthenticated) {
+      setLoginDialogOpen(true);
+      return;
+    }
+
+    // Validate form fields
+    if (
+      !shippingAddress.fullName ||
+      !shippingAddress.street ||
+      !shippingAddress.city ||
+      !shippingAddress.state ||
+      !shippingAddress.zipCode
+    ) {
+      setError("Please fill in all shipping address fields");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Format order products
+      const orderProducts = items.map((item) => ({
+        product_id: item.id,
+        seller_id: "", // This will be determined by the backend based on the product
+        title: item.title,
+        quantity: item.quantity,
+        price_per_unit: item.price,
+      }));
+
+      // Create order request
+      const orderData = {
+        products: orderProducts,
+        subtotal: subtotal,
+        shipping_cost: shipping,
+        total_amount: total,
+        payment_status: "pending",
+        order_status: "pending",
+        shipping_address: {
+          street: shippingAddress.street,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          zip_code: shippingAddress.zipCode,
+          country: shippingAddress.country,
+        },
+        payment_method: selectedPayment,
+      };
+
+      // Call order API
+      const response = await orderService.createOrder(orderData);
+
+      if (response.status) {
+        clearCart();
+        navigate("/checkout/success");
+      } else {
+        setError(response.message || "Failed to create order");
+      }
+    } catch (err) {
+      console.error("Error creating order:", err);
+      setError(
+        "An error occurred while processing your order. Please try again."
+      );
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -57,6 +146,13 @@ const CheckoutPage: React.FC = () => {
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
+              {error}
+            </div>
+          )}
+
           <div className="grid lg:grid-cols-12 gap-8">
             {/* Left Column - Payment and Shipping */}
             <div className="lg:col-span-8 space-y-6">
@@ -72,8 +168,8 @@ const CheckoutPage: React.FC = () => {
                     <input
                       type="radio"
                       name="payment"
-                      checked={selectedPayment === "card"}
-                      onChange={() => handlePaymentSelect("card")}
+                      checked={selectedPayment === "credit_card"}
+                      onChange={() => handlePaymentSelect("credit_card")}
                       className="form-radio text-glam-primary"
                     />
                     <div className="ml-4 flex-1">
@@ -149,8 +245,8 @@ const CheckoutPage: React.FC = () => {
                     <input
                       type="radio"
                       name="payment"
-                      checked={selectedPayment === "googlepay"}
-                      onChange={() => handlePaymentSelect("googlepay")}
+                      checked={selectedPayment === "google_pay"}
+                      onChange={() => handlePaymentSelect("google_pay")}
                       className="form-radio text-glam-primary"
                     />
                     <div className="ml-4 flex-1">
@@ -167,6 +263,28 @@ const CheckoutPage: React.FC = () => {
                       className="h-8 w-auto"
                     />
                   </label>
+
+                  {/* Cash on Delivery */}
+                  <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-glam-primary transition-colors">
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={selectedPayment === "COD"}
+                      onChange={() => handlePaymentSelect("COD")}
+                      className="form-radio text-glam-primary"
+                    />
+                    <div className="ml-4 flex-1">
+                      <div className="font-medium text-glam-dark">
+                        Cash on Delivery
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        Pay when you receive your order
+                      </div>
+                    </div>
+                    <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <span className="text-gray-600 font-medium">$</span>
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -182,6 +300,9 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
+                      name="fullName"
+                      value={shippingAddress.fullName}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-glam-primary focus:border-transparent"
                       required
                     />
@@ -192,6 +313,9 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
+                      name="street"
+                      value={shippingAddress.street}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-glam-primary focus:border-transparent"
                       required
                     />
@@ -202,6 +326,22 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
+                      name="city"
+                      value={shippingAddress.city}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-glam-primary focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-glam-dark mb-1">
+                      State/Province
+                    </label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={shippingAddress.state}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-glam-primary focus:border-transparent"
                       required
                     />
@@ -212,6 +352,22 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
+                      name="zipCode"
+                      value={shippingAddress.zipCode}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-glam-primary focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-glam-dark mb-1">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={shippingAddress.country}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-glam-primary focus:border-transparent"
                       required
                     />
@@ -266,7 +422,9 @@ const CheckoutPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium text-green-600">Free</span>
+                    <span className="font-medium text-glam-dark">
+                      ${shipping.toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-lg font-semibold pt-2 border-t">
                     <span className="text-glam-dark">Total</span>
@@ -341,6 +499,33 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Login Dialog */}
+      <Dialog open={loginDialogOpen} onClose={() => setLoginDialogOpen(false)}>
+        <DialogTitle>Sign in Required</DialogTitle>
+        <DialogContent>
+          <p className="mb-4">Please sign in to complete your order.</p>
+          <p className="text-sm text-gray-600 mb-2">
+            You need to be signed in to track your orders and manage your
+            account.
+          </p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLoginDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setLoginDialogOpen(false);
+              navigate("/login", { state: { returnUrl: "/checkout" } });
+            }}
+            variant="contained"
+            color="primary"
+          >
+            Sign In
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Footer />
     </div>
