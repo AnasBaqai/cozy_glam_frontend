@@ -102,3 +102,31 @@ export interface StoreInfoCardProps {
   storeLogo: string;
   onClick: () => void;
 }
+
+export interface VerificationFormData {
+  store_id: string;
+  crn_number: string;
+  vat_number: string;
+  identity_document: File | null;
+  crn_document: File | null;
+  vat_document: File | null;
+  utility_bill: File | null;
+  identity_document_url: string;
+  crn_document_url: string;
+  vat_document_url: string;
+  utility_bill_url: string;
+}
+
+export interface VerificationPageProps {
+  storeId: string;
+}
+
+export interface DocumentUploadFieldProps {
+  label: string;
+  required?: boolean;
+  file: File | null;
+  setFile: (file: File | null) => void;
+  uploadLoading?: boolean;
+  sizeError: string | null;
+  setSizeError: (error: string | null) => void;
+}

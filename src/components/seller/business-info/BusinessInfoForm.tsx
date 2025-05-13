@@ -212,17 +212,27 @@ const BusinessInfoForm: React.FC<BusinessInfoFormProps> = ({
       if (isUpdateMode) {
         await storeService.updateStore(payload, payload._id);
         setSuccess("Store updated successfully!");
+
+        // Show success message and redirect
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1500);
       } else {
-        await storeService.createStore(payload);
+        const response = await storeService.createStore(payload);
         dispatch(setStoreCreated());
         setIsStoreCreated(true);
         setSuccess("Store created successfully!");
-      }
 
-      // Show success message and redirect
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
+        // Show success message and redirect to verification page
+        setTimeout(() => {
+          // If we have a store ID in the response, use it for the verification page
+          if (response.data && response.data.store && response.data.store._id) {
+            navigate(`/seller/verification/${response.data.store._id}`);
+          } else {
+            navigate("/seller/verification");
+          }
+        }, 1500);
+      }
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(

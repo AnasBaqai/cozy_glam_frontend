@@ -71,7 +71,7 @@ const SignupPage = () => {
       <Marquee />
       <Navbar />
 
-      <div className="flex min-h-[calc(170vh-180px)] items-center justify-center ">
+      <div className="flex min-h-[calc(190vh-180px)] items-center justify-center ">
         <div className="w-full max-w-6xl grid md:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Left Side - Form */}
           <div className="p-8 md:p-12 order-2 md:order-1">

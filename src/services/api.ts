@@ -220,6 +220,35 @@ export const storeService = {
     const response = await api.put(`/store/updateStore/${storeId}`, storeData);
     return response.data;
   },
+
+  submitVerification: async (verificationData: {
+    store_id: string;
+    crn_number: string;
+    vat_number?: string;
+    identity_document: string;
+    crn_document: string;
+    vat_document?: string;
+    utility_bill?: string;
+  }) => {
+    try {
+      console.log("Sending verification data to API:", verificationData);
+      const response = await api.post(
+        "/store/submitVerification",
+        verificationData
+      );
+      return response.data;
+    } catch (error: unknown) {
+      console.error("Error submitting verification:", error);
+      const axiosError = error as {
+        response?: { data?: Record<string, unknown>; status?: number };
+      };
+      if (axiosError.response) {
+        console.error("Response data:", axiosError.response.data);
+        console.error("Response status:", axiosError.response.status);
+      }
+      throw error;
+    }
+  },
 };
 
 export interface ImageUploadResponse {
@@ -658,6 +687,23 @@ export const uploadService = {
       "/app/uploadImage",
       formData
     );
+    return response.data;
+  },
+
+  uploadFile: async (
+    file: File
+  ): Promise<{
+    status: boolean;
+    responseCode: number;
+    message: string;
+    data: {
+      fileUrl: string;
+    };
+  }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await uploadApi.post("/app/uploadFile", formData);
     return response.data;
   },
 
