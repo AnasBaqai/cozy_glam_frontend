@@ -22,6 +22,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
+import OrdersPage from "./pages/seller/OrdersPage";
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
                     path="/product/:productId"
                     element={<ProductDetailPage />}
                   />
+                  <Route path="seller/orders" element={<OrdersPage />} />
                   {/* Add more routes as the application grows */}
                 </Routes>
                 <ToastContainer position="bottom-right" autoClose={3000} />

@@ -7,14 +7,11 @@ import Marquee from "../../components/layout/Marquee/Marquee";
 import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
 import StoreInfoCard from "../../components/seller/dashboard/StoreInfoCard";
 import "../../components/seller/dashboard/dashboard.css";
-import {
-  FlashMessage,
-  SalesData,
-  OrdersData,
-} from "../../types/dashboard.types";
+import { FlashMessage, SalesData } from "../../types/dashboard.types";
 import { storeService, StoreResponse } from "../../services/api";
 import { useProductContext } from "../../context/ProductContext";
 import useSidebarState from "../../hooks/useSidebarState";
+import { orderService } from "../../services/api";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -35,6 +32,21 @@ const DashboardPage = () => {
   const [storeLoading, setStoreLoading] = useState(false);
   const [storeError, setStoreError] = useState<string | null>(null);
 
+  // Orders state
+  const [orders, setOrders] = useState<{
+    pending: number;
+    completed: number;
+    cancelled: number;
+    total: number;
+  }>({
+    pending: 0,
+    completed: 0,
+    cancelled: 0,
+    total: 0,
+  });
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+
   // Toggle sidebar function
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -49,14 +61,6 @@ const DashboardPage = () => {
     last7Days: 0,
     last31Days: 0,
     last90Days: 188.69,
-  });
-
-  const [orders] = useState<OrdersData>({
-    awaiting: 0,
-    returns: 0,
-    canceled: 0,
-    awaitingPayment: 0,
-    awaitingFeedback: 0,
   });
 
   // Fetch store data
@@ -80,6 +84,53 @@ const DashboardPage = () => {
 
     fetchStoreData();
   }, [user]);
+
+  // Fetch orders data
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setOrdersLoading(true);
+        const response = await orderService.getSellerOrders();
+        if (response.status) {
+          const ordersData = response.data.orders;
+          const orderStats = ordersData.reduce(
+            (
+              acc: {
+                pending: number;
+                completed: number;
+                cancelled: number;
+                total: number;
+              },
+              order: { order_status: string }
+            ) => {
+              acc.total++;
+              switch (order.order_status.toLowerCase()) {
+                case "pending":
+                  acc.pending++;
+                  break;
+                case "completed":
+                  acc.completed++;
+                  break;
+                case "cancelled":
+                  acc.cancelled++;
+                  break;
+              }
+              return acc;
+            },
+            { pending: 0, completed: 0, cancelled: 0, total: 0 }
+          );
+          setOrders(orderStats);
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setOrdersError("Failed to fetch orders");
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   // Check for flash messages in localStorage
   useEffect(() => {
@@ -274,7 +325,7 @@ const DashboardPage = () => {
                   <div className="text-xs text-gray-500 uppercase font-medium">
                     AWAITING DISPATCH
                   </div>
-                  <div className="text-2xl font-bold">{orders.awaiting}</div>
+                  <div className="text-2xl font-bold">{orders.pending}</div>
                 </div>
               </div>
             </div>
@@ -503,80 +554,71 @@ const DashboardPage = () => {
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Orders</h3>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                <button
+                  onClick={() => navigate("/seller/orders")}
+                  className="text-glam-primary hover:text-glam-dark"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
               </div>
               <div className="p-4">
-                <div className="text-sm text-blue-600 hover:underline cursor-pointer mb-4">
+                <div
+                  className="text-sm text-blue-600 hover:underline cursor-pointer mb-4"
+                  onClick={() => navigate("/seller/orders")}
+                >
                   See all orders
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm">
-                      Awaiting postage - print postage label
+                {ordersLoading ? (
+                  <div className="flex items-center justify-center h-40">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
+                  </div>
+                ) : ordersError ? (
+                  <div className="text-red-500 p-4 text-center">
+                    {ordersError}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm">Pending Orders</div>
+                      <span className="text-sm font-bold">
+                        {orders.pending}
+                      </span>
                     </div>
-                    <span className="text-sm font-bold">{orders.awaiting}</span>
-                  </div>
 
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm">All open returns/replacements</div>
-                    <span className="text-sm font-bold">{orders.returns}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm">Open cancellations</div>
-                    <span className="text-sm font-bold">{orders.canceled}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm">Awaiting payment</div>
-                    <span className="text-sm font-bold">
-                      {orders.awaitingPayment}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm">
-                      Posted and awaiting your feedback
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm">Completed Orders</div>
+                      <span className="text-sm font-bold">
+                        {orders.completed}
+                      </span>
                     </div>
-                    <span className="text-sm font-bold">
-                      {orders.awaitingFeedback}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="mt-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <span>Show more</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 ml-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm">Cancelled Orders</div>
+                      <span className="text-sm font-bold">
+                        {orders.cancelled}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm">Total Orders</div>
+                      <span className="text-sm font-bold">{orders.total}</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 

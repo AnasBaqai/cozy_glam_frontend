@@ -764,6 +764,28 @@ export const orderService = {
       throw error;
     }
   },
+
+  getSellerOrders: async (page: number = 1, limit: number = 10) => {
+    try {
+      const response = await api.get(
+        `/orders/getOrders_seller?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching seller orders:", error);
+      throw error;
+    }
+  },
+
+  acceptOrder: async (orderId: string) => {
+    try {
+      const response = await api.put(`/orders/acceptOrder?orderId=${orderId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error accepting order:", error);
+      throw error;
+    }
+  },
 };
 
 export default api;

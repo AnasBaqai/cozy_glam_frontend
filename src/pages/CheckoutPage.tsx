@@ -33,7 +33,7 @@ const CheckoutPage: React.FC = () => {
     city: "",
     state: "",
     zipCode: "",
-    country: "USA",
+    country: "",
   });
 
   // Calculate totals
