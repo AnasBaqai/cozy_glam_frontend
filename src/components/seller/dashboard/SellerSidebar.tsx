@@ -32,11 +32,11 @@ const SellerSidebar: React.FC<SellerSidebarProps> = ({
 
       <aside
         className={`${
-          collapsed ? "w-0 md:w-20 -left-64 md:left-0" : "w-64 left-0"
-        } bg-white h-screen fixed top-32 transition-all duration-300 shadow-lg z-30 rounded-tr-lg rounded-tl-lg border-t border-gray-100`}
-        style={{ height: "calc(100vh - 130px)" }}
+          collapsed ? "w-0 md:w-16 -left-64 md:left-0" : "w-56 left-0"
+        } bg-white h-screen fixed top-24 transition-all duration-300 shadow-lg z-30 rounded-tr-lg rounded-tl-lg border-t border-gray-100`}
+        style={{ height: "calc(100vh - 96px)" }}
       >
-        <div className="pt-8 px-4 pb-4 flex flex-col h-full">
+        <div className="pt-4 px-3 pb-3 flex flex-col h-full">
           {/* Toggle button */}
           <SidebarToggleButton
             toggleSidebar={toggleSidebar}

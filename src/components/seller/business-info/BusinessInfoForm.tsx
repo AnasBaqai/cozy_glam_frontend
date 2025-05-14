@@ -174,8 +174,9 @@ const BusinessInfoForm = ({
       navigate("/login");
     } else if (user?.role !== "seller") {
       navigate("/");
-    } else if (!isUpdateMode && user?.isStoreCreated) {
-      navigate("/dashboard");
+    } else if (!isUpdateMode && user?.isStoreCreated && user?._id) {
+      // Redirect to verification page instead of dashboard
+      navigate(`/seller/verification/${user._id}`);
     }
   }, [isAuthenticated, user, navigate, isUpdateMode]);
 

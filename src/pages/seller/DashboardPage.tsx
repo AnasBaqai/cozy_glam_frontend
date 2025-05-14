@@ -192,12 +192,12 @@ const DashboardPage = () => {
 
       {/* Main content with adjusted margin */}
       <main
-        className={`flex-1 flex flex-col items-center justify-start p-4 md:p-6 mt-28 md:mt-32 transition-all duration-300
-          ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"}`}
+        className={`flex-1 flex flex-col items-center justify-start p-3 mt-24 transition-all duration-300
+          ${sidebarCollapsed ? "md:ml-16" : "md:ml-56"}`}
       >
         {/* Flash Message as overlay */}
         {flashMessage && (
-          <div className="fixed top-32 md:top-24 right-4 z-50 max-w-md animate-fadeInOut">
+          <div className="fixed top-24 right-3 z-50 max-w-md animate-fadeInOut">
             <div
               className={`${
                 flashMessage.type === "success"
@@ -253,20 +253,20 @@ const DashboardPage = () => {
 
         <div className="w-full max-w-7xl">
           {/* Dashboard Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">
+          <div className="mb-4">
+            <h1 className="text-xl font-bold text-gray-800">
               Seller Dashboard
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm text-gray-600">
               Welcome back, {user?.name || "Seller"}
             </p>
           </div>
 
           {/* Top Summary Section */}
-          <div className="bg-white rounded-lg shadow p-4 md:p-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-3 mb-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div className="flex items-center mb-4 md:mb-0">
-                <div className="bg-gray-200 rounded-full h-12 w-12 flex items-center justify-center mr-4">
+              <div className="flex items-center mb-3 md:mb-0">
+                <div className="bg-gray-200 rounded-full h-9 w-9 flex items-center justify-center mr-3">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-6 w-6 text-gray-500"
@@ -283,11 +283,11 @@ const DashboardPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-base font-bold">
                     {user?.name ? `${user.name}'s Store` : "CozyGlam Store"}
                   </h2>
                   <div className="flex items-center">
-                    <span className="text-sm text-gray-500">{user?.email}</span>
+                    <span className="text-xs text-gray-500">{user?.email}</span>
                     <Link
                       to="/profile"
                       className="ml-2 text-glam-primary hover:text-glam-dark transition-colors"
@@ -311,36 +311,36 @@ const DashboardPage = () => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4 md:gap-8">
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <div className="text-xs text-gray-500 uppercase font-medium">
+              <div className="flex flex-wrap gap-3">
+                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <div className="text-[10px] text-gray-500 uppercase font-medium">
                     SALES (31 DAYS)
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-lg font-bold">
                     £{salesData.last31Days.toFixed(2)}
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <div className="text-xs text-gray-500 uppercase font-medium">
+                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <div className="text-[10px] text-gray-500 uppercase font-medium">
                     AWAITING DISPATCH
                   </div>
-                  <div className="text-2xl font-bold">{orders.pending}</div>
+                  <div className="text-lg font-bold">{orders.pending}</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Main Dashboard Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Store Info Card (replacing Tasks) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Store Info Card */}
             {storeLoading ? (
-              <div className="bg-white rounded-lg shadow p-4 dashboard-card flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-glam-primary"></div>
+              <div className="bg-white rounded-lg shadow p-3 dashboard-card flex items-center justify-center h-48">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
               </div>
             ) : storeError ? (
-              <div className="bg-white rounded-lg shadow p-4 dashboard-card h-64">
-                <div className="text-red-500 p-4 text-center">{storeError}</div>
+              <div className="bg-white rounded-lg shadow p-3 dashboard-card h-48">
+                <div className="text-red-500 p-3 text-center">{storeError}</div>
               </div>
             ) : storeData ? (
               <StoreInfoCard
@@ -354,8 +354,8 @@ const DashboardPage = () => {
                 className="bg-white rounded-lg shadow overflow-hidden dashboard-card cursor-pointer hover:shadow-md transition-shadow"
                 onClick={handleStoreCardClick}
               >
-                <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Store Details</h3>
+                <div className="p-3 border-b border-gray-100 flex justify-between items-center">
+                  <h3 className="text-base font-medium">Store Details</h3>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5 text-glam-primary"
@@ -371,7 +371,7 @@ const DashboardPage = () => {
                     />
                   </svg>
                 </div>
-                <div className="p-4 flex items-center justify-center h-40">
+                <div className="p-3 flex items-center justify-center h-32">
                   <div className="text-center">
                     <div className="bg-gray-100 rounded-full p-4 inline-block mb-2">
                       <svg
@@ -400,8 +400,8 @@ const DashboardPage = () => {
 
             {/* Listings Card */}
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-medium">Listings</h3>
+              <div className="p-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-base font-medium">Listings</h3>
                 <button
                   onClick={() => navigate("/seller/listings")}
                   className="text-glam-primary hover:text-glam-dark"
@@ -422,25 +422,25 @@ const DashboardPage = () => {
                   </svg>
                 </button>
               </div>
-              <div className="p-4">
+              <div className="p-3">
                 {listingsLoading ? (
-                  <div className="flex items-center justify-center h-40">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
+                  <div className="flex items-center justify-center h-32">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
                   </div>
                 ) : listingsError ? (
-                  <div className="text-red-500 p-4 text-center">
+                  <div className="text-red-500 p-3 text-center">
                     {listingsError}
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-2 gap-3 mb-3">
                       <div
-                        className="bg-glam-light p-3 rounded cursor-pointer hover:bg-glam-light/70 transition-colors"
+                        className="bg-glam-light p-2 rounded cursor-pointer hover:bg-glam-light/70 transition-colors"
                         onClick={() =>
                           navigate("/seller/listings?status=active")
                         }
                       >
-                        <div className="text-xs text-gray-500 uppercase font-medium">
+                        <div className="text-[10px] text-gray-500 uppercase font-medium">
                           ACTIVE LISTINGS
                         </div>
                         <div className="flex justify-between items-center mt-1">
@@ -465,12 +465,12 @@ const DashboardPage = () => {
                       </div>
 
                       <div
-                        className="bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="bg-gray-50 p-2 rounded cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() =>
                           navigate("/seller/listings?status=draft")
                         }
                       >
-                        <div className="text-xs text-gray-500 uppercase font-medium">
+                        <div className="text-[10px] text-gray-500 uppercase font-medium">
                           DRAFTS
                         </div>
                         <div className="flex justify-between items-center mt-1">
@@ -495,12 +495,12 @@ const DashboardPage = () => {
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-100 pt-4">
+                    <div className="border-t border-gray-100 pt-3">
                       <div
-                        className="bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="bg-gray-50 p-2 rounded cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => navigate("/seller/listings")}
                       >
-                        <div className="text-xs text-gray-500 uppercase font-medium">
+                        <div className="text-[10px] text-gray-500 uppercase font-medium">
                           TOTAL LISTINGS
                         </div>
                         <div className="flex justify-between items-center mt-1">
@@ -529,7 +529,7 @@ const DashboardPage = () => {
 
                 <button
                   onClick={() => navigate("/seller/create-product")}
-                  className="mt-4 bg-glam-primary text-white rounded-full py-2 px-4 text-sm font-medium hover:bg-glam-dark transition-colors w-full flex items-center justify-center"
+                  className="mt-3 bg-glam-primary text-white rounded-full py-1.5 px-3 text-xs font-medium hover:bg-glam-dark transition-colors w-full flex items-center justify-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -552,8 +552,8 @@ const DashboardPage = () => {
 
             {/* Orders Card */}
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-medium">Orders</h3>
+              <div className="p-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-base font-medium">Orders</h3>
                 <button
                   onClick={() => navigate("/seller/orders")}
                   className="text-glam-primary hover:text-glam-dark"
@@ -574,48 +574,48 @@ const DashboardPage = () => {
                   </svg>
                 </button>
               </div>
-              <div className="p-4">
+              <div className="p-3">
                 <div
-                  className="text-sm text-blue-600 hover:underline cursor-pointer mb-4"
+                  className="text-xs text-blue-600 hover:underline cursor-pointer mb-3"
                   onClick={() => navigate("/seller/orders")}
                 >
                   See all orders
                 </div>
 
                 {ordersLoading ? (
-                  <div className="flex items-center justify-center h-40">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
+                  <div className="flex items-center justify-center h-32">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
                   </div>
                 ) : ordersError ? (
-                  <div className="text-red-500 p-4 text-center">
+                  <div className="text-red-500 p-3 text-center">
                     {ordersError}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <div className="text-sm">Pending Orders</div>
-                      <span className="text-sm font-bold">
+                      <div className="text-xs">Pending Orders</div>
+                      <span className="text-xs font-bold">
                         {orders.pending}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <div className="text-sm">Completed Orders</div>
-                      <span className="text-sm font-bold">
+                      <div className="text-xs">Completed Orders</div>
+                      <span className="text-xs font-bold">
                         {orders.completed}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <div className="text-sm">Cancelled Orders</div>
-                      <span className="text-sm font-bold">
+                      <div className="text-xs">Cancelled Orders</div>
+                      <span className="text-xs font-bold">
                         {orders.cancelled}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <div className="text-sm">Total Orders</div>
-                      <span className="text-sm font-bold">{orders.total}</span>
+                      <div className="text-xs">Total Orders</div>
+                      <span className="text-xs font-bold">{orders.total}</span>
                     </div>
                   </div>
                 )}
@@ -624,8 +624,8 @@ const DashboardPage = () => {
 
             {/* Sales Card */}
             <div className="bg-white rounded-lg shadow overflow-hidden dashboard-card">
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="text-lg font-medium">Sales</h3>
+              <div className="p-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-base font-medium">Sales</h3>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 text-gray-400"
@@ -641,12 +641,12 @@ const DashboardPage = () => {
                   />
                 </svg>
               </div>
-              <div className="p-4">
-                <div className="mb-4">
-                  <div className="text-sm font-medium mb-2">
+              <div className="p-3">
+                <div className="mb-3">
+                  <div className="text-xs font-medium mb-2">
                     Chart for sales data across 31 days
                   </div>
-                  <div className="bg-gray-50 h-36 rounded relative">
+                  <div className="bg-gray-50 h-28 rounded relative">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-sm text-gray-400">
                         No sales data to display

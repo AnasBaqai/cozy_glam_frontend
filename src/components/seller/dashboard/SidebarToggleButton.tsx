@@ -1,35 +1,26 @@
 import React from "react";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 interface SidebarToggleButtonProps {
-  toggleSidebar: () => void;
   collapsed: boolean;
+  toggleSidebar: () => void;
 }
 
 const SidebarToggleButton: React.FC<SidebarToggleButtonProps> = ({
-  toggleSidebar,
   collapsed,
+  toggleSidebar,
 }) => {
   return (
     <button
       onClick={toggleSidebar}
-      className="absolute top-10 -right-3 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 hidden md:block"
+      className="absolute -right-3 top-8 bg-white border border-gray-200 rounded-full p-1 hover:bg-glam-primary/5 hover:text-glam-primary transition-colors"
+      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className={`h-5 w-5 text-gray-600 transform transition-transform ${
-          collapsed ? "" : "rotate-180"
-        }`}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M15 19l-7-7 7-7"
-        />
-      </svg>
+      {collapsed ? (
+        <CaretRight className="w-4 h-4" />
+      ) : (
+        <CaretLeft className="w-4 h-4" />
+      )}
     </button>
   );
 };
