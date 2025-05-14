@@ -163,7 +163,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-      className={`w-full bg-white shadow-md px-2 md:px-4 py-3 fixed left-0 right-0 z-[1000] transition-all duration-300 ${
+      className={`w-full bg-white shadow-md px-2 md:px-3 py-2 fixed left-0 right-0 z-[1000] transition-all duration-300 ${
         isScrolled ? "top-0" : "top-9"
       }`}
     >
@@ -173,7 +173,7 @@ const Navbar: React.FC = () => {
             <img
               src={logo}
               alt="CozyGlam Logo"
-              className="h-16 w-16 object-contain"
+              className="h-12 w-12 object-contain"
             />
           </Link>
 
@@ -183,7 +183,7 @@ const Navbar: React.FC = () => {
             aria-label="Toggle menu"
           >
             <svg
-              className="h-6 w-6"
+              className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -206,7 +206,7 @@ const Navbar: React.FC = () => {
             </svg>
           </button>
 
-          <div className="hidden md:block flex-grow mx-6">
+          <div className="hidden md:block flex-grow mx-4">
             <form onSubmit={handleSearch} className="relative">
               <div className="flex">
                 <div
@@ -238,15 +238,15 @@ const Navbar: React.FC = () => {
                 >
                   <button
                     type="button"
-                    className="flex items-center justify-between max-w-[260px] min-w-[180px] h-[44px] py-0 px-4 bg-gray-100 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary text-gray-700 categories-dropdown hardware-accelerated"
-                    style={{ lineHeight: "44px" }}
+                    className="flex items-center justify-between max-w-[260px] min-w-[180px] h-9 py-0 px-3 bg-gray-100 border border-gray-300 rounded-l-full focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary text-gray-700 categories-dropdown hardware-accelerated"
+                    style={{ lineHeight: "36px" }}
                     tabIndex={0}
                     aria-haspopup="true"
                     aria-expanded={isDropdownOpen}
                   >
                     <div className="flex items-center">
                       {selectedCategory ? (
-                        <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-100">
+                        <div className="h-5 w-5 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-100">
                           <img
                             src={getFullImageUrl(
                               categories.find(
@@ -262,10 +262,10 @@ const Navbar: React.FC = () => {
                           />
                         </div>
                       ) : (
-                        <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-50 border border-gray-200 flex items-center justify-center">
+                        <div className="h-5 w-5 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gray-50 border border-gray-200 flex items-center justify-center">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-gray-500"
+                            className="h-3 w-3 text-gray-500"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -279,13 +279,13 @@ const Navbar: React.FC = () => {
                           </svg>
                         </div>
                       )}
-                      <span className="text-sm font-medium truncate">
+                      <span className="text-xs font-medium truncate">
                         {selectedCategory || "All Categories"}
                       </span>
                     </div>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className={`h-5 w-5 transition-transform ${
+                      className={`h-4 w-4 transition-transform ${
                         isDropdownOpen ? "rotate-180" : ""
                       }`}
                       fill="none"
@@ -466,15 +466,15 @@ const Navbar: React.FC = () => {
                   placeholder="Search for anything"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-[44px] pl-4 pr-12 bg-gray-100 border-t border-b border-r border-gray-300 focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary rounded-r-none"
+                  className="w-full h-9 pl-3 pr-10 bg-gray-100 border-t border-b border-r border-gray-300 focus:outline-none focus:ring-1 focus:ring-glam-primary focus:border-glam-primary rounded-r-none text-sm"
                   style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                 />
                 <button
                   type="submit"
-                  className="flex items-center justify-center bg-glam-primary text-white px-5 rounded-r-full hover:bg-glam-primary-dark transition-colors"
+                  className="flex items-center justify-center bg-glam-primary text-white px-4 rounded-r-full hover:bg-glam-primary-dark transition-colors"
                 >
                   <svg
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -487,7 +487,7 @@ const Navbar: React.FC = () => {
             </form>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <div ref={dropdownRef} className="relative">
                 <button
@@ -495,7 +495,7 @@ const Navbar: React.FC = () => {
                   onClick={toggleDropdown}
                 >
                   <svg
-                    className="h-6 w-6"
+                    className="h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -504,12 +504,12 @@ const Navbar: React.FC = () => {
                     <circle cx="12" cy="8" r="4" />
                     <path d="M4 20c0-4 8-4 8-4s8 0 8 4" />
                   </svg>
-                  <span className="hidden sm:inline text-sm font-medium truncate max-w-[80px]">
+                  <span className="hidden sm:inline text-xs font-medium truncate max-w-[80px]">
                     {user?.name?.split(" ")[0]}
                   </span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 transition-transform ${
+                    className={`h-3 w-3 transition-transform ${
                       showDropdown ? "rotate-180" : ""
                     }`}
                     fill="none"
@@ -574,7 +574,7 @@ const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="text-gray-700 hover:text-glam-primary font-medium transition-colors px-3 py-1.5 rounded-full hover:bg-gray-100"
+                className="text-gray-700 hover:text-glam-primary font-medium transition-colors px-2 py-1 rounded-full hover:bg-gray-100 text-xs"
               >
                 Sign in
               </Link>
@@ -582,15 +582,15 @@ const Navbar: React.FC = () => {
 
             <Link
               to="/cart"
-              className="text-glam-dark hover:text-glam-primary relative p-1.5 rounded-full hover:bg-gray-100"
+              className="text-glam-dark hover:text-glam-primary relative p-1 rounded-full hover:bg-gray-100"
             >
               <img
                 src={"/icons/shopping_bag.png"}
                 alt="cart"
-                className="h-6 w-6"
+                className="h-5 w-5"
               />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-glam-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                <span className="absolute -top-1 -right-1 bg-glam-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
                   {cartCount}
                 </span>
               )}
@@ -802,7 +802,7 @@ const Navbar: React.FC = () => {
         )}
 
         {/* Desktop Navigation Links */}
-        <div className="hidden md:flex mt-2 justify-center space-x-8 text-sm">
+        <div className="hidden md:flex mt-1 justify-center space-x-6 text-xs">
           <Link to="/" className="text-gray-600 hover:text-glam-primary">
             Home
           </Link>

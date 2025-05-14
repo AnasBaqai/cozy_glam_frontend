@@ -4,7 +4,6 @@ import Button from "../../../components/ui/Button/Button";
 import Input from "../../../components/ui/Input/Input";
 import DividerWithText from "../../../components/ui/DividerWithText/DividerWithText";
 import Navbar from "../../../components/layout/Navbar/Navbar";
-import Footer from "../../../components/layout/Footer/Footer";
 import LogoSection from "../../../components/layout/Auth/LogoSection";
 import AuthSocialButtons from "../../../components/layout/Auth/AuthSocialButtons";
 import Marquee from "../../../components/layout/Marquee/Marquee";
@@ -71,32 +70,32 @@ const SignupPage = () => {
       <Marquee />
       <Navbar />
 
-      <div className="flex min-h-[calc(190vh-180px)] items-center justify-center ">
-        <div className="w-full max-w-6xl grid md:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div className="flex min-h-[calc(150vh-160px)] items-center justify-center">
+        <div className="w-full max-w-5xl grid md:grid-cols-2 bg-white rounded-lg shadow-xl overflow-hidden">
           {/* Left Side - Form */}
-          <div className="p-8 md:p-12 order-2 md:order-1">
+          <div className="p-6 md:p-8 order-2 md:order-1">
             <div className="max-w-sm mx-auto">
               <LogoSection />
 
-              <h1 className="text-3xl font-serif text-center text-glam-dark mb-8">
+              <h1 className="text-xl font-serif text-center text-glam-dark mb-6">
                 Create Account
               </h1>
 
               {(formError || error) && (
-                <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-100">
-                  <p className="text-sm text-red-600">{formError || error}</p>
+                <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-100">
+                  <p className="text-xs text-red-600">{formError || error}</p>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* User Type Selection */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-glam-dark">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-glam-dark">
                     Type of User <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     <label
-                      className={`flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center justify-center px-3 py-2 border rounded-lg cursor-pointer transition-all ${
                         role === "freelancer"
                           ? "border-glam-primary bg-glam-primary/5 text-glam-primary"
                           : "border-gray-200 hover:border-glam-primary/50"
@@ -110,10 +109,10 @@ const SignupPage = () => {
                         onChange={(e) => setRole(e.target.value)}
                         className="sr-only"
                       />
-                      <span className="text-sm font-medium">Freelancer</span>
+                      <span className="text-xs font-medium">Freelancer</span>
                     </label>
                     <label
-                      className={`flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center justify-center px-3 py-2 border rounded-lg cursor-pointer transition-all ${
                         role === "customer"
                           ? "border-glam-primary bg-glam-primary/5 text-glam-primary"
                           : "border-gray-200 hover:border-glam-primary/50"
@@ -127,10 +126,10 @@ const SignupPage = () => {
                         onChange={(e) => setRole(e.target.value)}
                         className="sr-only"
                       />
-                      <span className="text-sm font-medium">Customer</span>
+                      <span className="text-xs font-medium">Customer</span>
                     </label>
                     <label
-                      className={`flex items-center justify-center px-4 py-3 border rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center justify-center px-3 py-2 border rounded-lg cursor-pointer transition-all ${
                         role === "seller"
                           ? "border-glam-primary bg-glam-primary/5 text-glam-primary"
                           : "border-gray-200 hover:border-glam-primary/50"
@@ -144,13 +143,15 @@ const SignupPage = () => {
                         onChange={(e) => setRole(e.target.value)}
                         className="sr-only"
                       />
-                      <span className="text-sm font-medium">Seller</span>
+                      <span className="text-xs font-medium">
+                        Business seller
+                      </span>
                     </label>
                   </div>
                 </div>
 
                 {/* Name and Email - Side by side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     id="name"
                     label="Full Name"
@@ -159,7 +160,9 @@ const SignupPage = () => {
                     placeholder="Enter your full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="h-12"
+                    className="h-9 text-xs"
+                    labelClassName="text-xs"
+                    inputClassName="text-xs placeholder:text-xs"
                   />
                   <Input
                     id="email"
@@ -169,7 +172,9 @@ const SignupPage = () => {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-12"
+                    className="h-9 text-xs"
+                    labelClassName="text-xs"
+                    inputClassName="text-xs placeholder:text-xs"
                   />
                 </div>
 
@@ -182,11 +187,13 @@ const SignupPage = () => {
                   placeholder="Enter your phone number"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="h-12"
+                  className="h-9 text-xs"
+                  labelClassName="text-xs"
+                  inputClassName="text-xs placeholder:text-xs"
                 />
 
                 {/* Password and Confirm Password - Side by side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     id="password"
                     label="Password"
@@ -195,7 +202,9 @@ const SignupPage = () => {
                     placeholder="Create a password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-12"
+                    className="h-9 text-xs"
+                    labelClassName="text-xs"
+                    inputClassName="text-xs placeholder:text-xs"
                   />
                   <Input
                     id="confirmPassword"
@@ -205,18 +214,20 @@ const SignupPage = () => {
                     placeholder="Confirm your password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="h-12"
+                    className="h-9 text-xs"
+                    labelClassName="text-xs"
+                    inputClassName="text-xs placeholder:text-xs"
                   />
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full h-12 text-base font-medium transition-transform active:scale-[0.98]"
+                  className="w-full h-9 text-sm font-medium transition-transform active:scale-[0.98]"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                       Creating account...
                     </div>
                   ) : (
@@ -227,7 +238,7 @@ const SignupPage = () => {
                 <DividerWithText text="or sign up with" />
                 <AuthSocialButtons />
 
-                <p className="text-center text-gray-600 text-sm mt-6">
+                <p className="text-center text-gray-600 text-xs mt-4">
                   Already have an account?{" "}
                   <Link
                     to="/login"
@@ -241,16 +252,16 @@ const SignupPage = () => {
           </div>
 
           {/* Right Side - Image */}
-          <div className="hidden md:block relative bg-glam-primary/10 p-12 order-1 md:order-2">
+          <div className="hidden md:block relative bg-glam-primary/10 p-8 order-1 md:order-2">
             <div className="absolute inset-0 bg-gradient-to-bl from-glam-primary/20 to-transparent" />
             <img
               src="/illustrations/shop_1-removebg-preview.png"
               alt="Signup illustration"
               className="w-full h-full object-contain relative z-10"
             />
-            <div className="absolute bottom-12 left-12 right-12 text-glam-dark">
-              <h2 className="text-3xl font-serif mb-4">Join Our Community!</h2>
-              <p className="text-gray-600">
+            <div className="absolute bottom-8 left-8 right-8 text-glam-dark">
+              <h2 className="text-2xl font-serif mb-3">Join Our Community!</h2>
+              <p className="text-gray-600 text-sm">
                 Create an account to start shopping and get access to exclusive
                 deals.
               </p>
@@ -258,8 +269,6 @@ const SignupPage = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

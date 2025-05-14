@@ -7,11 +7,20 @@ import Marquee from "../../components/layout/Marquee/Marquee";
 import DocumentUploadField from "../../components/seller/business-info/DocumentUploadField";
 import { VerificationFormData } from "../../types/business.types";
 import { toast } from "react-toastify";
+import SellerSidebar from "../../components/seller/dashboard/SellerSidebar";
+import SidebarMobileToggle from "../../components/seller/dashboard/SidebarMobileToggle";
+import useSidebarState from "../../hooks/useSidebarState";
 
 const VerificationPage: React.FC = () => {
   const navigate = useNavigate();
   const { storeId } = useParams<{ storeId: string }>();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarState();
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   // Form state
   const [form, setForm] = useState<VerificationFormData>({
@@ -51,8 +60,6 @@ const VerificationPage: React.FC = () => {
       navigate("/login");
     } else if (user?.role !== "seller") {
       navigate("/");
-    } else if (!user?.isStoreCreated) {
-      navigate("/business-info");
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -279,41 +286,72 @@ const VerificationPage: React.FC = () => {
       <Marquee />
       <Navbar />
 
-      <main className="flex-1 flex items-center justify-center p-10 mt-24">
-        <div className="max-w-4xl w-full">
-          <div className="bg-white/90 rounded-3xl shadow-lg backdrop-blur-sm px-6 py-8 w-full">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="font-serif text-3xl font-semibold text-glam-dark mb-2">
-                Verify Your Store
-              </h1>
-              <p className="text-gray-600">
-                Complete verification to increase buyer trust and unlock
-                additional features
+      <SellerSidebar
+        collapsed={sidebarCollapsed}
+        toggleSidebar={toggleSidebar}
+      />
+      <SidebarMobileToggle toggleSidebar={toggleSidebar} />
+
+      <main
+        className={`flex-1 p-3 md:p-4 mt-20 ${
+          sidebarCollapsed ? "md:ml-20" : "md:ml-64"
+        } transition-all duration-300`}
+      >
+        <div className="max-w-4xl mx-auto">
+          {/* Modern Card with Shadow */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            {/* Header with Progress */}
+            <div className="bg-gradient-to-r from-glam-primary to-glam-dark text-white p-3 md:p-4">
+              <div className="flex justify-between items-center">
+                <h1 className="text-lg md:text-xl font-bold">
+                  Store Verification
+                </h1>
+                <div className="hidden md:flex items-center space-x-2">
+                  <span className="text-xs font-medium">
+                    Required for selling
+                  </span>
+                  <div className="w-20 h-1.5 bg-white/30 rounded-full">
+                    <div
+                      className="h-full bg-white rounded-full"
+                      style={{ width: "100%" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-0.5 text-white/80 text-xs md:text-sm">
+                Complete verification to increase buyer trust and unlock seller
+                features
               </p>
             </div>
 
             {/* Error/Success Messages */}
-            {error && (
-              <div className="mb-6 text-red-600 bg-red-100 border border-red-300 rounded px-4 py-3 text-sm">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="mb-6 text-green-700 bg-green-100 border border-green-300 rounded px-4 py-3 text-sm">
-                {success}
+            {(error || success) && (
+              <div className="px-4 pt-3">
+                {error && (
+                  <div className="mb-3 text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 text-xs">
+                    {error}
+                  </div>
+                )}
+                {success && (
+                  <div className="mb-3 text-green-600 bg-green-50 border border-green-200 rounded-md px-3 py-2 text-xs">
+                    {success}
+                  </div>
+                )}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="p-4">
               {/* Business Registration Information */}
-              <div className="bg-glam-light/30 rounded-2xl p-6">
-                <h3 className="text-lg font-medium text-glam-dark mb-4">
-                  Business Registration Information
+              <div className="mb-4">
+                <h3 className="text-base font-semibold text-glam-dark mb-3 flex items-center">
+                  <div className="w-5 h-5 rounded-full bg-glam-primary text-white flex items-center justify-center mr-2 text-xs">
+                    1
+                  </div>
+                  Business Registration
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-glam-dark mb-2">
+                    <label className="block text-xs font-medium text-glam-dark mb-1">
                       CRN Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -322,12 +360,12 @@ const VerificationPage: React.FC = () => {
                       value={form.crn_number}
                       onChange={handleInputChange}
                       required
-                      className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-glam-primary bg-white"
+                      className="w-full h-8 px-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-glam-primary bg-white text-sm"
                       placeholder="Enter your CRN number"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-glam-dark mb-2">
+                    <label className="block text-xs font-medium text-glam-dark mb-1">
                       VAT Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -336,7 +374,7 @@ const VerificationPage: React.FC = () => {
                       value={form.vat_number}
                       onChange={handleInputChange}
                       required
-                      className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-glam-primary bg-white"
+                      className="w-full h-8 px-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-glam-primary bg-white text-sm"
                       placeholder="Enter your VAT number"
                     />
                   </div>
@@ -344,68 +382,79 @@ const VerificationPage: React.FC = () => {
               </div>
 
               {/* Document Uploads */}
-              <div className="bg-glam-light/30 rounded-2xl p-6">
-                <h3 className="text-lg font-medium text-glam-dark mb-4">
-                  Document Uploads
+              <div>
+                <h3 className="text-base font-semibold text-glam-dark mb-3 flex items-center">
+                  <div className="w-5 h-5 rounded-full bg-glam-primary text-white flex items-center justify-center mr-2 text-xs">
+                    2
+                  </div>
+                  Required Documents
                 </h3>
-                <div className="grid grid-cols-1 gap-6">
-                  <DocumentUploadField
-                    label="Identity Document"
-                    required
-                    file={form.identity_document}
-                    setFile={setIdentityDocument}
-                    uploadLoading={uploadingIdentity}
-                    sizeError={identitySizeError}
-                    setSizeError={setIdentitySizeError}
-                  />
-                  <DocumentUploadField
-                    label="CRN Document"
-                    required
-                    file={form.crn_document}
-                    setFile={setCrnDocument}
-                    uploadLoading={uploadingCrn}
-                    sizeError={crnSizeError}
-                    setSizeError={setCrnSizeError}
-                  />
-                  <DocumentUploadField
-                    label="VAT Document"
-                    required
-                    file={form.vat_document}
-                    setFile={setVatDocument}
-                    uploadLoading={uploadingVat}
-                    sizeError={vatSizeError}
-                    setSizeError={setVatSizeError}
-                  />
-                  <DocumentUploadField
-                    label="Utility Bill"
-                    required
-                    file={form.utility_bill}
-                    setFile={setUtilityBill}
-                    uploadLoading={uploadingUtilityBill}
-                    sizeError={utilityBillSizeError}
-                    setSizeError={setUtilityBillSizeError}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-gray-50 p-3 rounded">
+                    <DocumentUploadField
+                      label="Identity Document"
+                      required
+                      file={form.identity_document}
+                      setFile={setIdentityDocument}
+                      uploadLoading={uploadingIdentity}
+                      sizeError={identitySizeError}
+                      setSizeError={setIdentitySizeError}
+                    />
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <DocumentUploadField
+                      label="CRN Document"
+                      required
+                      file={form.crn_document}
+                      setFile={setCrnDocument}
+                      uploadLoading={uploadingCrn}
+                      sizeError={crnSizeError}
+                      setSizeError={setCrnSizeError}
+                    />
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <DocumentUploadField
+                      label="VAT Document"
+                      required
+                      file={form.vat_document}
+                      setFile={setVatDocument}
+                      uploadLoading={uploadingVat}
+                      sizeError={vatSizeError}
+                      setSizeError={setVatSizeError}
+                    />
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <DocumentUploadField
+                      label="Utility Bill"
+                      required
+                      file={form.utility_bill}
+                      setFile={setUtilityBill}
+                      uploadLoading={uploadingUtilityBill}
+                      sizeError={utilityBillSizeError}
+                      setSizeError={setUtilityBillSizeError}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col md:flex-row gap-4 justify-end">
+              <div className="flex flex-col md:flex-row gap-2 justify-end mt-5 border-t pt-4">
                 <button
                   type="button"
                   onClick={handleSkip}
-                  className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  className="px-4 py-1.5 border border-gray-300 rounded text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
                   disabled={loading}
                 >
                   Skip for Now
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-glam-primary text-white rounded-xl font-medium hover:bg-glam-dark transition-colors flex items-center justify-center"
+                  className="px-4 py-1.5 bg-glam-primary text-white rounded text-sm font-medium hover:bg-glam-dark transition-colors flex items-center justify-center"
                   disabled={loading}
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
                       Submitting...
                     </>
                   ) : (
@@ -416,84 +465,83 @@ const VerificationPage: React.FC = () => {
             </form>
           </div>
 
-          {/* Verification Benefits */}
-          <div className="mt-8 bg-white/90 rounded-3xl shadow-lg backdrop-blur-sm p-6">
-            <h3 className="text-lg font-medium text-glam-dark mb-4">
-              Benefits of Verification
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex flex-col items-center text-center p-4">
-                <div className="bg-glam-primary/10 p-3 rounded-full mb-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-glam-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                </div>
-                <h4 className="font-medium text-glam-dark mb-2">
+          {/* Benefits Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+            <div className="bg-white p-3 rounded shadow flex items-start">
+              <div className="bg-glam-primary/10 p-1.5 rounded-full mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-glam-primary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-glam-dark text-xs">
                   Increased Trust
                 </h4>
-                <p className="text-sm text-gray-600">
-                  Verified sellers gain more trust from buyers, leading to
-                  higher conversion rates
+                <p className="text-xs text-gray-600 mt-0.5">
+                  Verified sellers gain more trust from buyers
                 </p>
               </div>
-              <div className="flex flex-col items-center text-center p-4">
-                <div className="bg-glam-primary/10 p-3 rounded-full mb-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-glam-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <h4 className="font-medium text-glam-dark mb-2">
+            </div>
+            <div className="bg-white p-3 rounded shadow flex items-start">
+              <div className="bg-glam-primary/10 p-1.5 rounded-full mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-glam-primary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-glam-dark text-xs">
                   Better Payment Terms
                 </h4>
-                <p className="text-sm text-gray-600">
-                  Access to improved payment processing terms and faster payouts
+                <p className="text-xs text-gray-600 mt-0.5">
+                  Access to improved payment processing terms
                 </p>
               </div>
-              <div className="flex flex-col items-center text-center p-4">
-                <div className="bg-glam-primary/10 p-3 rounded-full mb-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-glam-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                    />
-                  </svg>
-                </div>
-                <h4 className="font-medium text-glam-dark mb-2">
+            </div>
+            <div className="bg-white p-3 rounded shadow flex items-start">
+              <div className="bg-glam-primary/10 p-1.5 rounded-full mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-glam-primary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-medium text-glam-dark text-xs">
                   Featured Placement
                 </h4>
-                <p className="text-sm text-gray-600">
-                  Verified stores receive priority in search results and
-                  featured sections
+                <p className="text-xs text-gray-600 mt-0.5">
+                  Priority in search results and featured sections
                 </p>
               </div>
             </div>

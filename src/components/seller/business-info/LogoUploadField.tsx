@@ -80,8 +80,8 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
   };
 
   return (
-    <div className="mb-5">
-      <label className="block text-base font-medium text-glam-dark mb-2">
+    <div className="mb-4">
+      <label className="block text-xs font-medium text-glam-dark mb-2">
         Business Logo {isRequired && <span className="text-red-500">*</span>}
       </label>
       <div
@@ -90,7 +90,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
         }`}
         onDragEnter={handleDrag}
       >
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
           {/* Preview Container */}
           <div
             className={`
@@ -101,7 +101,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
                 : "border-dashed border-glam-accent"
             } 
             rounded-xl transition-all duration-200 flex items-center justify-center
-            h-[120px] hover:border-glam-primary hover:bg-glam-primary/5
+            h-[80px] hover:border-glam-primary hover:bg-glam-primary/5
           `}
             onClick={triggerFileInput}
             onDragOver={handleDrag}
@@ -123,11 +123,11 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
                       e.stopPropagation();
                       triggerFileInput();
                     }}
-                    className="bg-white text-glam-dark p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-glam-primary hover:text-white"
+                    className="bg-white text-glam-dark p-1.5 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-glam-primary hover:text-white"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
+                      className="h-4 w-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -146,7 +146,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
               <div className="text-center p-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 mx-auto text-glam-accent group-hover:text-glam-primary transition-colors"
+                  className="h-6 w-6 mx-auto text-glam-accent group-hover:text-glam-primary transition-colors"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -158,7 +158,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                   />
                 </svg>
-                <p className="text-sm font-medium text-glam-dark mt-1">
+                <p className="text-xs font-medium text-glam-dark mt-1">
                   Upload logo
                 </p>
               </div>
@@ -167,26 +167,26 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
             {uploadLoading && (
               <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center rounded-xl">
                 <div className="flex flex-col items-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
-                  <p className="mt-2 text-sm text-glam-dark">Uploading...</p>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-glam-primary"></div>
+                  <p className="mt-2 text-xs text-glam-dark">Uploading...</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Description & Button */}
-          <div className="flex-1 text-sm text-gray-600">
+          <div className="flex-1 text-xs text-gray-600">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
               <div>
-                <p className="mb-1">Upload your business logo (max 5MB)</p>
-                <p className="text-xs text-gray-500">
+                <p className="mb-0.5">Upload your business logo (max 5MB)</p>
+                <p className="text-[10px] text-gray-500">
                   PNG or JPG format, 500x500px recommended
                 </p>
               </div>
               <button
                 type="button"
                 onClick={triggerFileInput}
-                className="px-3 py-1.5 bg-glam-primary text-white rounded-lg hover:bg-glam-dark text-sm transition-colors whitespace-nowrap"
+                className="px-3 py-1.5 bg-glam-primary text-white rounded-lg hover:bg-glam-dark text-xs transition-colors whitespace-nowrap"
                 disabled={uploadLoading}
               >
                 {uploadLoading ? "Uploading..." : "Choose Image"}
@@ -205,7 +205,7 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
         />
 
         {sizeError && (
-          <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded-lg">
+          <div className="mt-2 text-[10px] text-red-600 bg-red-50 p-2 rounded-lg">
             {sizeError}
           </div>
         )}

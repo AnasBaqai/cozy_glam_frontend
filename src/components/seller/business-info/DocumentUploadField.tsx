@@ -87,8 +87,8 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
   };
 
   return (
-    <div className="mb-5">
-      <label className="block text-base font-medium text-glam-dark mb-2">
+    <div className="mb-3">
+      <label className="block text-xs font-medium text-glam-dark mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div
@@ -97,18 +97,18 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
         }`}
         onDragEnter={handleDrag}
       >
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
           {/* Upload Container */}
           <div
             className={`
-              w-full border-2 
+              w-full border 
               ${
                 dragActive
                   ? "border-glam-primary bg-glam-primary/5"
                   : "border-dashed border-glam-accent"
               } 
-              rounded-xl transition-all duration-200 flex items-center justify-center
-              h-[120px] hover:border-glam-primary hover:bg-glam-primary/5
+              rounded transition-all duration-200 flex items-center justify-center
+              h-[80px] hover:border-glam-primary hover:bg-glam-primary/5
             `}
             onClick={triggerFileInput}
             onDragOver={handleDrag}
@@ -116,11 +116,11 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
             onDrop={handleDrop}
           >
             {file ? (
-              <div className="flex flex-col items-center justify-center p-4">
-                <div className="bg-glam-primary/10 p-2 rounded-full mb-2">
+              <div className="flex flex-col items-center justify-center p-2">
+                <div className="bg-glam-primary/10 p-1 rounded-full mb-1">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-glam-primary"
+                    className="h-5 w-5 text-glam-primary"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -134,19 +134,19 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
                   </svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-glam-dark truncate max-w-[200px]">
+                  <p className="text-xs font-medium text-glam-dark truncate max-w-[180px]">
                     {file.name}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[10px] text-gray-500">
                     {formatFileSize(file.size)}
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="text-center p-4">
+              <div className="text-center p-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 mx-auto text-glam-accent group-hover:text-glam-primary transition-colors"
+                  className="h-5 w-5 mx-auto text-glam-accent group-hover:text-glam-primary transition-colors"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -158,25 +158,25 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                   />
                 </svg>
-                <p className="text-sm font-medium text-glam-dark mt-1">
+                <p className="text-xs font-medium text-glam-dark mt-1">
                   Upload document
                 </p>
               </div>
             )}
 
             {uploadLoading && (
-              <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center rounded-xl">
+              <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center rounded">
                 <div className="flex flex-col items-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
-                  <p className="mt-2 text-sm text-glam-dark">Uploading...</p>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-glam-primary"></div>
+                  <p className="mt-1 text-xs text-glam-dark">Uploading...</p>
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        <div className="mt-2 text-sm text-gray-600">
-          <p>Supported formats: PDF, DOC, DOCX, JPG, PNG (max 10MB)</p>
+        <div className="mt-1 text-[10px] text-gray-600">
+          <p>Supported: PDF, DOC, JPG, PNG (max 10MB)</p>
         </div>
 
         <input
@@ -189,7 +189,7 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
         />
 
         {sizeError && (
-          <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded-lg">
+          <div className="mt-1 text-[10px] text-red-600 bg-red-50 p-1 rounded">
             {sizeError}
           </div>
         )}
