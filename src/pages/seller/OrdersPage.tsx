@@ -322,7 +322,7 @@ const OrdersPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-glam-light flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Marquee />
       <Navbar />
 
@@ -332,28 +332,28 @@ const OrdersPage: React.FC = () => {
       />
 
       <main
-        className={`flex-1 flex flex-col items-center p-4 md:p-6 mt-28 md:mt-32 transition-all duration-300 ${
-          sidebarCollapsed ? "md:ml-20" : "md:ml-64"
+        className={`flex-1 flex flex-col items-center p-3 mt-24 transition-all duration-300 ${
+          sidebarCollapsed ? "md:ml-16" : "md:ml-56"
         }`}
       >
         <div className="w-full max-w-7xl">
           {/* Header */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-2">Orders</h1>
-              <p className="text-gray-600 text-sm">
+              <h1 className="text-xl font-bold text-gray-800 mb-1">Orders</h1>
+              <p className="text-xs text-gray-600">
                 View and manage your customer orders
               </p>
             </div>
           </div>
 
           {/* Status Filter Tabs */}
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-6">
+              <nav className="-mb-px flex space-x-4">
                 <button
                   onClick={() => setFilter("all")}
-                  className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-2 px-3 border-b-2 font-medium text-xs transition-colors ${
                     filter === "all"
                       ? "border-glam-primary text-glam-primary"
                       : "border-transparent text-gray-500 hover:text-glam-primary hover:border-glam-light"
@@ -363,7 +363,7 @@ const OrdersPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setFilter("pending")}
-                  className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-2 px-3 border-b-2 font-medium text-xs transition-colors ${
                     filter === "pending"
                       ? "border-glam-primary text-glam-primary"
                       : "border-transparent text-gray-500 hover:text-glam-primary hover:border-glam-light"
@@ -373,7 +373,7 @@ const OrdersPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setFilter("accepted")}
-                  className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-2 px-3 border-b-2 font-medium text-xs transition-colors ${
                     filter === "accepted"
                       ? "border-glam-primary text-glam-primary"
                       : "border-transparent text-gray-500 hover:text-glam-primary hover:border-glam-light"
@@ -382,7 +382,7 @@ const OrdersPage: React.FC = () => {
                   Accepted
                 </button>
                 <div className="flex-grow"></div>
-                <p className="text-sm text-glam-primary self-center font-medium">
+                <p className="text-xs text-glam-primary self-center font-medium">
                   {pagination.total}{" "}
                   {pagination.total === 1 ? "order" : "orders"}
                 </p>
@@ -391,12 +391,12 @@ const OrdersPage: React.FC = () => {
           </div>
 
           {/* Search & Filters */}
-          <div className="mb-6 flex flex-col md:flex-row gap-4">
+          <div className="mb-4 flex flex-col md:flex-row gap-3">
             <form onSubmit={handleSearch} className="flex-grow">
               <div className="relative flex w-full rounded-md shadow-sm overflow-hidden border border-gray-300">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none z-10">
                   <svg
-                    className="h-5 w-5 text-gray-400"
+                    className="h-4 w-4 text-gray-400"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -410,7 +410,7 @@ const OrdersPage: React.FC = () => {
                 </div>
                 <input
                   type="text"
-                  className="flex-grow border-0 pl-10 pr-10 py-2 focus:ring-glam-primary focus:border-glam-primary sm:text-sm"
+                  className="flex-grow border-0 pl-8 pr-8 py-1.5 focus:ring-glam-primary focus:border-glam-primary text-xs"
                   placeholder="Search by order ID, customer name, or product"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -420,11 +420,11 @@ const OrdersPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={resetSearch}
-                      className="h-6 w-6 text-gray-400 hover:text-gray-600 focus:outline-none"
+                      className="h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
+                        className="h-4 w-4"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -439,7 +439,7 @@ const OrdersPage: React.FC = () => {
                 )}
                 <button
                   type="submit"
-                  className="flex-shrink-0 min-w-24 py-2 px-4 text-white bg-glam-primary hover:bg-glam-dark text-sm font-medium transition-colors"
+                  className="flex-shrink-0 min-w-20 py-1.5 px-3 text-white bg-glam-primary hover:bg-glam-dark text-xs font-medium transition-colors"
                 >
                   Search
                 </button>
@@ -453,7 +453,7 @@ const OrdersPage: React.FC = () => {
                 <select
                   value={pagination.pageSize}
                   onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary sm:text-sm rounded-md bg-white"
+                  className="block w-full pl-2 pr-8 py-1.5 text-xs border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary rounded-md bg-white"
                   aria-label="Select number of items per page"
                 >
                   {pageSizeOptions.map((option) => (
@@ -469,7 +469,7 @@ const OrdersPage: React.FC = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary sm:text-sm rounded-md bg-white"
+                  className="block w-full pl-2 pr-8 py-1.5 text-xs border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary rounded-md bg-white"
                   aria-label="Sort orders"
                 >
                   {sortOptions.map((option) => (
@@ -483,10 +483,10 @@ const OrdersPage: React.FC = () => {
           </div>
 
           {/* Active Filters Status */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
             {/* Page Size Indicator */}
-            <div className="px-3 py-2 bg-glam-light rounded-md">
-              <span className="text-sm text-glam-dark">
+            <div className="px-2 py-1 bg-glam-light rounded-md">
+              <span className="text-[10px] text-glam-dark">
                 Showing{" "}
                 <span className="font-medium">{pagination.pageSize}</span> items
                 per page
@@ -494,10 +494,10 @@ const OrdersPage: React.FC = () => {
             </div>
 
             {/* Sort Status */}
-            <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+            <div className="px-2 py-1 bg-glam-light rounded-md flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-glam-primary mr-1"
+                className="h-3 w-3 text-glam-primary mr-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -509,7 +509,7 @@ const OrdersPage: React.FC = () => {
                   d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
                 />
               </svg>
-              <span className="text-sm text-glam-dark">
+              <span className="text-[10px] text-glam-dark">
                 Sorted by:{" "}
                 <span className="font-medium">{getSortLabel(sortBy)}</span>
               </span>
@@ -517,10 +517,10 @@ const OrdersPage: React.FC = () => {
 
             {/* Filter Status */}
             {filter !== "all" && (
-              <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+              <div className="px-2 py-1 bg-glam-light rounded-md flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-glam-primary mr-1"
+                  className="h-3 w-3 text-glam-primary mr-1"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -532,13 +532,13 @@ const OrdersPage: React.FC = () => {
                     d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                   />
                 </svg>
-                <span className="text-sm text-glam-dark">
+                <span className="text-[10px] text-glam-dark">
                   Filtered by status:{" "}
                   <span className="font-medium capitalize">{filter}</span>
                 </span>
                 <button
                   onClick={() => setFilter("all")}
-                  className="ml-2 text-glam-primary hover:text-glam-dark text-sm"
+                  className="ml-1 text-glam-primary hover:text-glam-dark text-[10px]"
                 >
                   Clear
                 </button>
@@ -547,10 +547,10 @@ const OrdersPage: React.FC = () => {
 
             {/* Search Term Indicator */}
             {searchTerm && (
-              <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+              <div className="px-2 py-1 bg-glam-light rounded-md flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-glam-primary mr-1"
+                  className="h-3 w-3 text-glam-primary mr-1"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -562,12 +562,12 @@ const OrdersPage: React.FC = () => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-                <span className="text-sm text-glam-dark">
+                <span className="text-[10px] text-glam-dark">
                   Search: <span className="font-medium">"{searchTerm}"</span>
                 </span>
                 <button
                   onClick={resetSearch}
-                  className="ml-2 text-glam-primary hover:text-glam-dark text-sm"
+                  className="ml-1 text-glam-primary hover:text-glam-dark text-[10px]"
                 >
                   Clear
                 </button>
@@ -575,8 +575,8 @@ const OrdersPage: React.FC = () => {
             )}
 
             {/* Total Results */}
-            <div className="px-3 py-2 bg-glam-light rounded-md ml-auto">
-              <span className="text-sm text-glam-dark">
+            <div className="px-2 py-1 bg-glam-light rounded-md ml-auto">
+              <span className="text-[10px] text-glam-dark">
                 Total: <span className="font-medium">{pagination.total}</span>{" "}
                 orders
               </span>
@@ -586,16 +586,16 @@ const OrdersPage: React.FC = () => {
           {/* Orders List */}
           <div className="bg-white shadow rounded-lg overflow-hidden">
             {loading ? (
-              <div className="flex justify-center items-center p-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-glam-primary"></div>
+              <div className="flex justify-center items-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
               </div>
             ) : error ? (
-              <div className="p-12 text-center">
-                <div className="bg-red-50 p-4 rounded-lg mx-auto max-w-md">
-                  <p className="text-red-600 font-medium mb-2">{error}</p>
+              <div className="p-8 text-center">
+                <div className="bg-red-50 p-3 rounded-lg mx-auto max-w-md">
+                  <p className="text-red-600 font-medium mb-2 text-xs">{error}</p>
                   <button
                     onClick={() => window.location.reload()}
-                    className="px-4 py-2 text-white bg-glam-primary hover:bg-glam-dark rounded-md text-sm font-medium transition-colors"
+                    className="px-3 py-1.5 text-white bg-glam-primary hover:bg-glam-dark rounded-md text-xs font-medium transition-colors"
                   >
                     Try Again
                   </button>
@@ -606,7 +606,7 @@ const OrdersPage: React.FC = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   No Orders Found
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-xs text-gray-500">
                   {filter !== "all"
                     ? `No ${filter} orders found.`
                     : searchTerm
@@ -618,28 +618,28 @@ const OrdersPage: React.FC = () => {
               <>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-glam-light">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                           Order ID
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                           Customer
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                           Products
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                           Total
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                           Date
                         </th>
                         {filter === "pending" && (
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider">
                             Actions
                           </th>
                         )}
@@ -655,43 +655,43 @@ const OrdersPage: React.FC = () => {
                             console.log("Navigate to order:", order._id);
                           }}
                         >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap text-xs font-medium text-gray-900">
                             #{order._id.slice(-6)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-xs font-medium text-gray-900">
                               {order.buyer_id.name}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-[10px] text-gray-500">
                               {order.buyer_id.email}
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">
+                          <td className="px-4 py-3">
+                            <div className="text-[10px] text-gray-900">
                               {order.products.map((product) => (
-                                <div key={product._id} className="mb-1">
+                                <div key={product._id} className="mb-0.5">
                                   {product.title} x {product.quantity}
                                 </div>
                               ))}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-900">
                             ${order.total_amount.toFixed(2)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                              className={`px-2 inline-flex text-[10px] leading-5 font-semibold rounded-full ${getStatusColor(
                                 order.order_status
                               )}`}
                             >
                               {order.order_status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-4 py-3 whitespace-nowrap text-[10px] text-gray-500">
                             {formatDate(order.created_at)}
                           </td>
                           {filter === "pending" && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
                               <div className="flex items-center gap-2">
                                 {order.order_status.toLowerCase() ===
                                   "pending" && (
@@ -701,7 +701,7 @@ const OrdersPage: React.FC = () => {
                                       handleAcceptOrder(order._id);
                                     }}
                                     disabled={acceptingOrderId === order._id}
-                                    className={`inline-flex items-center p-2 rounded-full ${
+                                    className={`inline-flex items-center p-1.5 rounded-full ${
                                       acceptingOrderId === order._id
                                         ? "bg-gray-100 cursor-not-allowed"
                                         : "bg-green-100 hover:bg-green-200"
@@ -709,7 +709,7 @@ const OrdersPage: React.FC = () => {
                                     title="Accept Order"
                                   >
                                     {acceptingOrderId === order._id ? (
-                                      <div className="animate-spin h-5 w-5">
+                                      <div className="animate-spin h-4 w-4">
                                         <svg
                                           className="text-green-700"
                                           xmlns="http://www.w3.org/2000/svg"
@@ -735,7 +735,7 @@ const OrdersPage: React.FC = () => {
                                       <img
                                         src="/icons/accept.png"
                                         alt="Accept"
-                                        className="w-5 h-5"
+                                        className="w-4 h-4"
                                       />
                                     )}
                                   </button>
@@ -750,34 +750,39 @@ const OrdersPage: React.FC = () => {
                 </div>
 
                 {pagination.totalPages > 1 && (
-                  <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                    <div className="flex justify-between items-center">
-                      <nav
-                        className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                        aria-label="Pagination"
-                      >
+                  <div className="border-t border-gray-100 bg-gray-50">
+                    <div className="mt-4 mb-4 flex flex-col items-center space-y-2">
+                      <div className="flex items-center space-x-1">
                         <button
                           onClick={() =>
                             handlePageChange(pagination.currentPage - 1)
                           }
                           disabled={pagination.currentPage === 1}
-                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                            pagination.currentPage === 1
+                              ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+                              : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+                          }`}
                         >
                           Previous
                         </button>
-                        {[...Array(pagination.totalPages)].map((_, i) => (
-                          <button
-                            key={i + 1}
-                            onClick={() => handlePageChange(i + 1)}
-                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                              pagination.currentPage === i + 1
-                                ? "z-10 bg-glam-primary border-glam-primary text-white"
-                                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                            }`}
-                          >
-                            {i + 1}
-                          </button>
-                        ))}
+                        {/* Page numbers */}
+                        {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                          const pageNum = i + Math.max(1, Math.min(pagination.currentPage - 2, pagination.totalPages - 4));
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                                pagination.currentPage === pageNum
+                                  ? "bg-glam-primary text-white border border-glam-primary"
+                                  : "border border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
                         <button
                           onClick={() =>
                             handlePageChange(pagination.currentPage + 1)
@@ -785,11 +790,18 @@ const OrdersPage: React.FC = () => {
                           disabled={
                             pagination.currentPage === pagination.totalPages
                           }
-                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                            pagination.currentPage === pagination.totalPages
+                              ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+                              : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+                          }`}
                         >
                           Next
                         </button>
-                      </nav>
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        Page {pagination.currentPage} of {pagination.totalPages}
+                      </div>
                     </div>
                   </div>
                 )}

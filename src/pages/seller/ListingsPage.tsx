@@ -357,127 +357,10 @@ const ListingsPage: React.FC = () => {
     setProducts(updatedProducts);
   };
 
-  // Generate pagination buttons
-  const renderPagination = () => {
-    const pages = [];
-    const { currentPage, totalPages } = pagination;
-
-    // Previous button
-    pages.push(
-      <button
-        key="prev"
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-          currentPage === 1
-            ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
-            : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
-        }`}
-      >
-        Previous
-      </button>
-    );
-
-    // Page numbers
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, startPage + 4);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-            currentPage === i
-              ? "bg-glam-primary text-white border border-glam-primary"
-              : "border border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    // Next button
-    pages.push(
-      <button
-        key="next"
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-          currentPage === totalPages
-            ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
-            : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
-        }`}
-      >
-        Next
-      </button>
-    );
-
-    return (
-      <div className="mt-8 mb-6 flex flex-col items-center space-y-4">
-        <div className="flex items-center space-x-2">{pages}</div>
-        <div className="text-sm text-gray-600">
-          Page {currentPage} of {totalPages}
-        </div>
-      </div>
-    );
-  };
-
   // Add helper function to get sort label
   const getSortLabel = (value: string): string => {
     return sortOptions.find((option) => option.value === value)?.label || "";
   };
-
-  // Update the empty state message in the render section
-  const renderEmptyState = () => (
-    <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-      <div className="w-24 h-24 mx-auto mb-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full text-gray-300"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-          />
-        </svg>
-      </div>
-      <h3 className="text-xl font-medium text-gray-900 mb-4">
-        {activeTab === "active"
-          ? "No Active Listings Yet"
-          : "No Draft Listings Yet"}
-      </h3>
-      <p className="text-gray-600 mb-8">
-        {activeTab === "active"
-          ? "Start selling by creating your first product listing."
-          : "Save product listings as drafts while you work on them."}
-      </p>
-      <button
-        onClick={() => navigate("/seller/create-product")}
-        className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
-      >
-        <svg
-          className="-ml-1 mr-2 h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-            clipRule="evenodd"
-          />
-        </svg>
-        Create Your First Product
-      </button>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -492,30 +375,30 @@ const ListingsPage: React.FC = () => {
 
       {/* Main content with adjusted margin */}
       <main
-        className={`flex-1 flex flex-col items-center p-4 md:p-6 mt-28 md:mt-32 transition-all duration-300 ${
-          sidebarCollapsed ? "md:ml-20" : "md:ml-64"
+        className={`flex-1 flex flex-col items-center p-3 mt-24 transition-all duration-300 ${
+          sidebarCollapsed ? "md:ml-16" : "md:ml-56"
         }`}
       >
         <div className="w-full max-w-7xl">
           {/* Header & Tabs */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              <h1 className="text-xl font-bold text-gray-800 mb-1">
                 Manage Listings
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-xs text-gray-600">
                 View and manage your product listings
               </p>
             </div>
 
-            <div className="mt-4 md:mt-0">
+            <div className="mt-3 md:mt-0">
               <button
                 onClick={() => navigate("/seller/create-product")}
-                className="bg-glam-primary hover:bg-glam-dark text-white px-4 py-2 rounded-md flex items-center transition-colors"
+                className="bg-glam-primary hover:bg-glam-dark text-white px-3 py-1.5 rounded-md flex items-center transition-colors text-xs"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
+                  className="h-4 w-4 mr-1.5"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -531,12 +414,12 @@ const ListingsPage: React.FC = () => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-6">
+              <nav className="-mb-px flex space-x-4">
                 <button
                   onClick={() => handleTabChange("active")}
-                  className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-2 px-3 border-b-2 font-medium text-xs transition-colors ${
                     activeTab === "active"
                       ? "border-glam-primary text-glam-primary"
                       : "border-transparent text-gray-500 hover:text-glam-primary hover:border-glam-light"
@@ -546,7 +429,7 @@ const ListingsPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handleTabChange("draft")}
-                  className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-2 px-3 border-b-2 font-medium text-xs transition-colors ${
                     activeTab === "draft"
                       ? "border-glam-primary text-glam-primary"
                       : "border-transparent text-gray-500 hover:text-glam-primary hover:border-glam-light"
@@ -555,7 +438,7 @@ const ListingsPage: React.FC = () => {
                   Draft Listings
                 </button>
                 <div className="flex-grow"></div>
-                <p className="text-sm text-glam-primary self-center font-medium">
+                <p className="text-xs text-glam-primary self-center font-medium">
                   {pagination.total} {pagination.total === 1 ? "item" : "items"}
                 </p>
               </nav>
@@ -563,12 +446,12 @@ const ListingsPage: React.FC = () => {
           </div>
 
           {/* Search & Filters */}
-          <div className="mb-6 flex flex-col md:flex-row gap-4">
+          <div className="mb-4 flex flex-col md:flex-row gap-3">
             <form onSubmit={handleSearch} className="flex-grow">
               <div className="relative flex w-full rounded-md shadow-sm overflow-hidden border border-gray-300">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none z-10">
                   <svg
-                    className="h-5 w-5 text-gray-400"
+                    className="h-4 w-4 text-gray-400"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -582,7 +465,7 @@ const ListingsPage: React.FC = () => {
                 </div>
                 <input
                   type="text"
-                  className="flex-grow border-0 pl-10 pr-10 py-2 focus:ring-glam-primary focus:border-glam-primary sm:text-sm"
+                  className="flex-grow border-0 pl-8 pr-8 py-1.5 focus:ring-glam-primary focus:border-glam-primary text-xs"
                   placeholder="Search by title"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -592,11 +475,11 @@ const ListingsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={resetSearch}
-                      className="h-6 w-6 text-gray-400 hover:text-gray-600 focus:outline-none"
+                      className="h-5 w-5 text-gray-400 hover:text-gray-600 focus:outline-none"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
+                        className="h-4 w-4"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -611,7 +494,7 @@ const ListingsPage: React.FC = () => {
                 )}
                 <button
                   type="submit"
-                  className="flex-shrink-0 min-w-24 py-2 px-4 text-white bg-glam-primary hover:bg-glam-dark text-sm font-medium transition-colors"
+                  className="flex-shrink-0 min-w-20 py-1.5 px-3 text-white bg-glam-primary hover:bg-glam-dark text-xs font-medium transition-colors"
                 >
                   Search
                 </button>
@@ -625,7 +508,7 @@ const ListingsPage: React.FC = () => {
                 <select
                   value={pagination.pageSize}
                   onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary sm:text-sm rounded-md bg-white"
+                  className="block w-full pl-2 pr-8 py-1.5 text-xs border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary rounded-md bg-white"
                   aria-label="Select number of items per page"
                 >
                   {pageSizeOptions.map((option) => (
@@ -641,7 +524,7 @@ const ListingsPage: React.FC = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary sm:text-sm rounded-md bg-white"
+                  className="block w-full pl-2 pr-8 py-1.5 text-xs border border-gray-300 focus:outline-none focus:ring-glam-primary focus:border-glam-primary rounded-md bg-white"
                   aria-label="Sort products"
                 >
                   {sortOptions.map((option) => (
@@ -655,10 +538,10 @@ const ListingsPage: React.FC = () => {
           </div>
 
           {/* Active Filters Status */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
             {/* Page Size Indicator */}
-            <div className="px-3 py-2 bg-glam-light rounded-md">
-              <span className="text-sm text-glam-dark">
+            <div className="px-2 py-1 bg-glam-light rounded-md">
+              <span className="text-[10px] text-glam-dark">
                 Showing{" "}
                 <span className="font-medium">{pagination.pageSize}</span> items
                 per page
@@ -666,10 +549,10 @@ const ListingsPage: React.FC = () => {
             </div>
 
             {/* Sort Status */}
-            <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+            <div className="px-2 py-1 bg-glam-light rounded-md flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-glam-primary mr-1"
+                className="h-3 w-3 text-glam-primary mr-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -681,7 +564,7 @@ const ListingsPage: React.FC = () => {
                   d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
                 />
               </svg>
-              <span className="text-sm text-glam-dark">
+              <span className="text-[10px] text-glam-dark">
                 Sorted by:{" "}
                 <span className="font-medium">{getSortLabel(sortBy)}</span>
               </span>
@@ -689,10 +572,10 @@ const ListingsPage: React.FC = () => {
 
             {/* Search Term Indicator */}
             {searchTerm && (
-              <div className="px-3 py-2 bg-glam-light rounded-md flex items-center">
+              <div className="px-2 py-1 bg-glam-light rounded-md flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-glam-primary mr-1"
+                  className="h-3 w-3 text-glam-primary mr-1"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -704,12 +587,12 @@ const ListingsPage: React.FC = () => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-                <span className="text-sm text-glam-dark">
+                <span className="text-[10px] text-glam-dark">
                   Search: <span className="font-medium">"{searchTerm}"</span>
                 </span>
                 <button
                   onClick={resetSearch}
-                  className="ml-2 text-glam-primary hover:text-glam-dark text-sm"
+                  className="ml-1 text-glam-primary hover:text-glam-dark text-[10px]"
                 >
                   Clear
                 </button>
@@ -717,8 +600,8 @@ const ListingsPage: React.FC = () => {
             )}
 
             {/* Total Results */}
-            <div className="px-3 py-2 bg-glam-light rounded-md ml-auto">
-              <span className="text-sm text-glam-dark">
+            <div className="px-2 py-1 bg-glam-light rounded-md ml-auto">
+              <span className="text-[10px] text-glam-dark">
                 Total: <span className="font-medium">{pagination.total}</span>{" "}
                 items
               </span>
@@ -728,23 +611,68 @@ const ListingsPage: React.FC = () => {
           {/* Products List */}
           <div className="bg-white shadow rounded-lg overflow-hidden">
             {loading ? (
-              <div className="flex justify-center items-center p-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-glam-primary"></div>
+              <div className="flex justify-center items-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glam-primary"></div>
               </div>
             ) : error ? (
-              <div className="p-12 text-center">
-                <div className="bg-red-50 p-4 rounded-lg mx-auto max-w-md">
-                  <p className="text-red-600 font-medium mb-2">{error}</p>
+              <div className="p-8 text-center">
+                <div className="bg-red-50 p-3 rounded-lg mx-auto max-w-md">
+                  <p className="text-red-600 font-medium mb-2 text-xs">{error}</p>
                   <button
                     onClick={() => window.location.reload()}
-                    className="px-4 py-2 text-white bg-glam-primary hover:bg-glam-dark rounded-md text-sm font-medium transition-colors"
+                    className="px-3 py-1.5 text-white bg-glam-primary hover:bg-glam-dark rounded-md text-xs font-medium transition-colors"
                   >
                     Try Again
                   </button>
                 </div>
               </div>
             ) : products.length === 0 ? (
-              renderEmptyState()
+              <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+                <div className="w-16 h-16 mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-full h-full text-gray-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {activeTab === "active"
+                    ? "No Active Listings Yet"
+                    : "No Draft Listings Yet"}
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  {activeTab === "active"
+                    ? "Start selling by creating your first product listing."
+                    : "Save product listings as drafts while you work on them."}
+                </p>
+                <button
+                  onClick={() => navigate("/seller/create-product")}
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-glam-primary hover:bg-glam-dark focus:outline-none transition-colors"
+                >
+                  <svg
+                    className="-ml-1 mr-2 h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Create Your First Product
+                </button>
+              </div>
             ) : (
               <>
                 {/* Table Header with Sort Indicators */}
@@ -754,13 +682,13 @@ const ListingsPage: React.FC = () => {
                       <tr>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-glam-dark uppercase tracking-wider"
+                          className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider"
                         >
                           Product
                         </th>
                         <th
                           scope="col"
-                          className={`px-6 py-3 text-left text-xs font-medium tracking-wider ${
+                          className={`px-4 py-2 text-left text-[10px] font-medium tracking-wider ${
                             sortBy.includes("price")
                               ? "text-glam-primary"
                               : "text-glam-dark"
@@ -772,25 +700,25 @@ const ListingsPage: React.FC = () => {
                         </th>
                         <th
                           scope="col"
-                          className={`px-6 py-3 text-left text-xs font-medium tracking-wider ${
+                          className={`px-4 py-2 text-left text-[10px] font-medium tracking-wider ${
                             sortBy.includes("quantity")
                               ? "text-glam-primary"
                               : "text-glam-dark"
                           }`}
                         >
-                          Quantity
+                          Qty
                           {sortBy === "quantity-low" && " ↓"}
                           {sortBy === "quantity-high" && " ↑"}
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-glam-dark uppercase tracking-wider"
+                          className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider"
                         >
                           Status
                         </th>
                         <th
                           scope="col"
-                          className={`px-6 py-3 text-left text-xs font-medium tracking-wider ${
+                          className={`px-4 py-2 text-left text-[10px] font-medium tracking-wider ${
                             sortBy.includes("newest") ||
                             sortBy.includes("oldest")
                               ? "text-glam-primary"
@@ -803,7 +731,7 @@ const ListingsPage: React.FC = () => {
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-glam-dark uppercase tracking-wider"
+                          className="px-4 py-2 text-left text-[10px] font-medium text-glam-dark uppercase tracking-wider"
                         >
                           Actions
                         </th>
@@ -815,9 +743,9 @@ const ListingsPage: React.FC = () => {
                           key={product._id}
                           className="hover:bg-gray-50 transition-colors"
                         >
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-16 w-16 rounded-md overflow-hidden">
+                              <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden">
                                 {product.images && product.images.length > 0 ? (
                                   <img
                                     src={getFullImageUrl(product.images[0])}
@@ -828,34 +756,34 @@ const ListingsPage: React.FC = () => {
                                     }}
                                   />
                                 ) : (
-                                  <div className="h-full w-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                  <div className="h-full w-full bg-gray-200 flex items-center justify-center text-gray-500 text-[10px]">
                                     No image
                                   </div>
                                 )}
                               </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                              <div className="ml-3">
+                                <div className="text-xs font-medium text-gray-900 line-clamp-2">
                                   {product.title}
                                 </div>
-                                <div className="text-sm text-gray-500 line-clamp-1">
+                                <div className="text-[10px] text-gray-500 line-clamp-1">
                                   ID: {product._id.slice(-6)}
                                 </div>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-xs text-gray-900">
                               {formatPrice(product.price)}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-xs text-gray-900">
                               {product.quantity}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              className={`px-2 py-0.5 inline-flex text-[10px] leading-5 font-semibold rounded-full ${
                                 product.status === "active"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-glam-light text-glam-primary"
@@ -864,24 +792,24 @@ const ListingsPage: React.FC = () => {
                               {product.status === "active" ? "Active" : "Draft"}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-4 py-3 whitespace-nowrap text-[10px] text-gray-500">
                             {formatDate(product.created_at)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                            <div className="flex items-center justify-end space-x-3">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-xs">
+                            <div className="flex items-center justify-end space-x-2">
                               <button
                                 onClick={() =>
                                   navigate(
                                     `/seller/edit-product/${product._id}`
                                   )
                                 }
-                                className="p-2 text-glam-primary hover:text-glam-dark transition-colors rounded-full hover:bg-gray-100"
+                                className="p-1.5 text-glam-primary hover:text-glam-dark transition-colors rounded-full hover:bg-gray-100"
                                 title="Edit product"
                               >
                                 <img
                                   src="/icons/edit.png"
                                   alt="Edit"
-                                  className="w-5 h-5"
+                                  className="w-4 h-4"
                                 />
                               </button>
                               <button
@@ -897,13 +825,13 @@ const ListingsPage: React.FC = () => {
                                     );
                                   }
                                 }}
-                                className="p-2 text-red-500 hover:text-red-700 transition-colors rounded-full hover:bg-red-50"
+                                className="p-1.5 text-red-500 hover:text-red-700 transition-colors rounded-full hover:bg-red-50"
                                 title="Delete product"
                               >
                                 <img
                                   src="/icons/delete.png"
                                   alt="Delete"
-                                  className="w-5 h-5"
+                                  className="w-4 h-4"
                                 />
                               </button>
                             </div>
@@ -917,7 +845,54 @@ const ListingsPage: React.FC = () => {
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
                   <div className="border-t border-gray-100 bg-gray-50">
-                    {renderPagination()}
+                    <div className="mt-4 mb-4 flex flex-col items-center space-y-2">
+                      <div className="flex items-center space-x-1">
+                        <button
+                          key="prev"
+                          onClick={() => handlePageChange(pagination.currentPage - 1)}
+                          disabled={pagination.currentPage === 1}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                            pagination.currentPage === 1
+                              ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+                              : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+                          }`}
+                        >
+                          Previous
+                        </button>
+                        {/* Page numbers */}
+                        {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                          const pageNum = i + Math.max(1, Math.min(pagination.currentPage - 2, pagination.totalPages - 4));
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                                pagination.currentPage === pageNum
+                                  ? "bg-glam-primary text-white border border-glam-primary"
+                                  : "border border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                        <button
+                          key="next"
+                          onClick={() => handlePageChange(pagination.currentPage + 1)}
+                          disabled={pagination.currentPage === pagination.totalPages}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                            pagination.currentPage === pagination.totalPages
+                              ? "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+                              : "border-gray-300 text-gray-700 hover:bg-glam-primary hover:text-white hover:border-glam-primary"
+                          }`}
+                        >
+                          Next
+                        </button>
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        Page {pagination.currentPage} of {pagination.totalPages}
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
